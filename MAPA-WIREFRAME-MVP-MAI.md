@@ -6,7 +6,7 @@
 > entenderem como a empresa pensa, decide, cria, revisa, lança e melhora
 > produtos digitais.
 
-**Versão:** 1.2
+**Versão:** 1.3
 **Data de início:** 2026-09-18  
 **Sócios iniciais:** Maicon e Ian  
 **Empresa:** MAI  
@@ -42,8 +42,17 @@ campanhas, erros, decisões e resultados, atualizaremos este arquivo.
 ### Regra de consenso e aviso antes de alterar
 
 Este documento é a **MAI Central**. Ele funciona como o caminho comum que
-Maicon, Ian e todas as IAs devem consultar. Nenhuma pessoa ou IA deve
-alterar uma regra importante silenciosamente.
+Maicon, Ian e todas as IAs devem consultar.
+
+Na fase inicial de montagem da MAI, Maicon autorizou a execução direta de
+melhorias documentais, organizacionais e de baixo risco para não travar o
+começo da operação. Essas mudanças devem continuar sendo registradas e
+serão revisadas conforme a empresa ganhar escala.
+
+Consenso continua obrigatório antes de mudanças de alto impacto:
+permissões externas, dinheiro, clientes, contratos, privacidade, LGPD,
+segurança, remoção de regras ou ações destrutivas. Nenhuma IA recebe
+autorização para executar essas ações apenas por interpretar uma conversa.
 
 Quando uma melhoria for simples, objetiva e não mudar o significado do
 plano, ela pode ser proposta para atualização normal. Quando houver dúvida,
@@ -62,22 +71,23 @@ São consideradas alterações que exigem aviso e consenso:
 - remoção ou substituição de uma regra existente;
 - qualquer alteração em que a IA ou uma pessoa não tenha certeza.
 
-O procedimento é:
+Para uma melhoria simples e de baixo risco, o procedimento é:
 
-1. **Identificar a proposta:** explicar o que está sendo sugerido.
-2. **Explicar o motivo:** mostrar qual problema ou oportunidade motivou a
+1. **Identificar a mudança:** explicar o que está sendo alterado.
+2. **Registrar o motivo:** mostrar qual problema ou oportunidade motivou a
    mudança.
-3. **Mostrar o impacto:** explicar o que melhora, o que pode piorar e quem
-   será afetado.
-4. **Apresentar alternativas:** quando houver mais de um caminho razoável,
-   mostrar as opções de forma simples.
-5. **Avisar Maicon e Ian:** não considerar a sugestão aprovada antes de os
-   dois terem conhecimento.
-6. **Buscar consenso:** registrar a decisão conjunta ou registrar que a
-   proposta foi rejeitada ou deixada para depois.
-7. **Atualizar este documento:** alterar a MAI Central somente depois da
-   decisão.
-8. **Registrar o histórico:** adicionar a mudança no registro abaixo.
+3. **Aplicar a melhoria:** manter o escopo pequeno e não alterar regras de
+   alto impacto.
+4. **Avisar no registro:** atualizar o histórico e comunicar o que foi feito.
+
+Para uma mudança ambígua ou de alto impacto, o procedimento continua sendo:
+
+1. identificar a proposta;
+2. explicar motivo, impactos e alternativas;
+3. avisar Maicon e Ian;
+4. buscar consenso;
+5. atualizar este documento;
+6. registrar o histórico.
 9. **Comunicar o resultado:** avisar no Discord e, quando necessário,
    atualizar os documentos ou tarefas relacionados.
 
@@ -128,6 +138,8 @@ Toda mudança relevante deve ser anotada aqui:
 | 2026-09-18 | Criação da regra de consenso, aviso e caminho único | Evitar mudanças silenciosas e manter Maicon, Ian e as IAs alinhados | Maicon e Ian | Em vigor |
 | 2026-09-18 | Explicação completa e leiga sobre branches, commits, Pull Requests, conflitos e proteção da `main` | Permitir que Maicon e Ian trabalhem juntos sem perder ou sobrescrever trabalho | Maicon | Em vigor |
 | 2026-09-18 | Registro do Discord operacional e dos novos padrões do GitHub | Fazer a documentação refletir o que foi realmente configurado | Maicon | Em vigor |
+| 2026-09-18 | Autorização inicial para melhorias documentais de baixo risco sem consenso prévio | Evitar travar a montagem da MAI no início, mantendo consenso para mudanças de alto impacto | Maicon | Em vigor |
+| 2026-09-18 | Inclusão do padrão de contexto, memória, skills e avaliação de agentes | Transformar aprendizados da transcrição em processo operacional inicial | Maicon | Em vigor |
 | 2026-09-18 | Criação do norte da integração Grok + GitHub + Discord | Definir contexto, eventos, agentes, autonomia, segurança e fases antes de conectar a IA ao ambiente | Maicon | Em vigor |
 
 Para alterações futuras, usar este modelo:
@@ -482,7 +494,7 @@ mais é treiná-los continuamente com:
 informações bancárias ou documentos confidenciais sem autorização e sem
 proteção adequada.
 
-### 6.6 Alinhamento entre ferramentas
+### 6.7 Alinhamento entre ferramentas
 
 O fluxo correto é:
 
@@ -495,6 +507,23 @@ Discord: discutir
 → Discord: comunicar resultado
 → GitHub: preservar a decisão final
 ```
+
+### 6.6 Contexto, memória e skills dos agentes
+
+Os agentes da MAI devem evoluir em camadas separadas:
+
+- **Contexto:** documentos e dados necessários para a tarefa atual.
+- **Memória:** aprendizados estáveis, correções e preferências aprovadas.
+- **Skill:** procedimento repetível, com entrada, passos, saída e checklist.
+- **Ferramenta:** integração externa com permissão mínima e auditoria.
+
+O agente deve observar, planejar, agir, conferir o resultado e ajustar
+quando necessário. Correções não viram regra permanente automaticamente.
+Elas devem ser classificadas como resposta isolada, preferência temporária,
+memória do agente, skill ou regra da empresa.
+
+Os padrões e templates ficam em
+`docs/APRENDIZADOS-AGENTES-IA.md` e `docs/templates/`.
 
 ---
 
@@ -1548,6 +1577,7 @@ mudar.
 - [x] Servidor `MAI LAB CORP` organizado com emojis, descrições e guias.
 - [x] Cargos antigos sem emoji unificados.
 - [x] Auditoria visual executada pelo organizador.
+- [x] Padrão inicial de contexto, memória e skills dos agentes documentado.
 
 ### Em andamento
 
@@ -1565,6 +1595,7 @@ mudar.
 - [ ] Abrir o primeiro Pull Request de documentação ou produto.
 - [ ] Configurar alertas GitHub → Discord.
 - [ ] Implementar a Fase 1 da integração Grok: leitura e resumos.
+- [ ] Testar o primeiro agente de QA/documentação em modo somente leitura.
 - [ ] Configurar proteção formal da branch `main`.
 - [ ] Adicionar testes e automações quando existir código de produto.
 
