@@ -1,32 +1,54 @@
 import asyncio
 import getpass
 import os
-from typing import Dict, Iterable
+from typing import Dict, Tuple
 
 import discord
 
 
-STRUCTURE: Dict[str, Iterable[str]] = {
-    "Direção": ("ceo", "planejamento"),
-    "Produto": ("produto", "pesquisa-de-mercado"),
-    "Desenvolvimento": ("backend", "frontend", "bugs"),
-    "Design": ("design", "criativos"),
-    "Marketing": ("trafego", "copy"),
-    "Financeiro": ("financeiro",),
-    "Operações": ("qa", "seguranca", "clientes"),
+STRUCTURE: Dict[str, Tuple[Tuple[str, str], ...]] = {
+    "🧭 DIREÇÃO": (
+        ("📣・ceo", "Visão, decisões finais, prioridades e direção geral da MAI."),
+        ("🗺️・planejamento", "Roadmap, metas, prazos, prioridades e próximos passos."),
+    ),
+    "💡 PRODUTO": (
+        ("💡・produto", "Ideias, problemas reais, público-alvo e propostas de produto."),
+        ("🔎・pesquisa-de-mercado", "Entrevistas, concorrentes, demanda e validação de ideias."),
+    ),
+    "💻 DESENVOLVIMENTO": (
+        ("⚙️・backend", "APIs, banco de dados, regras, integrações e automações."),
+        ("🖥️・frontend", "Telas, componentes, experiência e comportamento visual."),
+        ("🐞・bugs", "Registro, investigação, prioridade e correção de problemas."),
+    ),
+    "🎨 DESIGN": (
+        ("🎨・design", "Identidade visual, wireframes, UX, UI e decisões de interface."),
+        ("✨・criativos", "Artes, vídeos, anúncios, imagens e materiais de campanha."),
+    ),
+    "📣 MARKETING": (
+        ("📈・trafego", "Campanhas, anúncios, canais, públicos, orçamento e métricas."),
+        ("✍️・copy", "Textos de venda, landing pages, anúncios, e-mails e mensagens."),
+    ),
+    "💰 FINANCEIRO": (
+        ("💰・financeiro", "Preços, custos, margem, receita, caixa e viabilidade."),
+    ),
+    "🛠️ OPERAÇÕES": (
+        ("🧪・qa", "Testes, qualidade, fluxos, erros e critérios de aprovação."),
+        ("🛡️・seguranca", "Acessos, permissões, privacidade, LGPD e riscos técnicos."),
+        ("🤝・clientes", "Entrega, onboarding, suporte, feedback e satisfação."),
+    ),
 }
 
 ROLES = (
-    "Sócios",
-    "CEO",
-    "Produto",
-    "Dev",
-    "Design",
-    "Marketing",
-    "Financeiro",
-    "QA",
-    "Segurança",
-    "Operações",
+    "👑・Sócios",
+    "🧭・CEO",
+    "💡・Produto",
+    "💻・Dev",
+    "🎨・Design",
+    "📣・Marketing",
+    "💰・Financeiro",
+    "🧪・QA",
+    "🛡️・Segurança",
+    "🛠️・Operações",
 )
 
 
@@ -79,29 +101,31 @@ class ServerOrganizer(discord.Client):
 
     async def create_structure(self, guild: discord.Guild) -> None:
         categories = {category.name: category for category in guild.categories}
-        channels_by_category = {
-            category.id: {channel.name for channel in category.channels}
-            for category in guild.categories
-        }
-
-        for category_name, channel_names in STRUCTURE.items():
+        for category_name, channel_specs in STRUCTURE.items():
             category = categories.get(category_name)
             if category is None:
                 category = await guild.create_category(
                     category_name,
                     reason="Estrutura inicial da MAI",
                 )
-                channels_by_category[category.id] = set()
                 print(f"Categoria criada: {category_name}")
 
-            for channel_name in channel_names:
-                if channel_name not in channels_by_category[category.id]:
-                    await guild.create_text_channel(
+            for channel_name, topic in channel_specs:
+                channel = discord.utils.get(category.text_channels, name=channel_name)
+                if channel is None:
+                    channel = await guild.create_text_channel(
                         channel_name,
                         category=category,
+                        topic=topic,
                         reason="Estrutura inicial da MAI",
                     )
-                    print(f"Canal criado: #{channel_name} em {category_name}")
+                    print(f"Canal criado: {channel_name} em {category_name}")
+                elif channel.topic != topic:
+                    await channel.edit(
+                        topic=topic,
+                        reason="Atualização das descrições da estrutura da MAI",
+                    )
+                    print(f"Descrição atualizada: {channel_name}")
 
 
 def read_token() -> str:

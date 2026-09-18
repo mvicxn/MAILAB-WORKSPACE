@@ -1,8 +1,8 @@
 # Organizador do servidor Discord da MAI
 
-Este script cria a estrutura inicial do servidor Discord da MAI. Ele pode
-ser executado novamente sem duplicar categorias, canais ou cargos que já
-existam.
+Este script cria a estrutura inicial do servidor Discord da MAI com emojis,
+descrições e organização visual. Ele pode ser executado novamente sem
+duplicar categorias, canais ou cargos que já existam.
 
 ## Segurança
 
@@ -15,18 +15,23 @@ existam.
 
 ### Categorias e canais
 
-- Direção: `#ceo`, `#planejamento`
-- Produto: `#produto`, `#pesquisa-de-mercado`
-- Desenvolvimento: `#backend`, `#frontend`, `#bugs`
-- Design: `#design`, `#criativos`
-- Marketing: `#trafego`, `#copy`
-- Financeiro: `#financeiro`
-- Operações: `#qa`, `#seguranca`, `#clientes`
+Cada canal recebe uma descrição no próprio Discord. Essa descrição aparece
+quando alguém passa o mouse sobre o canal e explica, em linguagem simples,
+para que ele serve.
+
+- 🧭 Direção: `📣・ceo`, `🗺️・planejamento`
+- 💡 Produto: `💡・produto`, `🔎・pesquisa-de-mercado`
+- 💻 Desenvolvimento: `⚙️・backend`, `🖥️・frontend`, `🐞・bugs`
+- 🎨 Design: `🎨・design`, `✨・criativos`
+- 📣 Marketing: `📈・trafego`, `✍️・copy`
+- 💰 Financeiro: `💰・financeiro`
+- 🛠️ Operações: `🧪・qa`, `🛡️・seguranca`, `🤝・clientes`
 
 ### Cargos
 
-`Sócios`, `CEO`, `Produto`, `Dev`, `Design`, `Marketing`, `Financeiro`,
-`QA`, `Segurança` e `Operações`.
+`👑・Sócios`, `🧭・CEO`, `💡・Produto`, `💻・Dev`, `🎨・Design`,
+`📣・Marketing`, `💰・Financeiro`, `🧪・QA`, `🛡️・Segurança` e
+`🛠️・Operações`.
 
 O script cria os cargos, mas não muda permissões de pessoas
 automaticamente. Permissões devem ser revisadas no Discord.
