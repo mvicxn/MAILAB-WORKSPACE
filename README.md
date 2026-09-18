@@ -7,8 +7,9 @@ rentáveis, criados com apoio de humanos e IAs especializadas.
 
 1. Leia a [MAI Central](./MAPA-WIREFRAME-MVP-MAI.md).
 2. Confira o [organizador do Discord](./discord-organizer/README.md).
-3. Veja as [Issues](https://github.com/mvicxn/MAILAB-WORKSPACE/issues).
-4. Para qualquer alteração, crie uma branch e um Pull Request.
+3. Leia o [norte da integração Grok + GitHub + Discord](./docs/INTEGRACAO-GROK-DISCORD-GITHUB.md).
+4. Veja as [Issues](https://github.com/mvicxn/MAILAB-WORKSPACE/issues).
+5. Para qualquer alteração, crie uma branch e um Pull Request.
 
 ## Fonte oficial
 

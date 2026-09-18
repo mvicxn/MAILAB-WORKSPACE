@@ -23,6 +23,7 @@
 - [12. Branches, commits e Pull Requests](#12-trabalho-com-git-e-branches)
 - [22. Estado atual da MAI](#22-estado-atual-da-mai)
 - [23. Manual rápido para começar](#23-manual-rápido-para-começar)
+- [Documento de integração do Grok](./docs/INTEGRACAO-GROK-DISCORD-GITHUB.md)
 
 Se um link deste sumário ficar desatualizado depois de uma grande mudança,
 corrija o sumário na mesma alteração. A MAI Central deve ser fácil de
@@ -127,6 +128,7 @@ Toda mudança relevante deve ser anotada aqui:
 | 2026-09-18 | Criação da regra de consenso, aviso e caminho único | Evitar mudanças silenciosas e manter Maicon, Ian e as IAs alinhados | Maicon e Ian | Em vigor |
 | 2026-09-18 | Explicação completa e leiga sobre branches, commits, Pull Requests, conflitos e proteção da `main` | Permitir que Maicon e Ian trabalhem juntos sem perder ou sobrescrever trabalho | Maicon | Em vigor |
 | 2026-09-18 | Registro do Discord operacional e dos novos padrões do GitHub | Fazer a documentação refletir o que foi realmente configurado | Maicon | Em vigor |
+| 2026-09-18 | Criação do norte da integração Grok + GitHub + Discord | Definir contexto, eventos, agentes, autonomia, segurança e fases antes de conectar a IA ao ambiente | Maicon | Em vigor |
 
 Para alterações futuras, usar este modelo:
 
@@ -1562,6 +1564,7 @@ mudar.
 - [ ] Validar o problema com potenciais clientes.
 - [ ] Abrir o primeiro Pull Request de documentação ou produto.
 - [ ] Configurar alertas GitHub → Discord.
+- [ ] Implementar a Fase 1 da integração Grok: leitura e resumos.
 - [ ] Configurar proteção formal da branch `main`.
 - [ ] Adicionar testes e automações quando existir código de produto.
 
