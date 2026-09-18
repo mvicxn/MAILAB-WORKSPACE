@@ -353,6 +353,7 @@ LEGACY_CATEGORY_NAMES = {
 }
 
 LEGACY_CHANNEL_NAMES = {
+    "general": "💬・geral",
     "ceo": "📣・ceo",
     "planejamento": "🗺️・planejamento",
     "produto": "💡・produto",
@@ -382,6 +383,7 @@ class ServerOrganizer(discord.Client):
             await self.migrate_legacy_names(guild)
             roles = await self.create_roles(guild)
             await self.create_structure(guild, roles)
+            await self.print_audit(guild)
             print(f"\nEstrutura completa da MAI configurada em: {guild.name}")
             print("Categorias, canais, descrições e guias foram criados/atualizados.")
         finally:
@@ -409,11 +411,33 @@ class ServerOrganizer(discord.Client):
         for role in list(guild.roles):
             old_name = role.name
             new_name = LEGACY_ROLE_NAMES.get(old_name)
-            if new_name and new_name not in role_names:
+            if not new_name:
+                continue
+            target = discord.utils.get(guild.roles, name=new_name)
+            if target is None:
                 await role.edit(name=new_name, reason="Atualização visual da MAI")
                 role_names.remove(old_name)
                 role_names.add(new_name)
                 print(f"Cargo renomeado: {old_name} → {new_name}")
+                continue
+            moved_members = 0
+            for member in list(role.members):
+                if target not in member.roles:
+                    await member.add_roles(
+                        target,
+                        reason="Unificação de cargos da MAI",
+                    )
+                await member.remove_roles(
+                    role,
+                    reason="Unificação de cargos da MAI",
+                )
+                moved_members += 1
+            if not role.is_default() and not role.managed:
+                await role.delete(reason="Remoção de cargo duplicado da MAI")
+                print(
+                    f"Cargo antigo removido: {old_name} "
+                    f"(membros migrados: {moved_members})"
+                )
 
         for category in guild.categories:
             new_name = LEGACY_CATEGORY_NAMES.get(category.name)
@@ -503,6 +527,33 @@ class ServerOrganizer(discord.Client):
             if marker in message.content:
                 return
         await channel.send(f"{marker}\n\n{guide}")
+
+    async def print_audit(self, guild: discord.Guild) -> None:
+        role_names = [
+            role.name
+            for role in guild.roles
+            if not role.is_default() and not role.managed
+        ]
+        channels = [
+            channel.name
+            for channel in guild.text_channels
+            if channel.category is not None
+        ]
+        print(
+            "\nAuditoria final: "
+            f"{len(guild.categories)} categorias, "
+            f"{len(channels)} canais organizados, "
+            f"{len(role_names)} cargos personalizados."
+        )
+        without_emoji = [
+            name
+            for name in role_names + channels
+            if not any(ord(character) > 127 for character in name)
+        ]
+        if without_emoji:
+            print("Itens sem emoji ainda presentes: " + ", ".join(without_emoji))
+        else:
+            print("Auditoria visual: todos os cargos e canais organizados têm emoji.")
 
 
 def read_token() -> str:
