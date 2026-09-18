@@ -9,8 +9,9 @@ rentáveis, criados com apoio de humanos e IAs especializadas.
 2. Confira o [organizador do Discord](./discord-organizer/README.md).
 3. Leia o [norte da integração Grok + GitHub + Discord](./docs/INTEGRACAO-GROK-DISCORD-GITHUB.md).
 4. Veja o [protótipo de conversa do Grok](./grok-bridge/README.md).
-5. Veja as [Issues](https://github.com/mvicxn/MAILAB-WORKSPACE/issues).
-6. Para qualquer alteração, crie uma branch e um Pull Request.
+5. Veja o [transcritor local de vídeo](./video-transcriber/README.md).
+6. Veja as [Issues](https://github.com/mvicxn/MAILAB-WORKSPACE/issues).
+7. Para qualquer alteração, crie uma branch e um Pull Request.
 
 ## Fonte oficial
 
