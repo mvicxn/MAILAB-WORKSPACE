@@ -457,6 +457,21 @@ class ServerOrganizer(discord.Client):
                 legacy_name = f"🗄️・{old_name.replace('🧭 ', '').lower()}-legado"
                 await category.edit(name=legacy_name, reason="Organização de categoria legada")
                 print(f"Categoria com conteúdo preservada como: {legacy_name}")
+
+        for category in guild.categories:
+            if any(ord(character) > 127 for character in category.name):
+                continue
+            new_name = f"🗂️・{category.name.lower().replace(' ', '-')}"[:100]
+            if new_name == category.name:
+                continue
+            if discord.utils.get(guild.categories, name=new_name):
+                new_name = f"{new_name}-legado"[:100]
+            if not discord.utils.get(guild.categories, name=new_name):
+                await category.edit(
+                    name=new_name,
+                    reason="Padronização visual de categorias da MAI",
+                )
+                print(f"Categoria padronizada: {category.name} → {new_name}")
         for channel in guild.text_channels:
             new_name = LEGACY_CHANNEL_NAMES.get(channel.name)
             if new_name and new_name != channel.name:
