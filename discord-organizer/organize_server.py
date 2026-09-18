@@ -355,6 +355,7 @@ LEGACY_CATEGORY_NAMES = {
 
 LEGACY_CHANNEL_NAMES = {
     "general": "💬・geral",
+    "geral": "💬・geral",
     "ceo": "📣・ceo",
     "planejamento": "🗺️・planejamento",
     "produto": "💡・produto",
@@ -464,6 +465,21 @@ class ServerOrganizer(discord.Client):
                 await channel.edit(name=new_name, reason="Atualização visual da MAI")
                 print(f"Canal renomeado: {channel.name} → {new_name}")
 
+        for channel in guild.text_channels:
+            if any(ord(character) > 127 for character in channel.name):
+                continue
+            new_name = f"💬・{channel.name.lower().replace(' ', '-')}"[:100]
+            if new_name == channel.name:
+                continue
+            if discord.utils.get(guild.text_channels, name=new_name):
+                new_name = f"{new_name}-legado"[:100]
+            if not discord.utils.get(guild.text_channels, name=new_name):
+                await channel.edit(
+                    name=new_name,
+                    reason="Padronização visual de canais da MAI",
+                )
+                print(f"Canal padronizado: {channel.name} → {new_name}")
+
     async def create_roles(self, guild: discord.Guild) -> Dict[str, discord.Role]:
         roles = {role.name: role for role in guild.roles}
         for role_name in ROLES:
@@ -548,11 +564,7 @@ class ServerOrganizer(discord.Client):
             for role in guild.roles
             if not role.is_default() and not role.managed
         ]
-        channels = [
-            channel.name
-            for channel in guild.text_channels
-            if channel.category is not None
-        ]
+        channels = [channel.name for channel in guild.text_channels]
         categories = [category.name for category in guild.categories]
         print(
             "\nAuditoria final: "
