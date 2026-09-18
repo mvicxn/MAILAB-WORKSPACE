@@ -6,7 +6,7 @@
 > entenderem como a empresa pensa, decide, cria, revisa, lança e melhora
 > produtos digitais.
 
-**Versão:** 1.0  
+**Versão:** 1.1
 **Data de início:** 2026-09-18  
 **Sócios iniciais:** Maicon e Ian  
 **Empresa:** MAI  
@@ -109,6 +109,7 @@ Toda mudança relevante deve ser anotada aqui:
 | Data | Alteração | Motivo | Aprovadores | Status |
 |---|---|---|---|---|
 | 2026-09-18 | Criação da regra de consenso, aviso e caminho único | Evitar mudanças silenciosas e manter Maicon, Ian e as IAs alinhados | Maicon e Ian | Em vigor |
+| 2026-09-18 | Explicação completa e leiga sobre branches, commits, Pull Requests, conflitos e proteção da `main` | Permitir que Maicon e Ian trabalhem juntos sem perder ou sobrescrever trabalho | Maicon | Em vigor |
 
 Para alterações futuras, usar este modelo:
 
@@ -845,9 +846,59 @@ Antes de começar, identificar em qual categoria o trabalho está.
 
 ## 12. Trabalho com Git e branches
 
-`main` representa a versão oficial e estável.
+### 12.1 O que é uma branch, explicado para leigos
 
-Cada pessoa trabalha em uma branch própria ou de uma tarefa:
+Uma **branch** é uma cópia de trabalho do projeto. Ela permite que uma
+pessoa faça alterações sem mexer diretamente na versão oficial.
+
+Imagine um documento importante:
+
+- `main` é o documento oficial que todos podem consultar.
+- Uma branch é uma cópia desse documento para você trabalhar.
+- Quando o trabalho fica pronto, ele é revisado.
+- Só depois a alteração é colocada no documento oficial.
+
+Assim, Maicon e Ian podem trabalhar ao mesmo tempo sem sobrescrever o
+trabalho um do outro.
+
+Uma branch não é um projeto separado nem uma segunda empresa. Ela é apenas
+uma área de trabalho temporária ligada ao mesmo projeto.
+
+### 12.2 As três versões que precisamos entender
+
+No dia a dia, existem três lugares importantes:
+
+1. **Computador local:** onde a pessoa está trabalhando.
+2. **GitHub:** onde as branches e o histórico ficam salvos online.
+3. **`main`:** a versão oficial e mais confiável do projeto.
+
+O trabalho normalmente passa por este caminho:
+
+```text
+computador
+→ branch no GitHub
+→ Pull Request para revisão
+→ main depois da aprovação
+```
+
+### 12.3 A branch `main`
+
+`main` é a versão oficial da MAI ou do produto.
+
+Ela deve ficar:
+
+- organizada;
+- funcionando;
+- revisada;
+- pronta para servir de base para o próximo trabalho.
+
+Não devemos testar ideias grandes diretamente na `main`. Também não devemos
+editar a `main` diretamente quando a mudança for relevante.
+
+### 12.4 Uma branch para cada trabalho
+
+Cada alteração deve ter sua própria branch. O nome deve explicar o tipo de
+trabalho:
 
 ```text
 main
@@ -858,7 +909,242 @@ chore/update-dependencies
 docs/product-map
 ```
 
-Fluxo intuitivo:
+Significado dos prefixos:
+
+- `feature/`: funcionalidade nova.
+- `fix/`: correção de erro.
+- `chore/`: manutenção técnica.
+- `docs/`: documentação.
+- `design/`: alteração visual ou de experiência.
+- `security/`: melhoria ou correção de segurança.
+- `qa/`: testes e qualidade.
+
+Exemplos:
+
+```text
+feature/cadastro-cliente
+feature/tela-relatorio
+fix/erro-no-login
+docs/atualizar-mai-central
+design/landing-page
+security/restringir-acesso
+```
+
+Evitar nomes vagos como:
+
+```text
+teste
+coisa-nova
+minha-branch
+alteracoes
+```
+
+### 12.5 Como Maicon ou Ian começam uma tarefa
+
+Passo a passo sem complicação:
+
+1. Conferir no Discord ou no GitHub qual tarefa será feita.
+2. Verificar se ninguém já está trabalhando exatamente na mesma parte.
+3. Atualizar a cópia local a partir da `main`.
+4. Criar uma branch com nome claro.
+5. Trabalhar somente nessa branch.
+6. Salvar pequenos grupos de alterações em commits.
+7. Testar antes de enviar.
+8. Enviar a branch para o GitHub.
+9. Abrir um Pull Request.
+10. Pedir revisão.
+
+Comandos equivalentes para quem estiver usando o terminal:
+
+```bash
+git switch main
+git pull origin main
+git switch -c feature/nome-da-tarefa
+```
+
+Não é necessário decorar os comandos. O importante é entender a sequência:
+voltar à base atual, criar uma área própria e trabalhar nela.
+
+### 12.6 O que é um commit
+
+Um **commit** é um ponto salvo no histórico. Ele registra um pequeno grupo
+de alterações com uma mensagem explicando o que foi feito.
+
+Exemplo:
+
+```text
+docs: explicar fluxo de branches para a equipe
+```
+
+Um commit não significa que a alteração já entrou na `main`. Ele apenas
+salva o trabalho na branch atual.
+
+É melhor fazer commits pequenos e claros do que um único commit enorme com
+várias coisas misturadas.
+
+### 12.7 O que é um Pull Request
+
+Um **Pull Request**, ou PR, é um pedido para colocar o trabalho da branch
+na `main`.
+
+Pense nele como:
+
+> "Terminei esta parte. Podem conferir antes de colocar na versão oficial?"
+
+Um PR deve explicar:
+
+- qual problema foi resolvido;
+- o que foi alterado;
+- como testar;
+- quais arquivos ou áreas foram afetados;
+- se existe algum risco;
+- se há screenshot quando a mudança for visual.
+
+O PR é o lugar onde Maicon, Ian e as IAs podem conversar sobre a alteração
+antes de ela virar parte oficial do projeto.
+
+### 12.8 Como uma alteração entra na `main`
+
+```text
+1. Escolher uma tarefa
+2. Criar uma branch
+3. Trabalhar na branch
+4. Fazer commits
+5. Testar
+6. Enviar a branch para o GitHub
+7. Abrir Pull Request
+8. Revisar
+9. Corrigir observações
+10. Aprovar
+11. Juntar (merge) na main
+12. Excluir a branch encerrada
+```
+
+**Merge** significa juntar o conteúdo aprovado da branch com a `main`.
+
+A branch pode ser excluída depois do merge porque o trabalho já foi
+preservado no histórico. Excluir a branch não apaga o que entrou na `main`.
+
+### 12.9 Regra prática para Maicon e Ian
+
+```text
+Uma tarefa = uma branch
+Uma mudança lógica = um ou poucos commits
+Uma branch pronta = um Pull Request
+Uma alteração aprovada = merge na main
+```
+
+Se uma tarefa ficar grande demais, dividir em tarefas menores. Branches
+curtas são mais fáceis de revisar e causam menos conflitos.
+
+### 12.10 Exemplo de trabalho simultâneo
+
+Suponha que o projeto precise de login e dashboard:
+
+```text
+main
+├── feature/login       ← Maicon
+└── feature/dashboard   ← Ian
+```
+
+Maicon trabalha no login sem apagar o dashboard de Ian. Ian trabalha no
+dashboard sem apagar o login de Maicon. Cada um envia sua branch e abre
+seu próprio PR.
+
+Depois das revisões:
+
+```text
+feature/login     → revisão → main
+feature/dashboard → revisão → main
+```
+
+Se os dois alterarem exatamente o mesmo trecho, o Git avisará sobre um
+conflito. O conflito não significa que o trabalho foi perdido: significa
+que o Git precisa que alguém escolha como juntar as duas versões.
+
+### 12.11 O que fazer quando aparecer conflito
+
+Quando houver conflito:
+
+1. Não apagar arquivos para tentar resolver rapidamente.
+2. Avisar a outra pessoa que mexeu naquela área.
+3. Abrir o trecho conflitante e entender as duas alterações.
+4. Escolher a versão correta ou combinar as duas.
+5. Testar o resultado completo.
+6. Registrar a decisão no PR quando ela não for óbvia.
+7. Pedir revisão antes do merge.
+
+Se Maicon e Ian não souberem qual versão escolher, parar e pedir ajuda a
+uma IA de Dev ou registrar a dúvida no Discord. Não escolher no escuro.
+
+### 12.12 O que não fazer
+
+- Não trabalhar diretamente na `main` em mudanças importantes.
+- Não usar a branch de outra pessoa sem combinar.
+- Não misturar login, design, correção e documentação na mesma branch sem
+  necessidade.
+- Não deixar uma branch parada por meses sem atualizar.
+- Não fazer `force push` sem entender o impacto.
+- Não apagar trabalho de outra pessoa para resolver conflito.
+- Não fazer merge sem testar.
+- Não considerar um commit local como backup suficiente.
+
+### 12.13 Atualizar a branch antes de terminar
+
+Enquanto a pessoa trabalha, outra alteração pode entrar na `main`. Antes
+de abrir ou finalizar o PR, é bom atualizar a branch para descobrir
+conflitos cedo.
+
+Para quem já conhece o terminal:
+
+```bash
+git switch main
+git pull origin main
+git switch nome-da-sua-branch
+git merge main
+```
+
+Se o resultado parecer confuso, não continuar sozinho: guardar o trabalho,
+avisar a equipe e pedir revisão.
+
+### 12.14 Regra de proteção da `main`
+
+Quando o projeto estiver sendo usado continuamente, a `main` deve exigir:
+
+- Pull Request para mudanças relevantes;
+- pelo menos uma revisão;
+- testes ou explicação de por que não se aplicam;
+- revisão de segurança em áreas sensíveis;
+- aprovação dos sócios para mudanças de direção.
+
+O objetivo não é criar burocracia. É evitar que uma alteração apressada
+quebre o produto ou apague uma decisão importante.
+
+### 12.15 Fluxo intuitivo resumido
+
+```text
+MAIN = versão oficial
+
+Eu tenho uma ideia ou tarefa
+        ↓
+Crio uma branch, que é minha cópia de trabalho
+        ↓
+Faço alterações e commits
+        ↓
+Envio a branch para o GitHub
+        ↓
+Abro um Pull Request
+        ↓
+Outra pessoa ou IA revisa
+        ↓
+Corrijo o que for necessário
+        ↓
+Aprovamos e fazemos merge
+        ↓
+MAIN recebe a mudança com histórico e segurança
+```
+
+### 12.16 Fluxo intuitivo completo
 
 1. Atualizar a branch a partir de `main`.
 2. Criar uma branch para uma tarefa pequena.
