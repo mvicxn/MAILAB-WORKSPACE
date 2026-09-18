@@ -344,6 +344,7 @@ LEGACY_ROLE_NAMES = {
 
 LEGACY_CATEGORY_NAMES = {
     "Direção": "👑 DIREÇÃO",
+    "🧭 DIREÇÃO": "👑 DIREÇÃO",
     "Produto": "💡 PRODUTO",
     "Desenvolvimento": "💻 DESENVOLVIMENTO",
     "Design": "🎨 DESIGN",
@@ -440,13 +441,26 @@ class ServerOrganizer(discord.Client):
                 )
 
         for category in guild.categories:
-            new_name = LEGACY_CATEGORY_NAMES.get(category.name)
-            if new_name and new_name not in {item.name for item in guild.categories}:
+            old_name = category.name
+            new_name = LEGACY_CATEGORY_NAMES.get(old_name)
+            if not new_name:
+                continue
+            target = discord.utils.get(guild.categories, name=new_name)
+            if target is None:
                 await category.edit(name=new_name, reason="Atualização visual da MAI")
-                print(f"Categoria renomeada: {category.name} → {new_name}")
+                print(f"Categoria renomeada: {old_name} → {new_name}")
+            elif target.id != category.id and not category.channels:
+                await category.delete(reason="Remoção de categoria duplicada da MAI")
+                print(f"Categoria vazia removida: {old_name}")
+            elif target.id != category.id:
+                legacy_name = f"🗄️・{old_name.replace('🧭 ', '').lower()}-legado"
+                await category.edit(name=legacy_name, reason="Organização de categoria legada")
+                print(f"Categoria com conteúdo preservada como: {legacy_name}")
         for channel in guild.text_channels:
             new_name = LEGACY_CHANNEL_NAMES.get(channel.name)
             if new_name and new_name != channel.name:
+                if discord.utils.get(guild.text_channels, name=new_name):
+                    new_name = f"{new_name}-legado"
                 await channel.edit(name=new_name, reason="Atualização visual da MAI")
                 print(f"Canal renomeado: {channel.name} → {new_name}")
 
@@ -539,6 +553,7 @@ class ServerOrganizer(discord.Client):
             for channel in guild.text_channels
             if channel.category is not None
         ]
+        categories = [category.name for category in guild.categories]
         print(
             "\nAuditoria final: "
             f"{len(guild.categories)} categorias, "
@@ -547,7 +562,7 @@ class ServerOrganizer(discord.Client):
         )
         without_emoji = [
             name
-            for name in role_names + channels
+            for name in role_names + channels + categories
             if not any(ord(character) > 127 for character in name)
         ]
         if without_emoji:
