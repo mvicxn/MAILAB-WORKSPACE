@@ -329,6 +329,19 @@ ROLES = (
     "👀・Leitor",
 )
 
+LEGACY_ROLE_NAMES = {
+    "Sócios": "👑・Sócios",
+    "CEO": "🧭・CEO",
+    "Produto": "💡・Produto",
+    "Dev": "💻・Dev",
+    "Design": "🎨・Design",
+    "Marketing": "📣・Marketing",
+    "Financeiro": "💰・Financeiro",
+    "QA": "🧪・QA",
+    "Segurança": "🛡️・Segurança",
+    "Operações": "🛠️・Operações",
+}
+
 LEGACY_CATEGORY_NAMES = {
     "Direção": "👑 DIREÇÃO",
     "Produto": "💡 PRODUTO",
@@ -392,6 +405,16 @@ class ServerOrganizer(discord.Client):
             raise RuntimeError("Escolha de servidor inválida.") from error
 
     async def migrate_legacy_names(self, guild: discord.Guild) -> None:
+        role_names = {role.name for role in guild.roles}
+        for role in list(guild.roles):
+            old_name = role.name
+            new_name = LEGACY_ROLE_NAMES.get(old_name)
+            if new_name and new_name not in role_names:
+                await role.edit(name=new_name, reason="Atualização visual da MAI")
+                role_names.remove(old_name)
+                role_names.add(new_name)
+                print(f"Cargo renomeado: {old_name} → {new_name}")
+
         for category in guild.categories:
             new_name = LEGACY_CATEGORY_NAMES.get(category.name)
             if new_name and new_name not in {item.name for item in guild.categories}:
