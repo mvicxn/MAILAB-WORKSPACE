@@ -157,6 +157,45 @@ Organiza entrega, suporte, clientes, incidentes e próximos passos.
 
 ## 5. Como o evento deve ativar a equipe
 
+### Conversa em tempo real no Discord
+
+Sim, Maicon e Ian poderão discutir com o Grok no próprio chat. A primeira
+versão usa dois caminhos:
+
+```text
+/grok pergunta
+```
+
+ou:
+
+```text
+@Grok pergunta
+```
+
+O bridge lê a MAI Central, este documento e algumas mensagens recentes do
+canal. Ele envia a pergunta para a API da xAI e publica a resposta no
+mesmo canal, dividindo textos longos em mensagens menores.
+
+Isso cria uma conversa real, mas não dá autonomia perigosa ao bot. Nesta
+primeira versão ele:
+
+- responde;
+- mantém contexto curto da conversa;
+- explica fatos, hipóteses e riscos;
+- sugere próximos passos;
+- não faz merge;
+- não apaga canais ou arquivos;
+- não altera GitHub ou permissões;
+- não trata uma sugestão como decisão aprovada.
+
+Para menções funcionarem, o **Message Content Intent** precisa estar ativo
+no Developer Portal. O comando `/grok` usa comandos do Discord e continua
+sendo o caminho preferencial quando não quisermos liberar leitura geral das
+mensagens.
+
+O protótipo está em [`grok-bridge/`](../grok-bridge/README.md). As chaves
+ficam somente no computador, fora do GitHub.
+
 ### Commit enviado
 
 O agente Dev resume:
