@@ -10,6 +10,8 @@
 **Servidor:** MAI LAB CORP  
 **Repositório oficial:** `mvicxn/MAILAB-WORKSPACE`
 
+**Aprendizados relacionados:** [APRENDIZADOS-AGENTES-IA.md](./APRENDIZADOS-AGENTES-IA.md)
+
 ---
 
 ## 1. A ideia em linguagem simples

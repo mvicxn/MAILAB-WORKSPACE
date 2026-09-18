@@ -10,8 +10,10 @@ rentáveis, criados com apoio de humanos e IAs especializadas.
 3. Leia o [norte da integração Grok + GitHub + Discord](./docs/INTEGRACAO-GROK-DISCORD-GITHUB.md).
 4. Veja o [protótipo de conversa do Grok](./grok-bridge/README.md).
 5. Veja o [transcritor local de vídeo](./video-transcriber/README.md).
-6. Veja as [Issues](https://github.com/mvicxn/MAILAB-WORKSPACE/issues).
-7. Para qualquer alteração, crie uma branch e um Pull Request.
+6. Veja os [aprendizados para agentes de IA](./docs/APRENDIZADOS-AGENTES-IA.md).
+7. Use os [templates de agentes, memória e skills](./docs/templates/).
+8. Veja as [Issues](https://github.com/mvicxn/MAILAB-WORKSPACE/issues).
+9. Para qualquer alteração, crie uma branch e um Pull Request.
 
 ## Fonte oficial
 
