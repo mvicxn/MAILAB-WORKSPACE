@@ -113,6 +113,35 @@ cria cópias dos guias.
 
 ## ▶️ Como executar
 
+### Configurar o token uma única vez
+
+O token pode ficar salvo somente no computador, fora do repositório:
+
+```bash
+cd /home/mm-lab-corp/MAILAB-WORKSPACE
+bash discord-organizer/save-token.sh
+```
+
+O script pede o token sem mostrá-lo e salva em:
+
+```text
+~/.config/mai/discord.env
+```
+
+O arquivo recebe permissão `600`, ou seja, somente seu usuário pode
+acessá-lo. Não envie o conteúdo desse arquivo para ninguém.
+
+### Executar depois sem informar o token novamente
+
+```bash
+cd /home/mm-lab-corp/MAILAB-WORKSPACE
+bash discord-organizer/run-saved.sh
+```
+
+Esse comando reutiliza o token salvo e executa o organizador.
+
+### Execução manual alternativa
+
 ```bash
 cd /home/mm-lab-corp/MAILAB-WORKSPACE
 . discord-organizer/.venv/bin/activate
