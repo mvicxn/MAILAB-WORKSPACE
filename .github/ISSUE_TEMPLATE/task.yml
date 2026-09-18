@@ -1,0 +1,33 @@
+name: "✅ Tarefa"
+description: "Registrar trabalho aprovado ou necessário"
+title: "[Tarefa]: "
+labels:
+  - task
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: "🎯 Objetivo"
+      description: "O que precisa ficar diferente quando terminar?"
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: "📚 Contexto"
+      description: "Links para produto, decisão, PR ou documento."
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: "✅ Critérios de conclusão"
+      description: "Como saberemos que a tarefa está pronta?"
+    validations:
+      required: true
+  - type: input
+    id: owner
+    attributes:
+      label: "👤 Responsável"
+  - type: textarea
+    id: risks
+    attributes:
+      label: "⚠️ Riscos e dependências"

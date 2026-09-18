@@ -1,0 +1,46 @@
+name: "🐞 Bug"
+description: "Registrar um problema reproduzível"
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por registrar o problema. Não coloque tokens, senhas ou dados pessoais.
+  - type: textarea
+    id: problem
+    attributes:
+      label: "😕 O que aconteceu?"
+      description: "Explique o resultado atual."
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: "🔁 Como reproduzir?"
+      description: "Liste os passos do começo ao erro."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: "✅ O que deveria acontecer?"
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: "🔥 Prioridade"
+      options:
+        - "Baixa"
+        - "Média"
+        - "Alta"
+        - "Crítica"
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: "📸 Evidência"
+      description: "Inclua logs sem segredos, screenshots ou links."

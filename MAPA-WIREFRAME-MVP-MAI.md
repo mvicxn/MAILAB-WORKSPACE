@@ -6,11 +6,27 @@
 > entenderem como a empresa pensa, decide, cria, revisa, lança e melhora
 > produtos digitais.
 
-**Versão:** 1.1
+**Versão:** 1.2
 **Data de início:** 2026-09-18  
 **Sócios iniciais:** Maicon e Ian  
 **Empresa:** MAI  
 **Status:** Estrutura inicial em formação
+
+---
+
+## Sumário rápido
+
+- [1. Aviso, consenso e caminho oficial](#1-aviso-para-maicon-ian-e-todas-as-ias)
+- [2. O que é a MAI](#2-o-que-é-a-mai)
+- [6. Ferramentas e alinhamento](#6-ferramentas-e-como-alinhá-las)
+- [7. Discord operacional](#7-estrutura-do-discord)
+- [12. Branches, commits e Pull Requests](#12-trabalho-com-git-e-branches)
+- [22. Estado atual da MAI](#22-estado-atual-da-mai)
+- [23. Manual rápido para começar](#23-manual-rápido-para-começar)
+
+Se um link deste sumário ficar desatualizado depois de uma grande mudança,
+corrija o sumário na mesma alteração. A MAI Central deve ser fácil de
+navegar tanto para humanos quanto para IAs.
 
 ---
 
@@ -110,6 +126,7 @@ Toda mudança relevante deve ser anotada aqui:
 |---|---|---|---|---|
 | 2026-09-18 | Criação da regra de consenso, aviso e caminho único | Evitar mudanças silenciosas e manter Maicon, Ian e as IAs alinhados | Maicon e Ian | Em vigor |
 | 2026-09-18 | Explicação completa e leiga sobre branches, commits, Pull Requests, conflitos e proteção da `main` | Permitir que Maicon e Ian trabalhem juntos sem perder ou sobrescrever trabalho | Maicon | Em vigor |
+| 2026-09-18 | Registro do Discord operacional e dos novos padrões do GitHub | Fazer a documentação refletir o que foi realmente configurado | Maicon | Em vigor |
 
 Para alterações futuras, usar este modelo:
 
@@ -365,6 +382,45 @@ MAI/
 No começo, algumas pastas podem ficar vazias. A estrutura existe para
 manter o raciocínio organizado conforme a empresa crescer.
 
+#### Como o GitHub deve funcionar na prática
+
+O GitHub é mais do que um lugar para subir código. Ele é o sistema de
+controle da MAI:
+
+| Necessidade | Onde registrar |
+|---|---|
+| Ideia ainda não validada | Issue com `status: hipótese` |
+| Tarefa de produto | Issue com responsável e critério de conclusão |
+| Alteração de código ou documento | Branch + Pull Request |
+| Decisão importante | `docs/decisoes/` e link no Discord |
+| Regra geral da empresa | MAI Central |
+| Bug | Issue com passos para reproduzir |
+| Resultado de campanha ou produto | `docs/` e canal de métricas |
+| Código oficial | Branch `main` após revisão |
+
+Toda tarefa que puder virar trabalho deve ter uma Issue. Toda alteração
+relevante deve ter um Pull Request. Assim, qualquer pessoa ou IA consegue
+entender o que aconteceu sem depender de uma conversa antiga.
+
+#### O que foi configurado neste repositório
+
+- Repositório privado: `mvicxn/MAILAB-WORKSPACE`.
+- Branch oficial: `main`.
+- MAI Central versionada e publicada.
+- Ian convidado como colaborador.
+- Organizador do Discord versionado em `discord-organizer/`.
+- Token do Discord protegido fora do repositório.
+- Histórico de commits preservado.
+
+O GitHub não deve receber:
+
+- tokens;
+- senhas;
+- arquivos `.env`;
+- dados pessoais desnecessários;
+- contratos confidenciais;
+- backups de banco com dados reais.
+
 ### 6.3 Cursor — ambiente principal de construção
 
 Usar para:
@@ -444,6 +500,35 @@ Discord: discutir
 
 Cada canal representa um setor. O nome do canal pode ser adaptado à
 plataforma, mas a função deve permanecer clara.
+
+### Estado real configurado
+
+O servidor **MAI LAB CORP** foi organizado pelo `MAI-Organizador` com:
+
+- 20 categorias;
+- 51 canais organizados;
+- 13 cargos personalizados;
+- emojis em cargos, categorias e canais;
+- descrições nos canais;
+- mensagens-guia iniciais;
+- categoria privada da direção;
+- áreas de entrada, operação, automação e arquivo;
+- preservação de categorias legadas que já continham conteúdo.
+
+O organizador é idempotente: pode ser executado novamente para atualizar a
+estrutura sem duplicar os guias. Ele está documentado em
+`discord-organizer/README.md`.
+
+### Regras do Discord
+
+- Discord é para comunicação e coordenação; GitHub é a fonte oficial.
+- Use threads para discussões específicas.
+- Fixe mensagens que expliquem um processo importante.
+- Não use canais gerais para guardar requisitos finais.
+- Não publique tokens, senhas ou dados sensíveis.
+- Decisões relevantes devem apontar para um Issue, PR ou documento.
+- Mudanças na estrutura do servidor devem ser registradas no GitHub.
+- Categorias legadas só devem ser removidas depois de conferir seu conteúdo.
 
 ### Direção
 
@@ -1440,3 +1525,93 @@ Problema real
 ```
 
 Este documento é o ponto de partida. A MAI vai melhorá-lo enquanto trabalha.
+
+---
+
+## 22. Estado atual da MAI
+
+Esta seção diferencia o que está **feito**, o que está **em andamento** e
+o que ainda é **próximo passo**. Ela deve ser atualizada quando o estado
+mudar.
+
+### Feito
+
+- [x] Repositório privado criado no GitHub.
+- [x] Branch `main` configurada.
+- [x] MAI Central publicada e versionada.
+- [x] Ian convidado como colaborador.
+- [x] Fluxo de branches documentado.
+- [x] Organizador do Discord criado.
+- [x] Token do Discord salvo localmente fora do Git.
+- [x] Servidor `MAI LAB CORP` organizado com emojis, descrições e guias.
+- [x] Cargos antigos sem emoji unificados.
+- [x] Auditoria visual executada pelo organizador.
+
+### Em andamento
+
+- [ ] Ian aceitar o convite do GitHub, caso ainda esteja pendente.
+- [ ] Conferir e ajustar permissões dos cargos no Discord.
+- [ ] Remover a permissão `Administrador` do bot após confirmar que a
+      estrutura está estável.
+- [ ] Definir o primeiro produto da MAI.
+- [ ] Criar o primeiro documento em `docs/produtos/`.
+
+### Próximos passos
+
+- [ ] Criar o primeiro Issue de oportunidade.
+- [ ] Validar o problema com potenciais clientes.
+- [ ] Abrir o primeiro Pull Request de documentação ou produto.
+- [ ] Configurar alertas GitHub → Discord.
+- [ ] Configurar proteção formal da branch `main`.
+- [ ] Adicionar testes e automações quando existir código de produto.
+
+### Fonte desta atualização
+
+Commits do organizador do Discord:
+
+```text
+fe3c5df  Organizador inicial
+f82dde5  Emojis e descrições
+ff5d5f8  Estrutura completa
+eb15659  Auditoria e normalização visual
+```
+
+---
+
+## 23. Manual rápido para começar
+
+### Maicon ou Ian recebeu uma tarefa
+
+1. Leia a MAI Central e a Issue relacionada.
+2. Confirme o resultado esperado.
+3. Crie uma branch curta e clara.
+4. Faça somente a tarefa combinada.
+5. Salve commits pequenos.
+6. Teste ou confira a alteração.
+7. Abra um Pull Request.
+8. Explique o que mudou e como revisar.
+9. Espere a aprovação.
+10. Só então faça merge na `main`.
+
+### Uma IA recebeu uma solicitação
+
+1. Leia a MAI Central.
+2. Verifique se existe Issue, PR ou documento relacionado.
+3. Separe fatos, hipóteses e dúvidas.
+4. Não altere regras ambíguas sem avisar.
+5. Não invente validação, cliente, métrica ou resultado.
+6. Proteja segredos e dados pessoais.
+7. Entregue uma sugestão rastreável.
+8. Atualize a documentação relacionada quando a mudança for aprovada.
+
+### Uma informação foi discutida no Discord
+
+```text
+conversa
+→ resumo
+→ Issue, PR ou documento no GitHub
+→ link de volta no Discord
+```
+
+Esse ciclo mantém a comunicação rápida sem transformar o Discord em um
+arquivo desorganizado.

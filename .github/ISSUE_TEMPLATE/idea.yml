@@ -1,0 +1,38 @@
+name: "💡 Ideia ou oportunidade"
+description: "Registrar uma hipótese antes de construir"
+title: "[Ideia]: "
+labels:
+  - product
+  - hypothesis
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Uma ideia é uma hipótese, não uma tarefa aprovada. Primeiro vamos entender e validar.
+  - type: textarea
+    id: problem
+    attributes:
+      label: "😣 Qual problema existe?"
+    validations:
+      required: true
+  - type: textarea
+    id: audience
+    attributes:
+      label: "👥 Quem tem esse problema?"
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: "🔎 Que evidência já existe?"
+      description: "Entrevistas, observações, dados ou concorrentes."
+  - type: textarea
+    id: mvp
+    attributes:
+      label: "📦 Qual seria o menor MVP?"
+  - type: textarea
+    id: validation
+    attributes:
+      label: "🧪 Como validar antes de programar?"
+    validations:
+      required: true
