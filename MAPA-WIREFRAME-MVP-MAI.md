@@ -6,7 +6,7 @@
 > entenderem como a empresa pensa, decide, cria, revisa, lança e melhora
 > produtos digitais.
 
-**Versão:** 1.3
+**Versão:** 1.4
 **Data de início:** 2026-09-18  
 **Sócios iniciais:** Maicon e Ian  
 **Empresa:** MAI  
@@ -24,6 +24,9 @@
 - [22. Estado atual da MAI](#22-estado-atual-da-mai)
 - [23. Manual rápido para começar](#23-manual-rápido-para-começar)
 - [Documento de integração do Grok](./docs/INTEGRACAO-GROK-DISCORD-GITHUB.md)
+- [Equipe de agentes](./agentes/README.md)
+- [Próximo passo](./docs/PROXIMO-PASSO.md)
+- [Treinamentos destilados](./docs/treinamentos/LOTE-04-20.md)
 
 Se um link deste sumário ficar desatualizado depois de uma grande mudança,
 corrija o sumário na mesma alteração. A MAI Central deve ser fácil de
@@ -140,6 +143,8 @@ Toda mudança relevante deve ser anotada aqui:
 | 2026-09-18 | Registro do Discord operacional e dos novos padrões do GitHub | Fazer a documentação refletir o que foi realmente configurado | Maicon | Em vigor |
 | 2026-09-18 | Autorização inicial para melhorias documentais de baixo risco sem consenso prévio | Evitar travar a montagem da MAI no início, mantendo consenso para mudanças de alto impacto | Maicon | Em vigor |
 | 2026-09-18 | Inclusão do padrão de contexto, memória, skills e avaliação de agentes | Transformar aprendizados da transcrição em processo operacional inicial | Maicon | Em vigor |
+| 2026-09-18 | Fichas vivas em `agentes/` e GrokBot com um especialista por pergunta | Operacionalizar o padrão já aprovado sem inflar tokens nem criar salas extras | Maicon | Em vigor |
+| 2026-09-20 | grok-bridge no PC cancelado; cérebro na VM do Grok Bot | Plano Cursor não libera API xAI; Discord segue sem bot até haver conector | Maicon | Em vigor |
 | 2026-09-18 | Criação do norte da integração Grok + GitHub + Discord | Definir contexto, eventos, agentes, autonomia, segurança e fases antes de conectar a IA ao ambiente | Maicon | Em vigor |
 
 Para alterações futuras, usar este modelo:
@@ -525,6 +530,13 @@ memória do agente, skill ou regra da empresa.
 Os padrões e templates ficam em
 `docs/APRENDIZADOS-AGENTES-IA.md` e `docs/templates/`.
 
+As fichas vivas ficam em `agentes/`. O GrokBot carrega só
+`agentes/CONTEXTO-MINIMO.md`, a ficha de **um** especialista e, se fizer
+sentido, uma skill. Se a pergunta for sobre o projeto, esse especialista
+pode ler trechos do Git local. A MAI Central não deve ser colada inteira
+em toda pergunta. Não se criam salas extras para a IA: o bot responde no
+canal humano do setor.
+
 ---
 
 ## 7. Estrutura do Discord
@@ -671,7 +683,8 @@ As IAs não devem:
 
 Cada bot deve ter uma função clara, contexto próprio e critérios de
 qualidade. Bots podem ser treinados progressivamente em assuntos
-específicos.
+específicos. No Discord existe **um** GrokBot; os funcionários são as
+fichas em `agentes/`.
 
 ### CEO
 
@@ -1578,6 +1591,10 @@ mudar.
 - [x] Cargos antigos sem emoji unificados.
 - [x] Auditoria visual executada pelo organizador.
 - [x] Padrão inicial de contexto, memória e skills dos agentes documentado.
+- [x] Fichas dos especialistas criadas em `agentes/`.
+- [x] GrokBot roteia um especialista por pergunta, sem sala extra.
+- [x] Lote de treinamentos 04–20 catalogado; skills de Dev, QA e Design extraídas.
+- [x] Decisão: cérebro na VM do Grok Bot; grok-bridge no PC cancelado (sem API xAI).
 
 ### Em andamento
 
@@ -1590,14 +1607,13 @@ mudar.
 
 ### Próximos passos
 
+- [ ] Merge do PR das fichas (`feature/grokbot-roteador-economico`) após review.
+- [ ] Carlos: novo SHA + André no DIFF (gatilho B).
 - [ ] Criar o primeiro Issue de oportunidade.
 - [ ] Validar o problema com potenciais clientes.
-- [ ] Abrir o primeiro Pull Request de documentação ou produto.
-- [ ] Configurar alertas GitHub → Discord.
-- [ ] Implementar a Fase 1 da integração Grok: leitura e resumos.
-- [ ] Testar o primeiro agente de QA/documentação em modo somente leitura.
 - [ ] Configurar proteção formal da branch `main`.
 - [ ] Adicionar testes e automações quando existir código de produto.
+- [ ] Discord bot só se existir conector na VM ou API xAI (não é prioridade).
 
 ### Fonte desta atualização
 
@@ -1629,7 +1645,8 @@ eb15659  Auditoria e normalização visual
 
 ### Uma IA recebeu uma solicitação
 
-1. Leia a MAI Central.
+1. Leia `agentes/CONTEXTO-MINIMO.md` e a ficha do setor. Abra a MAI
+   Central inteira só se a tarefa for regra ou decisão da empresa.
 2. Verifique se existe Issue, PR ou documento relacionado.
 3. Separe fatos, hipóteses e dúvidas.
 4. Não altere regras ambíguas sem avisar.

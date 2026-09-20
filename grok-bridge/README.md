@@ -1,64 +1,93 @@
 # 🤖 Conversa do Grok no Discord
 
-Este é o primeiro protótipo da conversa em tempo real com o Grok no servidor
-da MAI. Ele lê a MAI Central e o documento da integração antes de responder.
+**Status (2026-09-20):** protótipo **cancelado como cérebro**. O plano
+Cursor/Grok Bot não libera API xAI. Sem plugin Discord na VM, o
+escritório no Discord continua só de gente.
 
-## Como conversar
+O cérebro oficial agora é a **VM do Grok Bot**. Este código fica no
+repo como interfone legado, se um dia houver chave de API.
 
-Depois de iniciar o bridge, use no Discord:
+---
 
-```text
-/grok Como devemos validar o primeiro produto?
+Um bot. Vários especialistas. Cada pergunta acorda **só um**. Esse um
+pode ler o Git da pasta da MAI, como quem abre um arquivo na hora — não
+como quem imprime o repositório.
+
+## Como ligar no Discord
+
+Já existe o aplicativo do bot. A integração é este processo, não um bot
+novo por funcionário.
+
+1. No [Discord Developer Portal](https://discord.com/developers/applications),
+   no bot da MAI, ligue **Message Content Intent**.
+2. Convide o bot ao servidor **MAI LAB CORP** com permissão de ver canal,
+   enviar mensagem, ler histórico e usar comandos. Sem Administrador.
+3. Guarde as chaves só no computador:
+
+```bash
+bash discord-organizer/save-token.sh
+bash grok-bridge/save-xai-key.sh
 ```
 
-Também é possível mencionar o bot:
-
-```text
-@Grok Como essa decisão afeta o MVP?
-```
-
-O bot lê algumas mensagens recentes do canal para manter o contexto da
-discussão e responde em partes quando o texto é longo.
-
-## O que esta primeira versão faz
-
-- conversa em português;
-- mantém contexto curto do canal;
-- usa a MAI Central como contexto;
-- usa o documento de integração como contexto;
-- responde por `/grok` ou menção;
-- cita incertezas e pede consenso quando necessário;
-- não executa ações no GitHub ou Discord;
-- não faz merge, apaga conteúdo ou altera permissões.
-
-## Segredos locais
-
-O bot precisa de duas credenciais, ambas fora do GitHub:
+4. Deixe o GrokBot ligado, na pasta do repositório:
 
 ```bash
 cd /home/mm-lab-corp/MAILAB-WORKSPACE
-bash grok-bridge/save-xai-key.sh
 bash grok-bridge/run-saved.sh
 ```
 
-O token do Discord já pode estar em `~/.config/mai/discord.env`. A chave
-xAI fica em `~/.config/mai/grok.env`, ambas com permissão `600`.
+Enquanto esse comando estiver rodando, o bot está no escritório. Se
+desligar o processo, ele some do Discord.
 
-Não cole nenhuma chave no chat, em Issues, no Discord ou no repositório.
+5. No Discord, chame:
 
-## Configuração do Discord
+```text
+/grok Como devemos validar o primeiro produto?
+/grok agente:dev O grok-bridge está claro?
+@Grok qa: esse fluxo quebra?
+```
 
-Para receber mensagens por menção, ative **Message Content Intent** no
-Developer Portal do bot. O comando `/grok` funciona via slash command.
+O canal escolhe o funcionário se você não escolher: `#backend` → Dev,
+`#produto` → Produto. A resposta vem **na mesma sala**, assinada.
 
-O bot deve começar com permissões mínimas: ver canais, enviar mensagens,
-ler histórico e usar comandos. Não precisa de Administrador para conversar.
+## O que ele vê do Git
+
+O bot roda no computador que já tem o repositório. Por isso os
+especialistas enxergam o projeto **sem conta extra no GitHub**.
+
+Podem:
+
+- listar pastas;
+- abrir um arquivo;
+- buscar um termo;
+- ver `git status`, `git log` e um resumo de diff.
+
+Não podem:
+
+- commit, push, merge, apagar, mudar permissão;
+- ler `.env`, token ou chave;
+- despejar o repo inteiro numa pergunta.
+
+Cursor continua sendo quem **escreve** código. O GrokBot **analisa e
+conversa** no Discord.
+
+## O que esta versão faz
+
+- conversa em português, no papel do especialista;
+- carrega contexto mínimo + 1 ficha;
+- lê o Git só no trecho pedido;
+- responde por `/grok` ou menção;
+- não trata sugestão como decisão.
+
+## Segredos
+
+Token Discord: `~/.config/mai/discord.env`  
+Chave xAI: `~/.config/mai/grok.env`  
+Permissão `600`. Não cole chave no chat, Issue ou repositório.
 
 ## Próxima evolução
 
-Depois de testar a conversa:
-
-1. receber eventos do GitHub;
-2. resumir PRs e Issues;
-3. encaminhar cada evento ao agente certo;
-4. só depois avaliar ações controladas com aprovação humana.
+1. Testar Dev e QA no Discord com perguntas reais do repo.
+2. Só então avisar PR/Issue no Discord, agrupado.
+3. Memória aprovada depois de correção humana.
+4. Muito depois: ações controladas.

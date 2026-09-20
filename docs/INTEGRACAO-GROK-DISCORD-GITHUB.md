@@ -3,8 +3,8 @@
 > Documento de arquitetura, comportamento e limites para a futura equipe de
 > agentes do Grok trabalhar conectada ao GitHub e ao Discord da MAI.
 
-**Status:** Planejamento da integração  
-**Versão:** 1.0  
+**Status:** Protótipo de conversa roteada  
+**Versão:** 1.1  
 **Data:** 2026-09-18  
 **Responsáveis humanos:** Maicon e Ian  
 **Servidor:** MAI LAB CORP  
@@ -65,15 +65,17 @@ filtrar, resumir e encaminhar o que realmente merece atenção.
 ### Contexto obrigatório
 
 Antes de analisar um evento ou responder sobre a MAI, a integração deve
-buscar, quando necessário:
+buscar **o menor pacote suficiente**:
 
-1. [MAI Central](../MAPA-WIREFRAME-MVP-MAI.md).
-2. `README.md` do repositório.
-3. Issue, Pull Request ou commit relacionado.
-4. Documentos do produto envolvido.
-5. Decisões relacionadas.
-6. Instruções do agente especializado.
-7. Discussões relevantes do próprio Pull Request.
+1. `agentes/CONTEXTO-MINIMO.md`.
+2. A ficha `agentes/<especialista>/AGENT.md` de **um** agente.
+3. `MEMORY.md` desse agente, só se houver regra aprovada.
+4. No máximo uma skill, se a pergunta for aquela tarefa.
+5. Issue, Pull Request, arquivo ou trecho citado.
+6. Poucas mensagens recentes do canal atual.
+
+A MAI Central e este documento são consulta humana e referência. Não devem
+ser colados inteiros em toda pergunta.
 
 ### Contexto que não deve ser enviado automaticamente
 
@@ -105,8 +107,16 @@ não escolher silenciosamente uma versão.
 
 ## 4. Agentes especializados
 
-O Grok pode funcionar como uma equipe de agentes, mesmo que tecnicamente
-exista um único bot coordenador.
+O Grok funciona como uma equipe, mas no Discord existe **um único bot**.
+Cada funcionário é uma ficha em [`agentes/`](../agentes/README.md). Não se
+espelham os especialistas em salas novas.
+
+O canal humano escolhe o setor. A pessoa pode forçar o funcionário:
+
+```text
+/grok agente:qa Isso quebra o cadastro?
+@Grok dev: essa pasta está clara?
+```
 
 ### 🧭 CEO
 
@@ -174,12 +184,17 @@ ou:
 @Grok pergunta
 ```
 
-O bridge lê a MAI Central, este documento e algumas mensagens recentes do
-canal. Ele envia a pergunta para a API da xAI e publica a resposta no
-mesmo canal, dividindo textos longos em mensagens menores.
+O bridge escolhe **um** especialista pelo canal ou pelo comando, lê o
+contexto mínimo e a ficha desse funcionário, e responde na mesma sala.
+Se a pergunta for sobre o projeto, o especialista pode **ler** o Git
+local (listar, abrir arquivo, buscar, log, diff). Ele não escreve no
+Git e não recebe o repositório inteiro de uma vez.
+
+Ele não lê a MAI Central inteira. Não vigia o servidor todo. Não acorda
+dez pessoas ao mesmo tempo.
 
 Isso cria uma conversa real, mas não dá autonomia perigosa ao bot. Nesta
-primeira versão ele:
+versão ele:
 
 - responde;
 - mantém contexto curto da conversa;
