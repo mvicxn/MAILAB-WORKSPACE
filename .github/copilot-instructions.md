@@ -2,7 +2,9 @@
 
 Antes de sugerir ou alterar qualquer coisa:
 
-1. Leia `MAPA-WIREFRAME-MVP-MAI.md`.
+1. Leia `agentes/CONTEXTO-MINIMO.md` e a ficha em `agentes/` do setor
+   envolvido. Só abra a MAI Central inteira se a tarefa for de regra,
+   processo ou decisão da empresa.
 2. Confira a Issue, branch ou Pull Request relacionado.
 3. Preserve padrões e decisões já registradas.
 4. Não altere a branch `main` diretamente.
@@ -12,6 +14,7 @@ Antes de sugerir ou alterar qualquer coisa:
 8. Separe fatos, hipóteses, riscos e dúvidas.
 9. Explique arquivos alterados e como testar.
 10. Se a mudança for ambígua e afetar a MAI Central, pare, proponha e peça consenso.
+11. Não envie o repositório inteiro, nem todas as fichas, em uma pergunta só.
 
 ## Fluxo esperado
 

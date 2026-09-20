@@ -279,6 +279,9 @@ Receber uma Issue ou Pull Request e produzir:
 - recomendação;
 - link para a origem.
 
+As pastas e a skill inicial já existem em `agentes/qa/`. O GrokBot ainda
+é nível 0: lê e sugere, não altera nada.
+
 ### Sem permissão para
 
 - fazer merge;
