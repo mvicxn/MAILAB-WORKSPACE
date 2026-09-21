@@ -38,6 +38,7 @@ ou telefone que a casa não usa.
 - **Pipeline** — interno / conversa / proposta / fechado.
 - **Tarefas** — pedido, diário, quadro, entrega do Grok.
 - **Agenda** — calendário mês; evento, prazo de tarefa e projeto.
+- **News** — Nosso Git e Mundo. Carlos posta. Sem X.
 - **Equipe** — Maicon, Ian e o Carlos. Rotina cola no PC.
 - **Números** — contagem do que existe. Sem métrica inventada.
 

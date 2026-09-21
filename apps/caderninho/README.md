@@ -1,9 +1,12 @@
 # MAI LAB — escritório neste PC
 
 Login: Maicon, Ian e o Carlos (`carlos@mai.local`). Tarefas com prazo,
-clientes, projetos, reunião no painel, quadro ao vivo.
+clientes, projetos, News (Git da casa e Mundo), quadro ao vivo.
 
 Grok trabalha pela **tela**, igual gente. Um bot só. Sem API de funcionário.
+
+News: Carlos posta em `POST /api/mesa/news` (`prateleira`: `git` ou `mundo`).
+Sócios leem a aba News. Sem X.
 
 ## Ligar
 

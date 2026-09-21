@@ -14,7 +14,7 @@ Login do bot: `carlos` / `carlos@mai.local`. A senha fica em
 
 ```text
 GitHub          →  código (CLAUDE.md + apps/caderninho). Lê, sugere, não mergeia
-Site MAI LAB    →  trabalho: Hoje, tarefa, diário, agenda, cliente
+Site MAI LAB    →  trabalho: Hoje, tarefa, diário, agenda, news, cliente
 Discord         →  papo. Carlos fala
 código          →  “abre no Cursor e pede X”
 merge/dinheiro  →  Maicon e Ian
@@ -109,6 +109,16 @@ O JSON traz tarefaId, manual, entrega_url.
 Abre o MAI LAB, entra como Carlos, vai na tarefa.
 Faz o trabalho. Diário. POST em entrega_url.
 Não crie cliente. Não mergeie. Não dispare outro bot.
+```
+
+Nome: `News GitHub` / `News Mundo`  
+Quando: PR/merge/CI na main, e 9:15 / 18:15 dias úteis.
+
+```text
+POST {escritorio}/api/mesa/news
+JSON: email, senha, prateleira (git|mundo), titulo, corpo (Markdown curto), link?, fonte?
+Resposta: { ok: true, id }
+Sem X. Sem senha no corpo da news. Se o escritório dormindo, avisa no chat.
 ```
 
 Rotina **Discord MAI** (se existir): uma voz no Discord. Trabalho da
