@@ -1,9 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Suspense, useCallback } from "react";
-import { BarChart3, CalendarDays, CalendarRange, Contact, FolderKanban, Kanban, LogOut, Newspaper, UsersRound } from "lucide-react";
+import {
+  BarChart3,
+  Cable,
+  CalendarDays,
+  CalendarRange,
+  Contact,
+  FolderKanban,
+  Kanban,
+  ListChecks,
+  LogOut,
+  Newspaper,
+  UsersRound,
+} from "lucide-react";
 
 import { sair } from "@/app/actions";
 import { Avatar } from "@/components/Avatar";
@@ -13,16 +25,49 @@ import { Paleta } from "@/components/Paleta";
 import { Toaster } from "@/components/Toast";
 import { TemaToggle } from "@/components/TemaToggle";
 
-const NAV = [
-  ["Hoje", "/hoje", CalendarDays],
-  ["Pipeline", "/pipeline", Kanban],
-  ["Projetos", "/projetos", FolderKanban],
-  ["Clientes", "/clientes", Contact],
-  ["Agenda", "/agenda", CalendarRange],
-  ["News", "/news", Newspaper],
-  ["Equipe", "/equipe", UsersRound],
-  ["Números", "/relatorio", BarChart3],
+const GRUPOS = [
+  {
+    nome: "Dia",
+    itens: [
+      ["Hoje", "/hoje", CalendarDays],
+      ["Tarefas", "/tarefas", ListChecks],
+      ["Agenda", "/agenda", CalendarRange],
+    ],
+  },
+  {
+    nome: "Casa",
+    itens: [
+      ["Pipeline", "/pipeline", Kanban],
+      ["Projetos", "/projetos", FolderKanban],
+      ["Clientes", "/clientes", Contact],
+    ],
+  },
+  {
+    nome: "Sala",
+    itens: [
+      ["News", "/news", Newspaper],
+      ["Equipe", "/equipe", UsersRound],
+      ["Ponte", "/ponte", Cable],
+      ["Números", "/relatorio", BarChart3],
+    ],
+  },
 ] as const;
+
+function ativo(path: string, href: string) {
+  if (href === "/hoje") {
+    return path === "/hoje";
+  }
+  if (href === "/projetos") {
+    return path.startsWith("/projetos") || path.startsWith("/quadro");
+  }
+  if (href === "/tarefas") {
+    return path.startsWith("/tarefas");
+  }
+  if (href === "/clientes") {
+    return path.startsWith("/clientes");
+  }
+  return path === href || path.startsWith(`${href}/`);
+}
 
 function ShellInner({
   nome,
@@ -46,19 +91,21 @@ function ShellInner({
   children: React.ReactNode;
 }) {
   const path = usePathname();
-  const busca = useSearchParams();
   const router = useRouter();
-  const full = path.startsWith("/quadro") || busca.get("aba") === "quadro";
+  const full = path.includes("/quadro");
   const onNovo = useCallback(
-    (tipo: "cliente" | "tarefa" | "evento") => {
+    (tipo: "cliente" | "tarefa" | "evento" | "projeto") => {
       if (tipo === "cliente") {
-        router.push("/clientes");
+        router.push("/clientes/novo");
       }
       if (tipo === "tarefa") {
-        router.push("/hoje");
+        router.push("/tarefas/nova");
       }
       if (tipo === "evento") {
         router.push("/agenda");
+      }
+      if (tipo === "projeto") {
+        router.push("/projetos/novo");
       }
     },
     [router],
@@ -66,42 +113,43 @@ function ShellInner({
 
   return (
     <div className="relative z-10 flex min-h-full">
-      <aside className="sticky top-0 flex h-screen w-[4.9rem] shrink-0 flex-col justify-between border-r border-[var(--line)] bg-[color-mix(in_srgb,var(--rail)_88%,transparent)] px-2 py-5 backdrop-blur-md lg:w-[16.5rem] lg:px-4">
-        <div className="min-h-0 flex-1 overflow-y-auto">
+      <aside className="rail sticky top-0 flex h-screen w-[4.9rem] shrink-0 flex-col justify-between overflow-hidden px-2 py-5 lg:w-[16.75rem] lg:px-4">
+        <div className="rail-scroll min-h-0 flex-1 overflow-y-auto">
           <Link href="/hoje" className="block px-1">
-            <Logo size={36} />
+            <Logo size={34} marca />
           </Link>
-          <p className="mt-3 hidden px-1 text-[0.68rem] font-semibold tracking-[0.22em] text-[var(--gold)] uppercase lg:block">
+          <p className="mt-4 hidden px-1 text-[0.62rem] font-semibold tracking-[0.2em] text-[var(--rail-mute)] uppercase lg:block">
             Escritório
           </p>
-          <nav className="mt-6 grid gap-1">
-            {NAV.map(([label, href, Icon]) => {
-              const on =
-                path === href ||
-                path.startsWith(`${href}/`) ||
-                (href === "/hoje" && path.startsWith("/tarefas/")) ||
-                (href === "/projetos" && path.startsWith("/quadro"));
-              return (
-                <Link key={href} href={href} className={`rail-link justify-center lg:justify-start ${on ? "on" : ""}`} title={label}>
-                  <span className="relative">
-                    <Icon size={18} />
-                    {href === "/news" && newsNovas > 0 && path !== "/news" ? <span className="rail-dot" /> : null}
-                  </span>
-                  <span className="hidden lg:inline">{label}</span>
-                </Link>
-              );
-            })}
+          <nav className="mt-6">
+            {GRUPOS.map((g) => (
+              <div key={g.nome} className="nav-grupo">
+                <p className="nav-grupo-nome">{g.nome}</p>
+                <div className="grid gap-0.5">
+                  {g.itens.map(([label, href, Icon]) => {
+                    const on = ativo(path, href);
+                    return (
+                      <Link key={href} href={href} className={`rail-link justify-center lg:justify-start ${on ? "on" : ""}`} title={label}>
+                        <span className="relative">
+                          <Icon size={18} />
+                          {href === "/news" && newsNovas > 0 && path !== "/news" ? <span className="rail-dot" /> : null}
+                        </span>
+                        <span className="hidden lg:inline">{label}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </nav>
           {projetos.length > 0 ? (
-            <div className="mt-8 hidden lg:block">
-              <p className="px-2 pb-2 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-[var(--gold)]">
-                Mesas
-              </p>
+            <div className="mt-7 hidden lg:block">
+              <p className="nav-grupo-nome">Mesas abertas</p>
               {projetos.map((p) => (
                 <Link
                   key={p.id}
                   href={`/projetos/${p.id}`}
-                  className={`side-proj ${path === `/projetos/${p.id}` ? "on" : ""}`}
+                  className={`side-proj ${path.startsWith(`/projetos/${p.id}`) ? "on" : ""}`}
                 >
                   {p.nome}
                 </Link>
@@ -110,15 +158,15 @@ function ShellInner({
           ) : null}
         </div>
         <div className="grid gap-3">
-          <div className="hidden items-center gap-2 px-1 text-xs text-[var(--mute)] lg:flex">
+          <Link href="/ponte" className="hidden items-center gap-2 px-1 text-xs text-[var(--rail-mute)] lg:flex">
             <span className={`live ${rotina ? "" : "off"}`} />
             {rotina ? (emCampo.length ? `${emCampo.length} Grok em campo` : "Rotina ligada") : "Grok dormindo"}
-          </div>
+          </Link>
           <div className="flex items-center gap-3 px-1">
             <Avatar nome={nome} size={36} />
             <div className="hidden min-w-0 lg:block">
-              <p className="truncate text-sm font-semibold">{nome}</p>
-              <p className="truncate text-xs text-[var(--mute)]">{funcao}</p>
+              <p className="truncate text-sm font-semibold text-[var(--rail-ink)]">{nome}</p>
+              <p className="truncate text-xs text-[var(--rail-mute)]">{funcao}</p>
             </div>
           </div>
           <div className="flex flex-col items-center gap-2 px-1 lg:flex-row">
@@ -133,7 +181,7 @@ function ShellInner({
         </div>
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
-        <div className={full ? "min-w-0 flex-1 p-3" : "min-w-0 flex-1 px-5 py-6 lg:px-10 lg:py-9"}>{children}</div>
+        <div className={full ? "min-w-0 flex-1 p-3" : "min-w-0 flex-1 px-5 py-8 lg:px-12 lg:py-10"}>{children}</div>
       </div>
       <Toaster />
       <Paleta euId={euId} onNovo={onNovo} />

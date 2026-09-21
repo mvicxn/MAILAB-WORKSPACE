@@ -1,8 +1,7 @@
 import Link from "next/link";
 
-import { criarCliente } from "@/app/actions";
-import { formAction } from "@/lib/form-action";
-import { Reveal } from "@/components/Reveal";
+import { Pagina } from "@/components/Pagina";
+import { Vazio } from "@/components/Vazio";
 import { ehHumano } from "@/lib/equipe";
 import { usuarioAtual } from "@/lib/auth";
 import { STATUS_CLIENTE } from "@/lib/datas";
@@ -18,47 +17,28 @@ export default async function ClientesPage() {
   });
 
   return (
-    <main className="mx-auto grid max-w-4xl gap-8">
-      <Reveal>
-        <p className="kicker">Pessoas</p>
-        <h1 className="display mt-3 text-5xl">Clientes</h1>
-        <p className="mt-4 max-w-xl text-[var(--mute)]">
-          Gente real. Lista vazia é honesta. Sem nome inventado.
-        </p>
-      </Reveal>
-
-      {socio ? (
-        <form action={formAction(criarCliente)} className="panel grid gap-3 p-6">
-          <p className="kicker">Abrir ficha</p>
-          <input name="nome" required placeholder="Nome" className="field" />
-          <div className="grid gap-3 sm:grid-cols-2">
-            <input name="contato" placeholder="Telefone ou e-mail" className="field" />
-            <select name="status" className="field" defaultValue="conversando">
-              <option value="conversando">Em conversa</option>
-              <option value="proposta">Proposta</option>
-              <option value="fechou">Fechado</option>
-              <option value="ativo">Ativo</option>
-              <option value="morreu">Encerrado</option>
-            </select>
-          </div>
-          <input name="proximo" placeholder="Próximo passo" className="field" />
-          <input name="tags" placeholder="Tags, separadas por vírgula" className="field" />
-          <textarea name="notas" rows={2} placeholder="Notas" className="field" />
-          <input type="hidden" name="tipo" value="lead" />
-          <button type="submit" className="btn w-fit">
-            Guardar pessoa
-          </button>
-        </form>
-      ) : null}
-
-      <section className="grid gap-3">
-        {clientes.length === 0 ? (
-          <div className="panel p-8">
-            <p className="display text-2xl">Ninguém na lista.</p>
-            <p className="mt-2 text-sm text-[var(--mute)]">Quando existir conversa de verdade, entra aqui.</p>
-          </div>
-        ) : (
-          clientes.map((c) => (
+    <Pagina
+      kicker="Pessoas"
+      titulo="Clientes"
+      texto="Gente real. Lista vazia é honesta. Ficha e movimento ficam em salas separadas."
+      acao={
+        socio ? (
+          <Link href="/clientes/novo" className="btn">
+            Nova ficha
+          </Link>
+        ) : null
+      }
+    >
+      {clientes.length === 0 ? (
+        <Vazio
+          titulo="Ninguém na lista."
+          texto="Quando existir conversa de verdade, entra aqui."
+          href={socio ? "/clientes/novo" : undefined}
+          acao={socio ? "Abrir ficha" : undefined}
+        />
+      ) : (
+        <section className="grid gap-3">
+          {clientes.map((c) => (
             <Link key={c.id} href={`/clientes/${c.id}`} className="link-card">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
@@ -80,9 +60,9 @@ export default async function ClientesPage() {
                 <span className="chip">{STATUS_CLIENTE[c.status] ?? c.status}</span>
               </div>
             </Link>
-          ))
-        )}
-      </section>
-    </main>
+          ))}
+        </section>
+      )}
+    </Pagina>
   );
 }

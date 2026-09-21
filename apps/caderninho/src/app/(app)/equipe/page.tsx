@@ -1,7 +1,8 @@
+import Link from "next/link";
+
 import { Acionar } from "@/components/Acionar";
 import { Avatar } from "@/components/Avatar";
-import { Contratar } from "@/app/(app)/equipe/Contratar";
-import { Reveal } from "@/components/Reveal";
+import { Pagina } from "@/components/Pagina";
 import { usuarioAtual } from "@/lib/auth";
 import { CARLOS, ehHumano, whereMesa } from "@/lib/equipe";
 import { rotinaMailabLigada } from "@/lib/grok-ponte";
@@ -19,40 +20,46 @@ export default async function EquipePage() {
   const carlos = gente.find((p) => p.ficha === CARLOS.ficha);
 
   return (
-    <main className="mx-auto grid max-w-4xl gap-10">
-      <Reveal>
-        <p className="kicker">Estúdio</p>
-        <h1 className="display mt-3 text-5xl sm:text-6xl">Equipe</h1>
-        <p className="mt-4 max-w-xl text-[var(--mute)]">
-          Dois sócios. Um Grok: Carlos. Chat no canto. Trabalho na ficha.
-        </p>
-        <p className="mt-4 flex items-center gap-2 text-sm">
-          <span className={`live ${mailabLigada ? "" : "off"}`} />
-          {mailabLigada ? "Rotina MAI LAB ligada neste computador." : "Rotina MAI LAB ainda não está neste PC."}
-        </p>
-      </Reveal>
+    <Pagina
+      kicker="Estúdio"
+      titulo="Equipe"
+      texto="Dois sócios. Um Grok: Carlos. A ponte da rotina fica numa sala só dela."
+      acao={
+        socio ? (
+          <Link href="/ponte" className="btn-ghost">
+            Abrir ponte
+          </Link>
+        ) : null
+      }
+    >
+      <p className="flex items-center gap-2 text-sm">
+        <span className={`live ${mailabLigada ? "" : "off"}`} />
+        {mailabLigada ? "Rotina MAI LAB ligada neste computador." : "Rotina MAI LAB ainda não está neste PC."}
+      </p>
 
-      <section className="grid gap-3">
+      <section className="grid gap-4">
         <h2 className="display text-3xl">Sócios</h2>
         <div className="grid gap-3 sm:grid-cols-2">
           {socios.map((p) => (
-            <div key={p.id} className="panel flex items-center gap-4 p-5">
-              <Avatar nome={p.nome} size={48} />
+            <div key={p.id} className="panel flex items-center gap-4 p-6">
+              <Avatar nome={p.nome} size={52} />
               <div>
                 <p className="font-medium">{p.nome}</p>
-                <p className="mt-1 text-sm text-[var(--mute)]">{p.funcao} · decide dinheiro, contrato e merge</p>
+                <p className="mt-1 text-sm leading-relaxed text-[var(--mute)]">
+                  {p.funcao} · decide dinheiro, contrato e merge
+                </p>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="grid gap-3">
+      <section className="grid gap-4">
         <h2 className="display text-3xl">Grok</h2>
         {carlos ? (
-          <div className="panel grid max-w-xl gap-4 p-5">
+          <div className="panel grid max-w-xl gap-5 p-6">
             <div className="flex items-start gap-4">
-              <Avatar nome={carlos.nome} tipo="ia" size={48} />
+              <Avatar nome={carlos.nome} tipo="ia" size={52} />
               <div>
                 <p className="font-medium">{carlos.nome}</p>
                 <p className="mt-1 text-sm text-[var(--mute)]">{CARLOS.email}</p>
@@ -65,15 +72,6 @@ export default async function EquipePage() {
           <p className="text-sm text-[var(--mute)]">Carlos ainda não está no banco. Abra Entrar de novo.</p>
         )}
       </section>
-
-      {socio ? (
-        <details>
-          <summary className="cursor-pointer text-sm text-[var(--mute)]">Ponte do Grok Bot</summary>
-          <div className="mt-4">
-            <Contratar mailabLigada={mailabLigada} />
-          </div>
-        </details>
-      ) : null}
-    </main>
+    </Pagina>
   );
 }

@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { after } from "next/server";
 
+import { Pagina } from "@/components/Pagina";
 import { Relato } from "@/components/Relato";
-import { Reveal } from "@/components/Reveal";
+import { Vazio } from "@/components/Vazio";
 import { usuarioAtual } from "@/lib/auth";
 import { haQuanto } from "@/lib/datas";
 import { ehHumano } from "@/lib/equipe";
@@ -33,20 +34,16 @@ export default async function NewsPage({
   }
 
   return (
-    <main className="mx-auto grid max-w-3xl gap-8">
-      <Reveal>
-        <p className="kicker">Alinhamento</p>
-        <h1 className="display mt-3 text-5xl sm:text-6xl">News</h1>
-        <p className="mt-4 max-w-xl text-[var(--mute)]">
-          O que o Carlos viu no Git e no mundo. Sem X. Lista vazia é honesta.
-        </p>
-      </Reveal>
-
-      <nav className="flex flex-wrap gap-2">
+    <Pagina
+      kicker="Alinhamento"
+      titulo="News"
+      texto="O que o Carlos viu no Git e no mundo. Sem X. Lista vazia é honesta."
+    >
+      <nav className="tabs">
         {FILTROS.map(([id, label]) => {
           const on = (prateleira ?? "") === id;
           return (
-            <Link key={label} href={id ? `/news?p=${id}` : "/news"} className={`chip ${on ? "gold" : ""}`}>
+            <Link key={label} href={id ? `/news?p=${id}` : "/news"} className={`tab ${on ? "on" : ""}`}>
               {label}
             </Link>
           );
@@ -54,9 +51,9 @@ export default async function NewsPage({
       </nav>
 
       {itens.length === 0 ? (
-        <p className="text-[var(--mute)]">Ainda não tem news nesta prateleira.</p>
+        <Vazio titulo="Ainda sem news." texto="Quando o Carlos postar, cai nesta prateleira." />
       ) : (
-        <div className="grid gap-3">
+        <div className="grid gap-4">
           {itens.map((n) => {
             const miolo = (
               <>
@@ -81,18 +78,18 @@ export default async function NewsPage({
                 href={n.link}
                 target="_blank"
                 rel="noreferrer"
-                className="panel block p-5 no-underline text-inherit"
+                className="panel block p-7 no-underline text-inherit"
               >
                 {miolo}
               </a>
             ) : (
-              <article key={n.id} className="panel p-5">
+              <article key={n.id} className="panel p-7">
                 {miolo}
               </article>
             );
           })}
         </div>
       )}
-    </main>
+    </Pagina>
   );
 }

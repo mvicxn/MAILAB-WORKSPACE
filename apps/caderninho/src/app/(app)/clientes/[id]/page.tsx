@@ -1,14 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { atualizarCliente, excluirCliente, impactoCliente } from "@/app/actions";
-import { formAction } from "@/lib/form-action";
-import { Excluir } from "@/components/Excluir";
 import { Relato } from "@/components/Relato";
-import { haQuanto, STATUS_CLIENTE } from "@/lib/datas";
+import { Vazio } from "@/components/Vazio";
+import { haQuanto } from "@/lib/datas";
 import { prisma } from "@/lib/prisma";
 
-export default async function ClientePage({
+export default async function ClientePessoaPage({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -27,46 +25,40 @@ export default async function ClientePage({
   if (!cliente || cliente.deletedAt) {
     notFound();
   }
-  const impacto = await impactoCliente(cliente.id);
 
   return (
-    <main className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
-      <div className="grid gap-6">
-        <div>
-          <p className="kicker">{STATUS_CLIENTE[cliente.status] ?? cliente.status}</p>
-          <h1 className="display mt-2 text-5xl">{cliente.nome}</h1>
-          {cliente.contato ? <p className="mt-3 text-[var(--mute)]">{cliente.contato}</p> : null}
-          {cliente.proximo ? (
-            <p className="mt-3">
-              <span className="text-[var(--gold)]">Próximo. </span>
-              {cliente.proximo}
-            </p>
-          ) : null}
-          <div className="mt-3 flex flex-wrap gap-1">
+    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
+      <div className="grid gap-8">
+        {cliente.proximo ? (
+          <p className="text-lg">
+            <span className="text-[var(--gold)]">Próximo. </span>
+            {cliente.proximo}
+          </p>
+        ) : null}
+        {cliente.tags.length ? (
+          <div className="flex flex-wrap gap-1">
             {cliente.tags.map((x) => (
               <span key={x.tagId} className="chip gold">
                 {x.tag.nome}
               </span>
             ))}
           </div>
-        </div>
-
+        ) : null}
         {cliente.notas.trim() ? (
-          <section className="panel p-6">
+          <section className="panel p-7">
             <p className="kicker">Notas</p>
             <div className="mt-3">
               <Relato texto={cliente.notas} />
             </div>
           </section>
         ) : null}
-
         <section className="grid gap-3">
-          <h2 className="display text-3xl">Timeline</h2>
+          <h2 className="display text-3xl">Movimento</h2>
           {cliente.atividades.length === 0 ? (
             <p className="text-sm text-[var(--mute)]">Ainda sem movimento nesta ficha.</p>
           ) : (
             cliente.atividades.map((a) => (
-              <article key={a.id} className="panel p-4">
+              <article key={a.id} className="panel p-5">
                 <p className="text-xs text-[var(--mute)]">
                   {a.user.nome} · {haQuanto(a.createdAt)}
                 </p>
@@ -76,43 +68,19 @@ export default async function ClientePage({
           )}
         </section>
       </div>
-
-      <aside className="grid gap-4 lg:sticky lg:top-8 lg:self-start">
-        <form action={formAction(atualizarCliente)} className="panel grid gap-3 p-5">
-          <p className="kicker">Ficha</p>
-          <input type="hidden" name="id" value={cliente.id} />
-          <input name="nome" required defaultValue={cliente.nome} className="field" />
-          <select name="tipo" className="field" defaultValue={cliente.tipo}>
-            <option value="lead">Prospecto</option>
-            <option value="cliente">Cliente</option>
-          </select>
-          <select name="status" className="field" defaultValue={cliente.status}>
-            <option value="conversando">Em conversa</option>
-            <option value="proposta">Proposta</option>
-            <option value="fechou">Fechado</option>
-            <option value="ativo">Ativo</option>
-            <option value="morreu">Encerrado</option>
-          </select>
-          <input name="contato" defaultValue={cliente.contato} placeholder="Contato" className="field" />
-          <input name="proximo" defaultValue={cliente.proximo} placeholder="Próximo passo" className="field" />
-          <input
-            name="tags"
-            defaultValue={cliente.tags.map((x) => x.tag.nome).join(", ")}
-            placeholder="Tags"
-            className="field"
-          />
-          <textarea name="notas" rows={4} defaultValue={cliente.notas} className="field" />
-          <button type="submit" className="btn w-fit">
-            Salvar
-          </button>
-        </form>
-        <Excluir
-          id={cliente.id}
-          pergunta={`Excluir cliente ${cliente.nome}?`}
-          impacto={`Tem ${impacto.tarefas} tarefas, ${impacto.eventos} eventos e ${impacto.projetos} projetos ligados.`}
-          action={excluirCliente}
-        />
-
+      <aside className="grid gap-6 lg:sticky lg:top-8 lg:self-start">
+        <section className="grid gap-2">
+          <h2 className="display text-2xl">Projetos</h2>
+          {cliente.projetos.length === 0 ? (
+            <Vazio titulo="Nenhum projeto." texto="Abra uma mesa e ligue esta pessoa." />
+          ) : (
+            cliente.projetos.map((p) => (
+              <Link key={p.id} href={`/projetos/${p.id}`} className="link-card">
+                {p.nome}
+              </Link>
+            ))
+          )}
+        </section>
         <section className="grid gap-2">
           <h2 className="display text-2xl">Tarefas</h2>
           {cliente.tarefas.length === 0 ? (
@@ -137,19 +105,7 @@ export default async function ClientePage({
             ))
           )}
         </section>
-        <section className="grid gap-2">
-          <h2 className="display text-2xl">Projetos</h2>
-          {cliente.projetos.length === 0 ? (
-            <p className="text-sm text-[var(--mute)]">Nenhum projeto ligado.</p>
-          ) : (
-            cliente.projetos.map((p) => (
-              <Link key={p.id} href={`/projetos/${p.id}`} className="link-card">
-                {p.nome}
-              </Link>
-            ))
-          )}
-        </section>
       </aside>
-    </main>
+    </div>
   );
 }

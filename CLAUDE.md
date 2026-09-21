@@ -15,7 +15,8 @@ Segredos em `~/.config/mai/` e `apps/caderninho/.env`. Nunca no Git.
 
 ## MVP no ar
 
-Menu: Hoje, Pipeline, Projetos, Clientes, Agenda, News, Equipe, Números.
+Menu: Hoje, Tarefas, Agenda, Pipeline, Projetos, Clientes, News, Equipe, Ponte, Números.
+Cada área complexa tem página própria (criar, ficha, diário, comercial).
 Tarefa: `a_fazer` | `pendente` | `concluida`.
 Projeto comercial: `interno` | `conversa` | `proposta` | `fechado`.
 Agenda: calendário mês (evento próprio + prazo de tarefa/projeto).

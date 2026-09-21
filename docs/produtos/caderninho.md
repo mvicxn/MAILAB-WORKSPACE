@@ -32,7 +32,9 @@ ou telefone que a casa não usa.
 
 ## MVP (vender primeiro — já na tela)
 
-- **Hoje** — dashboard: atalhos, mesa, movimento, agenda do dia.
+- **Hoje** — dashboard: mesa, atraso, Grok em campo, movimento.
+- **Tarefas** — quadro de status. Pedido novo numa página só.
+- **Ponte** — POST to e key da rotina MAI LAB. Distinta da Equipe.
 - **Clientes** — lista honesta + ficha + timeline da pessoa.
 - **Conversas** — chat no projeto e com o Grok. Canal interno, não WhatsApp.
 - **Pipeline** — interno / conversa / proposta / fechado.

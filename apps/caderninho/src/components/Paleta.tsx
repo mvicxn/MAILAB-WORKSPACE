@@ -18,7 +18,7 @@ export function Paleta({
   onNovo,
 }: {
   euId: string;
-  onNovo: (tipo: "cliente" | "tarefa" | "evento") => void;
+  onNovo: (tipo: "cliente" | "tarefa" | "evento" | "projeto") => void;
 }) {
   const [aberto, setAberto] = useState(false);
   const [q, setQ] = useState("");
@@ -99,12 +99,15 @@ export function Paleta({
     () => [
       ["Novo cliente", () => onNovo("cliente")],
       ["Nova tarefa", () => onNovo("tarefa")],
+      ["Novo projeto", () => onNovo("projeto")],
       ["Novo evento", () => onNovo("evento")],
       ["Hoje", () => router.push("/hoje")],
+      ["Tarefas", () => router.push("/tarefas")],
       ["News", () => router.push("/news")],
       ["Calendário", () => router.push("/agenda")],
       ["Pipeline", () => router.push("/pipeline")],
       ["Clientes", () => router.push("/clientes")],
+      ["Ponte", () => router.push("/ponte")],
     ],
     [onNovo, router],
   );

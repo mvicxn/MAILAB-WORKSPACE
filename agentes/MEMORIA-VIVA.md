@@ -5,8 +5,8 @@ responder no vazio.
 
 A MAI monta o escritório. Ainda não há o primeiro produto pago. Sócios:
 Maicon e Ian. GitHub é a pasta oficial do código. O sistema **MAI LAB**
-(`apps/caderninho/`) é a mesa: Hoje, Pipeline, Projetos, Clientes,
-Agenda (calendário mês), News, Equipe, Números. Login, tarefa, diário,
+(`apps/caderninho/`) é a mesa: Hoje, Tarefas, Pipeline, Projetos, Clientes,
+Agenda (calendário mês), News, Equipe, Ponte, Números. Login, tarefa, diário,
 quadro, timeline, evento. News: Git da casa e digesto do mundo (sem X).
 Excluir vai pra lixeira. Roda neste PC
 (Next + SQLite). Discord é papo. Grok Bot entra no site como **Carlos**
@@ -21,8 +21,7 @@ Já existe no disco: fichas em `agentes/`, skill e rotina em
 `grok-bridge/GROK-BOT-FUNCIONARIOS.md`. Mapa curto: `CLAUDE.md`.
 Não há Oracle, Redis, Jarvis nem cliente validado. Não invente isso.
 
-Falta: sócio colar POST to e key da rotina MAI LAB em Equipe. Validar
-o primeiro produto com gente de verdade.
+Falta: validar o primeiro produto com gente de verdade.
 
 Curto não é raso. Raso é stack ou cliente que não existem. MAI Central
 vence se este recorte divergir.

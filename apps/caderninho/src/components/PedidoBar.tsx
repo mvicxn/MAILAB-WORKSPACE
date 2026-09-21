@@ -16,6 +16,7 @@ export function PedidoBar({
   clienteId,
   euId,
   voltar = "/hoje",
+  abertoInicio = false,
 }: {
   users: Pessoa[];
   projetos?: Nomeado[];
@@ -23,6 +24,7 @@ export function PedidoBar({
   clienteId?: string;
   euId?: string;
   voltar?: string;
+  abertoInicio?: boolean;
 }) {
   const gente = useMemo(
     () =>
@@ -35,7 +37,7 @@ export function PedidoBar({
     [users],
   );
   const interno = projetos.find((p) => p.nome === "MAI interno");
-  const [aberto, setAberto] = useState(false);
+  const [aberto, setAberto] = useState(abertoInicio);
   const [quem, setQuem] = useState(euId ?? gente[0]?.id ?? "");
   const dono = gente.find((u) => u.id === quem);
 
@@ -68,14 +70,15 @@ export function PedidoBar({
             ))}
           </div>
           <div className={`grid gap-3 ${projetoId ? "sm:grid-cols-1" : "sm:grid-cols-2"}`}>
-            <label className="grid gap-1.5 text-xs tracking-wide text-[var(--mute)]">
+            <label className="campo">
               Prazo
               <input name="prazo" type="date" className="field" />
             </label>
             {!projetoId ? (
-              <label className="grid gap-1.5 text-xs tracking-wide text-[var(--mute)]">
+              <label className="campo">
                 Projeto
                 <select name="projetoId" className="field" defaultValue={interno?.id ?? ""}>
+                  <option value="">Sem projeto</option>
                   {projetos.map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.nome}

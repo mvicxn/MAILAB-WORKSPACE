@@ -1,90 +1,73 @@
 import Link from "next/link";
 
-import { FormTarefa } from "@/components/FormTarefa";
 import { LinhaTarefa } from "@/components/LinhaTarefa";
+import { Pagina } from "@/components/Pagina";
 import { Relato } from "@/components/Relato";
-import { Reveal } from "@/components/Reveal";
+import { Vazio } from "@/components/Vazio";
 import { usuarioAtual } from "@/lib/auth";
 import { atrasada, chaveDia, concluida, haQuanto, hojeExtenso, saudacao } from "@/lib/datas";
-import { whereMesa } from "@/lib/equipe";
 import { prisma } from "@/lib/prisma";
 
 export default async function HojePage() {
   const user = await usuarioAtual(prisma);
-  const [tarefas, gente, projetos, entregas, atividades] = await Promise.all([
+  const [tarefas, entregas, atividades] = await Promise.all([
     prisma.tarefa.findMany({
       where: { deletedAt: null },
       include: { assignee: true, projeto: true },
       orderBy: [{ prazo: "asc" }, { updatedAt: "desc" }],
     }),
-    prisma.user.findMany({ where: whereMesa, orderBy: [{ tipo: "asc" }, { nome: "asc" }] }),
-    prisma.projeto.findMany({ where: { deletedAt: null }, orderBy: { nome: "asc" } }),
     prisma.atualizacao.findMany({
       include: { autor: true, tarefa: { include: { projeto: true } } },
       orderBy: { createdAt: "desc" },
-      take: 6,
+      take: 5,
     }),
     prisma.atividade.findMany({
       include: { user: true, cliente: true, projeto: true },
       orderBy: { createdAt: "desc" },
-      take: 10,
+      take: 8,
     }),
   ]);
-  const minhas = user
-    ? tarefas.filter((t) => t.assigneeId === user.id && !concluida(t.status))
-    : [];
+  const minhas = user ? tarefas.filter((t) => t.assigneeId === user.id && !concluida(t.status)) : [];
   const atrasos = tarefas.filter((t) => atrasada(t.status, t.prazo));
   const campo = tarefas.filter((t) => t.assignee.tipo === "ia" && t.acionadoAt && !concluida(t.status));
-  const casa = tarefas.filter(
-    (t) => !concluida(t.status) && (!user || t.assigneeId !== user.id) && !campo.some((c) => c.id === t.id),
-  );
-
   const hojeChave = chaveDia(new Date());
   const agendaHoje = tarefas.filter((t) => t.prazo && chaveDia(t.prazo) === hojeChave && !concluida(t.status));
 
   return (
-    <main className="mx-auto grid max-w-6xl gap-8">
-      <Reveal>
-        <p className="kicker">{hojeExtenso()}</p>
-        <h1 className="display mt-3 text-5xl leading-[0.95] sm:text-6xl">
-          {`${saudacao()}${user ? `, ${user.nome.split(" ")[0]}` : ""}.`}
-        </h1>
-      </Reveal>
-
-      <FormTarefa users={gente} projetos={projetos} euId={user?.id} voltar="/hoje" />
-
+    <Pagina
+      kicker={hojeExtenso()}
+      titulo={`${saudacao()}${user ? `, ${user.nome.split(" ")[0]}` : ""}.`}
+      texto="O dia da casa. Pedido novo mora em Tarefas. Cada projeto tem a própria mesa."
+      acao={
+        <Link href="/tarefas/nova" className="btn">
+          Nova tarefa
+        </Link>
+      }
+      largo
+    >
       <div className="grid gap-3 sm:grid-cols-4">
-        <Link href="/pipeline" className="panel stat">
-          <p className="kicker">Pipeline</p>
-          <p className="mt-2 text-sm text-[var(--mute)]">Onde o dinheiro está</p>
+        <Link href="/tarefas" className="panel stat">
+          <p className="kicker">Sua mesa</p>
+          <p className="n-stat mt-3">{minhas.length}</p>
         </Link>
         <Link href="/agenda" className="panel stat">
-          <p className="kicker">Agenda</p>
-          <p className="n-stat mt-2">{agendaHoje.length}</p>
+          <p className="kicker">Agenda hoje</p>
+          <p className="n-stat mt-3">{agendaHoje.length}</p>
         </Link>
-        <Link href="/clientes" className="panel stat">
-          <p className="kicker">Clientes</p>
-          <p className="mt-2 text-sm text-[var(--mute)]">Pessoas reais</p>
+        <Link href="/tarefas" className="panel stat">
+          <p className="kicker">Atraso</p>
+          <p className="n-stat mt-3">{atrasos.length}</p>
         </Link>
-        <Link href="/relatorio" className="panel stat">
-          <p className="kicker">Números</p>
-          <p className="mt-2 text-sm text-[var(--mute)]">O que a casa tem</p>
+        <Link href="/equipe" className="panel stat">
+          <p className="kicker">Grok em campo</p>
+          <p className="n-stat mt-3">{campo.length}</p>
         </Link>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
-        <div className="grid gap-8">
-          {agendaHoje.length > 0 ? (
-            <section className="grid gap-3">
-              <h2 className="display text-3xl">Hoje na agenda</h2>
-              {agendaHoje.map((t) => (
-                <LinhaTarefa key={t.id} t={t} />
-              ))}
-            </section>
-          ) : null}
-
+      <div className="grid gap-10 lg:grid-cols-[1.15fr_0.85fr]">
+        <div className="grid gap-10">
           {atrasos.length > 0 ? (
-            <section className="grid gap-3">
+            <section className="grid gap-4">
               <h2 className="display text-3xl">Atraso</h2>
               {atrasos.map((t) => (
                 <LinhaTarefa key={t.id} t={t} latePulse />
@@ -92,45 +75,38 @@ export default async function HojePage() {
             </section>
           ) : null}
 
-          <section className="grid gap-3">
-            <div className="flex items-baseline justify-between">
+          <section className="grid gap-4">
+            <div className="flex items-baseline justify-between gap-3">
               <h2 className="display text-3xl">Sua mesa</h2>
-              <span className="text-sm text-[var(--mute)]">{minhas.length}</span>
+              <Link href="/tarefas" className="text-sm text-[var(--gold)]">
+                Ver quadro
+              </Link>
             </div>
             {minhas.length === 0 ? (
-              <div className="panel p-8">
-                <p className="display text-2xl">Mesa limpa.</p>
-                <p className="mt-2 text-sm text-[var(--mute)]">
-                  Peça acima, ou abra um projeto e coloque o Grok para trabalhar.
-                </p>
-              </div>
+              <Vazio
+                titulo="Mesa limpa."
+                texto="Quando tiver pedido no seu nome, aparece aqui."
+                href="/tarefas/nova"
+                acao="Pedir agora"
+              />
             ) : (
               minhas.map((t) => <LinhaTarefa key={t.id} t={t} />)
             )}
           </section>
-
-          {casa.length > 0 ? (
-            <section className="grid gap-3">
-              <h2 className="display text-3xl">Casa</h2>
-              {casa.slice(0, 8).map((t) => (
-                <LinhaTarefa key={t.id} t={t} />
-              ))}
-            </section>
-          ) : null}
         </div>
 
         <aside className="grid gap-6 lg:sticky lg:top-8 lg:self-start">
-          <section className="panel p-6">
+          <section className="panel p-7">
             <p className="kicker">Grok</p>
             <h2 className="display mt-2 text-2xl">Em campo</h2>
             {campo.length === 0 ? (
-              <p className="mt-3 text-sm text-[var(--mute)]">
-                Ninguém em campo. No pedido, escolha um Grok. Ele recebe o briefing e escreve no diário.
+              <p className="mt-3 text-sm leading-relaxed text-[var(--mute)]">
+                Ninguém em campo. Na tarefa nova, escolha o Carlos.
               </p>
             ) : (
-              <div className="mt-4 grid gap-2">
+              <div className="mt-5 grid gap-3">
                 {campo.map((t) => (
-                  <Link key={t.id} href={`/tarefas/${t.id}`} className="flex items-start justify-between gap-2 rounded-xl py-2">
+                  <Link key={t.id} href={`/tarefas/${t.id}`} className="flex items-start justify-between gap-2">
                     <span>
                       <span className="block font-medium">{t.assignee.nome}</span>
                       <span className="text-sm text-[var(--mute)]">{t.titulo}</span>
@@ -145,10 +121,10 @@ export default async function HojePage() {
           <section className="grid gap-3">
             <h2 className="display text-2xl">Movimento</h2>
             {atividades.length === 0 ? (
-              <p className="text-sm text-[var(--mute)]">O escritório ainda não registrou trilha.</p>
+              <p className="text-sm text-[var(--mute)]">Ainda sem trilha. A casa começa vazia.</p>
             ) : (
               atividades.map((a) => (
-                <article key={a.id} className="panel p-4">
+                <article key={a.id} className="panel p-5">
                   <p className="text-xs text-[var(--mute)]">
                     {a.user.nome} · {haQuanto(a.createdAt)}
                     {a.cliente ? ` · ${a.cliente.nome}` : ""}
@@ -181,6 +157,6 @@ export default async function HojePage() {
           </section>
         </aside>
       </div>
-    </main>
+    </Pagina>
   );
 }

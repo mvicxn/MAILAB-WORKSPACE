@@ -23,8 +23,8 @@ A primeira vez pede a senha dos dois sócios. O Carlos nasce sozinho no
 banco (login `carlos` / e-mail `carlos@mai.local`). Senha nova, se
 ainda não existia, fica em `~/.config/mai/funcionarios.env`.
 
-Em **Equipe**, o sócio cola o POST to e a key da rotina MAI LAB (um
-webhook). Não é a rotina Discord.
+Em **Ponte**, o sócio cola o POST to e a key da rotina MAI LAB (um
+webhook). Não é a rotina Discord. Equipe é só gente.
 
 Os nomes das pessoas ficam no `prisma/dev.db` (não sobe pro Git).
 
