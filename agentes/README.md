@@ -1,7 +1,8 @@
 # 🤖 Equipe de agentes da MAI
 
-O cérebro é a **VM do Grok Bot**. Cursor escreve. Discord, por agora, é
-só gente (sem API xAI e sem plugin Discord).
+O cérebro no Discord é o **Grok Bot** (webhook), um bot, várias fichas.
+Carlos escolhe um especialista; esse fala como gente. Cursor escreve.
+Copilot no VS Code ajuda. A API xAI não entra.
 
 Vários especialistas no GitHub. Cada assunto acorda **somente um**
 funcionário (no PR: QA e no máximo +1 Dev). Ele lê o Git; não escreve.

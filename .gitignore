@@ -7,3 +7,13 @@ venv/
 discord-organizer/.env
 grok-bridge/.env
 video-transcriber/.venv/
+node_modules/
+.next/
+apps/caderninho/dev.db
+apps/caderninho/dev.db-journal
+apps/caderninho/prisma/*.db
+apps/caderninho/prisma/*.db-journal
+apps/caderninho/.npm-cache/
+apps/caderninho/uploads/
+apps/caderninho/backups/
+referencia/

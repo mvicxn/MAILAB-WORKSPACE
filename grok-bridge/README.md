@@ -1,93 +1,55 @@
-# 🤖 Conversa do Grok no Discord
+# 🤖 Grok no Discord da MAI
 
-**Status (2026-09-20):** protótipo **cancelado como cérebro**. O plano
-Cursor/Grok Bot não libera API xAI. Sem plugin Discord na VM, o
-escritório no Discord continua só de gente.
+Um bot. Vários especialistas. Cada pergunta acorda **só um**.
+O cérebro é o **Grok do plano Cursor** (não a API xAI).
 
-O cérebro oficial agora é a **VM do Grok Bot**. Este código fica no
-repo como interfone legado, se um dia houver chave de API.
+Enquanto `run-saved.sh` estiver ligado neste computador, o bot aparece
+no servidor. Se o PC dormir ou o processo cair, ele some.
 
----
+## Como chamar
 
-Um bot. Vários especialistas. Cada pergunta acorda **só um**. Esse um
-pode ler o Git da pasta da MAI, como quem abre um arquivo na hora — não
-como quem imprime o repositório.
+No Discord, na sala do assunto:
 
-## Como ligar no Discord
+```text
+/grok Como devemos validar o primeiro produto?
+/grok agente:qa Esse fluxo quebra?
+@Grok dev: essa pasta está clara?
+```
 
-Já existe o aplicativo do bot. A integração é este processo, não um bot
-novo por funcionário.
+O canal escolhe o funcionário se você não escolher: `#backend` → Dev,
+`#produto` → Produto, `#bugs` → André (QA). CEO fala como Carlos.
+
+## Ligar (uma vez)
 
 1. No [Discord Developer Portal](https://discord.com/developers/applications),
    no bot da MAI, ligue **Message Content Intent**.
 2. Convide o bot ao servidor **MAI LAB CORP** com permissão de ver canal,
    enviar mensagem, ler histórico e usar comandos. Sem Administrador.
-3. Guarde as chaves só no computador:
+3. Crie uma chave em [Cursor Dashboard → API Keys](https://cursor.com/dashboard/api).
+   É o plano Cursor, não a API da xAI.
+4. No computador:
 
 ```bash
-bash discord-organizer/save-token.sh
-bash grok-bridge/save-xai-key.sh
-```
-
-4. Deixe o GrokBot ligado, na pasta do repositório:
-
-```bash
-cd /home/mm-lab-corp/MAILAB-WORKSPACE
+cd /home/mm-lab-corp/MAILAB-WORKSPACE/mailab-workspace
+bash grok-bridge/setup.sh
+bash grok-bridge/save-cursor-key.sh
 bash grok-bridge/run-saved.sh
 ```
 
-Enquanto esse comando estiver rodando, o bot está no escritório. Se
-desligar o processo, ele some do Discord.
+O token Discord já está em `~/.config/mai/discord.env`.
+A chave Cursor fica em `~/.config/mai/cursor.env`. Permissão `600`.
+Não cole chave no chat, Issue ou repositório.
 
-5. No Discord, chame:
+## O que ele vê
 
-```text
-/grok Como devemos validar o primeiro produto?
-/grok agente:dev O grok-bridge está claro?
-@Grok qa: esse fluxo quebra?
-```
+O bot roda na pasta do Git. Os especialistas leem o projeto daqui.
+Nível 0: conversar e sugerir. Não mergeiam, não publicam, não gastam.
 
-O canal escolhe o funcionário se você não escolher: `#backend` → Dev,
-`#produto` → Produto. A resposta vem **na mesma sala**, assinada.
-
-## O que ele vê do Git
-
-O bot roda no computador que já tem o repositório. Por isso os
-especialistas enxergam o projeto **sem conta extra no GitHub**.
-
-Podem:
-
-- listar pastas;
-- abrir um arquivo;
-- buscar um termo;
-- ver `git status`, `git log` e um resumo de diff.
-
-Não podem:
-
-- commit, push, merge, apagar, mudar permissão;
-- ler `.env`, token ou chave;
-- despejar o repo inteiro numa pergunta.
-
-Cursor continua sendo quem **escreve** código. O GrokBot **analisa e
-conversa** no Discord.
-
-## O que esta versão faz
-
-- conversa em português, no papel do especialista;
-- carrega contexto mínimo + 1 ficha;
-- lê o Git só no trecho pedido;
-- responde por `/grok` ou menção;
-- não trata sugestão como decisão.
+Cursor (este chat) continua sendo quem **escreve** código quando você pede.
+O Grok no Discord **analisa e conversa**.
 
 ## Segredos
 
 Token Discord: `~/.config/mai/discord.env`  
-Chave xAI: `~/.config/mai/grok.env`  
-Permissão `600`. Não cole chave no chat, Issue ou repositório.
-
-## Próxima evolução
-
-1. Testar Dev e QA no Discord com perguntas reais do repo.
-2. Só então avisar PR/Issue no Discord, agrupado.
-3. Memória aprovada depois de correção humana.
-4. Muito depois: ações controladas.
+Chave Cursor: `~/.config/mai/cursor.env`  
+A API xAI **não** é necessária.

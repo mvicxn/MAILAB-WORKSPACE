@@ -1,0 +1,234 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  nome      String
+  login     String   @unique
+  email     String   @unique
+  senhaHash String
+  papel     String
+  funcao    String
+  ficha     String   @default("")
+  tipo      String   @default("humano")
+  ativo     Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  tarefas        Tarefa[]      @relation("Assignee")
+  tarefasCriadas Tarefa[]      @relation("Creator")
+  atualizacoes   Atualizacao[]
+  pedidos        Pedido[]
+  chatsHumano    Conversa[]    @relation("ChatHumano")
+  chatsBot       Conversa[]    @relation("ChatFuncionario")
+  mensagens      Mensagem[]
+  atividades     Atividade[]
+  auditorias     Auditoria[]
+}
+
+model Cliente {
+  id        String   @id @default(cuid())
+  nome      String
+  tipo      String   @default("lead")
+  status    String   @default("conversando")
+  contato   String   @default("")
+  notas     String   @default("")
+  proximo   String   @default("")
+  extra     String   @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  projetos  Projeto[]
+  tarefas   Tarefa[]
+  tags      ClienteTag[]
+  atividades Atividade[]
+}
+
+model Projeto {
+  id        String    @id @default(cuid())
+  nome      String
+  descricao String    @default("")
+  status    String    @default("aberto")
+  comercial String    @default("interno")
+  valor     String    @default("")
+  prazo     DateTime?
+  proximo   String    @default("")
+  extra     String    @default("{}")
+  clienteId String?
+  cliente   Cliente?  @relation(fields: [clienteId], references: [id])
+  quadroId  String    @unique @default(cuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  tarefas     Tarefa[]
+  tags        ProjetoTag[]
+  atividades  Atividade[]
+}
+
+model Tarefa {
+  id            String    @id @default(cuid())
+  titulo        String
+  descricao     String    @default("")
+  status        String    @default("a_fazer")
+  estimativaMin Int       @default(60)
+  prazo         DateTime?
+  assigneeId    String
+  assignee      User      @relation("Assignee", fields: [assigneeId], references: [id])
+  criadorId     String
+  criador       User      @relation("Creator", fields: [criadorId], references: [id])
+  clienteId     String?
+  cliente       Cliente?  @relation(fields: [clienteId], references: [id])
+  projetoId     String?
+  projeto       Projeto?  @relation(fields: [projetoId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  pedidoId      String?
+  pedido        Pedido?   @relation(fields: [pedidoId], references: [id])
+  acionadoAt    DateTime?
+  arquivos      Arquivo[]
+  atualizacoes  Atualizacao[]
+  atividades    Atividade[]
+}
+
+model Arquivo {
+  id        String   @id @default(cuid())
+  tarefaId  String
+  tarefa    Tarefa   @relation(fields: [tarefaId], references: [id], onDelete: Cascade)
+  nome      String
+  caminho   String
+  createdAt DateTime @default(now())
+}
+
+model Atualizacao {
+  id        String   @id @default(cuid())
+  tarefaId  String
+  tarefa    Tarefa   @relation(fields: [tarefaId], references: [id], onDelete: Cascade)
+  autorId   String
+  autor     User     @relation(fields: [autorId], references: [id])
+  texto     String
+  createdAt DateTime @default(now())
+}
+
+model Pedido {
+  id         String   @id @default(cuid())
+  texto      String
+  todoMundo  Boolean  @default(false)
+  criadorId  String
+  criador    User     @relation(fields: [criadorId], references: [id])
+  createdAt  DateTime @default(now())
+  tarefas    Tarefa[]
+}
+
+model Reuniao {
+  id        String   @id @default(cuid())
+  semana    String   @unique
+  pauta     String   @default("")
+  ata       String   @default("")
+  updatedAt DateTime @updatedAt
+}
+
+model Quadro {
+  id        String   @id @default(cuid())
+  sala      String   @unique
+  snapshot  String   @default("")
+  updatedAt DateTime @updatedAt
+}
+
+model Conversa {
+  id             String      @id @default(cuid())
+  humanoId       String
+  humano         User        @relation("ChatHumano", fields: [humanoId], references: [id])
+  funcionarioId  String
+  funcionario    User        @relation("ChatFuncionario", fields: [funcionarioId], references: [id])
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  mensagens      Mensagem[]
+
+  @@unique([humanoId, funcionarioId])
+}
+
+model Mensagem {
+  id         String   @id @default(cuid())
+  conversaId String
+  conversa   Conversa @relation(fields: [conversaId], references: [id], onDelete: Cascade)
+  autorId    String
+  autor      User     @relation(fields: [autorId], references: [id])
+  papel      String
+  texto      String
+  createdAt  DateTime @default(now())
+}
+
+model Atividade {
+  id         String   @id @default(cuid())
+  tipo       String
+  texto      String
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  clienteId  String?
+  cliente    Cliente? @relation(fields: [clienteId], references: [id])
+  projetoId  String?
+  projeto    Projeto? @relation(fields: [projetoId], references: [id])
+  tarefaId   String?
+  tarefa     Tarefa?  @relation(fields: [tarefaId], references: [id])
+  createdAt  DateTime @default(now())
+}
+
+model Auditoria {
+  id         String   @id @default(cuid())
+  acao       String
+  entidade   String
+  entidadeId String
+  detalhe    String   @default("")
+  ip         String   @default("")
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  createdAt  DateTime @default(now())
+}
+
+model Tag {
+  id       String       @id @default(cuid())
+  nome     String       @unique
+  cor      String       @default("#9a7840")
+  clientes ClienteTag[]
+  projetos ProjetoTag[]
+}
+
+model ClienteTag {
+  clienteId String
+  tagId     String
+  cliente   Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([clienteId, tagId])
+}
+
+model ProjetoTag {
+  projetoId String
+  tagId     String
+  projeto   Projeto @relation(fields: [projetoId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([projetoId, tagId])
+}
+
+model ModeloMensagem {
+  id        String   @id @default(cuid())
+  nome      String
+  canal     String   @default("interno")
+  corpo     String
+  ativo     Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model CampoPersonalizado {
+  id       String @id @default(cuid())
+  entidade String
+  chave    String
+  rotulo   String
+  tipo     String @default("texto")
+  opcoes   String @default("")
+}
+

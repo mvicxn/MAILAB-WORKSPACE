@@ -1,0 +1,8 @@
+-- AlterTable
+ALTER TABLE "Projeto" ADD COLUMN "comercial" TEXT NOT NULL DEFAULT 'interno';
+ALTER TABLE "Projeto" ADD COLUMN "valor" TEXT NOT NULL DEFAULT '';
+ALTER TABLE "Projeto" ADD COLUMN "prazo" DATETIME;
+ALTER TABLE "Projeto" ADD COLUMN "proximo" TEXT NOT NULL DEFAULT '';
+
+-- AlterTable
+ALTER TABLE "Tarefa" ADD COLUMN "acionadoAt" DATETIME;

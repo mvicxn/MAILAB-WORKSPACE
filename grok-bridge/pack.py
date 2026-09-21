@@ -86,6 +86,33 @@ REVIEW_RE = re.compile(
     r"\b(issue|pr|pull request|revisar|revisão|teste|checklist|bug|aceite)\b",
     flags=re.IGNORECASE,
 )
+CHANNEL_RE = re.compile(
+    r"\b(canal|canais|discord|sala|salas|server|servidor|mapear|"
+    r"onde (falar|dizer)|marcar)\b",
+    flags=re.IGNORECASE,
+)
+
+TOPIC_TO_AGENT = (
+    (re.compile(r"primeiro produto|validar .+produto|\bmvp\b|dor do cliente", re.I), "produto"),
+    (re.compile(r"\b(pr|pull request|quebra|checklist|aceite)\b", re.I), "qa"),
+    (re.compile(r"cursor|copilot|código|codigo|\bpasta\b|commit", re.I), "dev"),
+    (re.compile(r"preço|preco|custo|caixa|dinheiro", re.I), "financeiro"),
+    (re.compile(r"contrato|jurídic|juridic", re.I), "juridico"),
+    (re.compile(r"entrevista|evidência|evidencia|pesquisa", re.I), "pesquisa"),
+)
+
+ROSTER = (
+    "Carlos escolhe UM: ceo prioridade; produto dor/MVP; pesquisa evidência; "
+    "design tela; dev Cursor/Copilot/código; marketing texto; financeiro preço; "
+    "juridico contrato; qa quebra/PR; seguranca dado; operacoes suporte."
+)
+
+
+def agent_from_topic(question: str) -> Optional[str]:
+    for pattern, agent in TOPIC_TO_AGENT:
+        if pattern.search(question):
+            return agent
+    return None
 
 
 def clip(text: str, limit: int) -> str:
@@ -134,7 +161,12 @@ def choose_agent(
     channel_name: str,
 ) -> Tuple[str, str]:
     named, cleaned = parse_explicit_agent(question)
-    agent = normalize_agent(explicit) or named or agent_from_channel(channel_name)
+    agent = (
+        normalize_agent(explicit)
+        or named
+        or agent_from_topic(cleaned or question)
+        or agent_from_channel(channel_name)
+    )
     return agent or DEFAULT_AGENT, cleaned or question
 
 
@@ -163,6 +195,7 @@ def load_pack(agent_id: str, question: str) -> str:
     meta = AGENTS[agent_id]
     parts = [
         f"Especialista ativo: {meta['emoji']} {meta['label']} ({agent_id})",
+        ROSTER,
         read_capped(AGENTS_ROOT / "CONTEXTO-MINIMO.md", MAX_MINIMAL_CHARS),
         read_capped(AGENTS_ROOT / "MEMORIA-VIVA.md", MAX_LIVE_MEMORY_CHARS),
         read_capped(AGENTS_ROOT / agent_id / "AGENT.md", MAX_AGENT_CHARS),
@@ -173,4 +206,6 @@ def load_pack(agent_id: str, question: str) -> str:
     skill = pick_skill(agent_id, question)
     if skill is not None:
         parts.append(read_capped(skill, MAX_SKILL_CHARS))
+    if CHANNEL_RE.search(question):
+        parts.append(read_capped(AGENTS_ROOT / "CANAIS-DISCORD.md", 3500))
     return "\n\n".join(part for part in parts if part)

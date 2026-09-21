@@ -144,7 +144,8 @@ Toda mudança relevante deve ser anotada aqui:
 | 2026-09-18 | Autorização inicial para melhorias documentais de baixo risco sem consenso prévio | Evitar travar a montagem da MAI no início, mantendo consenso para mudanças de alto impacto | Maicon | Em vigor |
 | 2026-09-18 | Inclusão do padrão de contexto, memória, skills e avaliação de agentes | Transformar aprendizados da transcrição em processo operacional inicial | Maicon | Em vigor |
 | 2026-09-18 | Fichas vivas em `agentes/` e GrokBot com um especialista por pergunta | Operacionalizar o padrão já aprovado sem inflar tokens nem criar salas extras | Maicon | Em vigor |
-| 2026-09-20 | grok-bridge no PC cancelado; cérebro na VM do Grok Bot | Plano Cursor não libera API xAI; Discord segue sem bot até haver conector | Maicon | Em vigor |
+| 2026-09-20 | grok-bridge no PC cancelado; cérebro na VM do Grok Bot | Plano Cursor não libera API xAI; Discord segue sem bot até haver conector | Maicon | Substituída |
+| 2026-09-20 | Discord: um bot, Grok pelo plano Cursor (sem API xAI) | Maicon quer chamar os especialistas no servidor; o conector é o PC com o token já salvo | Maicon | Em vigor |
 | 2026-09-18 | Criação do norte da integração Grok + GitHub + Discord | Definir contexto, eventos, agentes, autonomia, segurança e fases antes de conectar a IA ao ambiente | Maicon | Em vigor |
 
 Para alterações futuras, usar este modelo:
@@ -1594,7 +1595,7 @@ mudar.
 - [x] Fichas dos especialistas criadas em `agentes/`.
 - [x] GrokBot roteia um especialista por pergunta, sem sala extra.
 - [x] Lote de treinamentos 04–20 catalogado; skills de Dev, QA e Design extraídas.
-- [x] Decisão: cérebro na VM do Grok Bot; grok-bridge no PC cancelado (sem API xAI).
+- [x] Decisão: API xAI não entra; Discord liga Grok pelo plano Cursor (um bot).
 
 ### Em andamento
 

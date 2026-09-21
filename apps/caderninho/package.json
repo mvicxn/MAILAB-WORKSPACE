@@ -1,0 +1,42 @@
+{
+  "name": "caderninho",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -k \"next dev\" \"node server/quadro.mjs\" \"node server/cursor-casa.mjs\"",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "lint": "eslint",
+    "db": "prisma migrate dev",
+    "postinstall": "prisma generate"
+  },
+  "dependencies": {
+    "@cursor/sdk": "^1.0.31",
+    "@prisma/client": "^6.18.0",
+    "bcryptjs": "^3.0.3",
+    "concurrently": "^10.0.5",
+    "jose": "^6.2.12",
+    "lucide-react": "^1.47.0",
+    "motion": "^13.4.0",
+    "next": "16.3.5",
+    "prisma": "^6.18.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "tldraw": "^5.4.2",
+    "ws": "^8.21.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/ws": "^8.18.1",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.5",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
