@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useCallback } from "react";
-import { BarChart3, CalendarDays, CalendarRange, Contact, FolderKanban, Kanban, LogOut, UsersRound } from "lucide-react";
+import { BarChart3, CalendarDays, CalendarRange, Contact, FolderKanban, Kanban, LogOut, Newspaper, UsersRound } from "lucide-react";
 
 import { sair } from "@/app/actions";
 import { Avatar } from "@/components/Avatar";
@@ -19,6 +19,7 @@ const NAV = [
   ["Projetos", "/projetos", FolderKanban],
   ["Clientes", "/clientes", Contact],
   ["Agenda", "/agenda", CalendarRange],
+  ["News", "/news", Newspaper],
   ["Equipe", "/equipe", UsersRound],
   ["Números", "/relatorio", BarChart3],
 ] as const;
@@ -31,6 +32,7 @@ function ShellInner({
   projetos,
   rotina,
   emCampo,
+  newsNovas,
   children,
 }: {
   nome: string;
@@ -40,6 +42,7 @@ function ShellInner({
   projetos: { id: string; nome: string }[];
   rotina: boolean;
   emCampo: { id: string; titulo: string; nome: string }[];
+  newsNovas: number;
   children: React.ReactNode;
 }) {
   const path = usePathname();
@@ -80,7 +83,10 @@ function ShellInner({
                 (href === "/projetos" && path.startsWith("/quadro"));
               return (
                 <Link key={href} href={href} className={`rail-link justify-center lg:justify-start ${on ? "on" : ""}`} title={label}>
-                  <Icon size={18} />
+                  <span className="relative">
+                    <Icon size={18} />
+                    {href === "/news" && newsNovas > 0 && path !== "/news" ? <span className="rail-dot" /> : null}
+                  </span>
                   <span className="hidden lg:inline">{label}</span>
                 </Link>
               );
@@ -143,6 +149,7 @@ export function Shell(props: {
   projetos: { id: string; nome: string }[];
   rotina: boolean;
   emCampo: { id: string; titulo: string; nome: string }[];
+  newsNovas: number;
   children: React.ReactNode;
 }) {
   return (

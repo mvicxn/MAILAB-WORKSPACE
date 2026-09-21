@@ -101,6 +101,7 @@ export function Paleta({
       ["Nova tarefa", () => onNovo("tarefa")],
       ["Novo evento", () => onNovo("evento")],
       ["Hoje", () => router.push("/hoje")],
+      ["News", () => router.push("/news")],
       ["Calendário", () => router.push("/agenda")],
       ["Pipeline", () => router.push("/pipeline")],
       ["Clientes", () => router.push("/clientes")],
@@ -159,6 +160,11 @@ export function Paleta({
             {hits.eventos.map((e) => (
               <button key={e.id} type="button" className="paleta-item" onClick={() => router.push(`/agenda?e=${e.id}`)}>
                 Evento · {e.titulo}
+              </button>
+            ))}
+            {hits.news?.map((n) => (
+              <button key={n.id} type="button" className="paleta-item" onClick={() => router.push("/news")}>
+                News · {n.titulo}
               </button>
             ))}
           </div>

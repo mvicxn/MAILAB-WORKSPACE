@@ -4,6 +4,7 @@ import { Shell } from "@/components/Shell";
 import { usuarioAtual } from "@/lib/auth";
 import { concluida } from "@/lib/datas";
 import { whereMesa } from "@/lib/equipe";
+import { contarNewsNovas } from "@/lib/news";
 import { rotinaMailabLigada } from "@/lib/grok-ponte";
 import { prisma } from "@/lib/prisma";
 
@@ -16,7 +17,7 @@ export default async function AppLayout({
   if (!user) {
     redirect("/entrar");
   }
-  const [pessoas, projetos, campo, rotina] = await Promise.all([
+  const [pessoas, projetos, campo, rotina, newsNovas] = await Promise.all([
     prisma.user.findMany({
       where: { ...whereMesa, NOT: { id: user.id } },
       orderBy: [{ tipo: "asc" }, { nome: "asc" }],
@@ -35,6 +36,7 @@ export default async function AppLayout({
       take: 6,
     }),
     rotinaMailabLigada(),
+    contarNewsNovas(user.id),
   ]);
   const emCampo = campo
     .filter((t) => t.assignee.tipo === "ia" && !concluida(t.status))
@@ -49,6 +51,7 @@ export default async function AppLayout({
       projetos={projetos}
       rotina={rotina}
       emCampo={emCampo}
+      newsNovas={newsNovas}
     >
       {children}
     </Shell>

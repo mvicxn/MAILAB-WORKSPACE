@@ -40,7 +40,7 @@ function texto(formData: FormData, name: string) {
 }
 
 function revalidateCasa(...extras: string[]) {
-  for (const p of ["/hoje", "/projetos", "/pipeline", "/agenda", "/clientes", "/relatorio", "/equipe", ...extras].filter(Boolean)) {
+  for (const p of ["/hoje", "/projetos", "/pipeline", "/agenda", "/clientes", "/relatorio", "/equipe", "/news", ...extras].filter(Boolean)) {
     revalidatePath(p);
   }
 }
@@ -1431,15 +1431,19 @@ export async function buscarGlobal(q: string) {
   await eu();
   const s = q.trim();
   if (s.length < 1) {
-    return { clientes: [], tarefas: [], eventos: [], projetos: [] };
+    return { clientes: [], tarefas: [], eventos: [], projetos: [], news: [] };
   }
-  const [clientes, tarefas, eventos, projetos] = await Promise.all([
+  const [clientes, tarefas, eventos, projetos, news] = await Promise.all([
     prisma.cliente.findMany({ where: { ...vivo, nome: { contains: s } }, take: 8 }),
     prisma.tarefa.findMany({ where: { ...vivo, titulo: { contains: s } }, take: 8 }),
     prisma.evento.findMany({ where: { ...vivo, titulo: { contains: s } }, take: 8 }),
     prisma.projeto.findMany({ where: { ...vivo, nome: { contains: s } }, take: 8 }),
+    prisma.news.findMany({
+      where: { empresaId: EMPRESA, OR: [{ titulo: { contains: s } }, { corpo: { contains: s } }] },
+      take: 8,
+    }),
   ]);
-  return { clientes, tarefas, eventos, projetos };
+  return { clientes, tarefas, eventos, projetos, news };
 }
 
 export async function tarefaDeEvento(eventoId: string) {

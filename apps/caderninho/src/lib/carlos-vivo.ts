@@ -37,10 +37,12 @@ MAPA DO ESCRITÓRIO
 
 ${casa}/entrar      → login
 ${casa}/hoje        → mesa do dia
+${casa}/news        → Nosso Git e Mundo
 ${casa}/projetos    → mesa comercial
 ${casa}/tarefas/ID  → UMA tarefa: notas, diário, anexo
 ${casa}/equipe      → sócios e você. Ponte da rotina MAI LAB
 ${casa}/api/mesa/entrega → diário + arquivo (POST)
+${casa}/api/mesa/news    → POST prateleira git|mundo, titulo, corpo, link?
 ${casa}/api/mesa/cursor  → pede código ao Cursor desta casa
 
 ------------------------------------------------
@@ -95,6 +97,18 @@ O sócio fala com você no painel direito. Isso NÃO é tarefa.
 4. Se não puder devolver, POST resposta_url:
    { "email", "senha", "conversaId", "texto" }
 5. Não crie tarefa sozinho a partir do chat.
+
+------------------------------------------------
+NEWS
+------------------------------------------------
+
+Duas prateleiras: git (repo da casa) e mundo (digesto útil, sem X).
+
+POST ${casa}/api/mesa/news
+JSON: email, senha, prateleira, titulo, corpo, link?, fonte?
+Resposta: { ok: true, id }
+
+Não invente news. Não cole senha. Se o site não abrir, avisa no chat.
 
 ------------------------------------------------
 REGRAS QUE NÃO QUEBRAM

@@ -32,6 +32,8 @@ model User {
   auditorias     Auditoria[]
   eventos        Evento[]      @relation("EventoDono")
   participacoes  EventoParticipante[]
+  news           News[]
+  newsLeituras   NewsLeitura[]
 }
 
 model Cliente {
@@ -292,5 +294,31 @@ model CampoPersonalizado {
   rotulo   String
   tipo     String @default("texto")
   opcoes   String @default("")
+}
+
+model News {
+  id          String        @id @default(cuid())
+  prateleira  String
+  titulo      String
+  corpo       String
+  link        String        @default("")
+  fonte       String        @default("")
+  empresaId   String        @default("mai")
+  autorId     String
+  autor       User          @relation(fields: [autorId], references: [id])
+  createdAt   DateTime      @default(now())
+  leituras    NewsLeitura[]
+
+  @@index([prateleira, createdAt])
+}
+
+model NewsLeitura {
+  newsId    String
+  userId    String
+  news      News     @relation(fields: [newsId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([newsId, userId])
 }
 

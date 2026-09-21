@@ -356,6 +356,16 @@ summary {
   color: var(--ink);
 }
 
+.rail-dot {
+  position: absolute;
+  top: -0.15rem;
+  right: -0.2rem;
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 999px;
+  background: var(--gold);
+}
+
 .avatar {
   display: inline-flex;
   align-items: center;
