@@ -96,7 +96,7 @@ export async function acordarGrok(recado: RecadoGrok) {
   if (!hook.url || !hook.key) {
     return {
       ok: false as const,
-      erro: "Falta a rotina MAI LAB neste PC. Em Equipe, cole POST to e key. Não use a rotina Discord.",
+      erro: "Falta a ligação do Carlos neste PC. Em Manutenção, cole o endereço e a chave da rotina MAI LAB. Não use a rotina Discord.",
     };
   }
   const casa = recado.escritorio_url || hook.escritorio;
@@ -141,7 +141,7 @@ export async function acordarGrok(recado: RecadoGrok) {
     return { ok: false as const, erro: `Grok não acordou (HTTP ${resp.status}). ${raw.slice(0, 180)}` };
   } catch (err) {
     const msg = err instanceof Error ? err.message : "falhou";
-    return { ok: false as const, erro: `Ponte caiu: ${msg}` };
+    return { ok: false as const, erro: `Ligação caiu: ${msg}` };
   } finally {
     clearTimeout(timer);
   }

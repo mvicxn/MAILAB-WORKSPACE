@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { Sala } from "@/components/Sala";
+import { lerExtra } from "@/lib/cliente-extra";
 import { STATUS_CLIENTE } from "@/lib/datas";
 import { prisma } from "@/lib/prisma";
 
@@ -18,6 +19,9 @@ export default async function ClienteLayout({
     notFound();
   }
 
+  const extra = lerExtra(cliente.extra);
+  const linha = [extra.cargo, extra.empresa, cliente.contato || extra.email || extra.telefone].filter(Boolean).join(" · ");
+
   return (
     <div className="mx-auto grid w-full max-w-5xl gap-6">
       <header className="grid gap-5">
@@ -29,7 +33,7 @@ export default async function ClienteLayout({
             {` · ${STATUS_CLIENTE[cliente.status] ?? cliente.status}`}
           </p>
           <h1 className="display mt-3 text-4xl sm:text-5xl">{cliente.nome}</h1>
-          {cliente.contato ? <p className="mt-3 text-[var(--mute)]">{cliente.contato}</p> : null}
+          {linha ? <p className="mt-3 text-[var(--mute)]">{linha}</p> : null}
         </div>
         <Sala
           base={`/clientes/${id}`}

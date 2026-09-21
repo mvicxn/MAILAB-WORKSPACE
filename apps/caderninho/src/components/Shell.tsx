@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Suspense, useCallback } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import {
+  Bell,
   BarChart3,
-  Cable,
   CalendarDays,
   CalendarRange,
   Contact,
@@ -15,9 +15,10 @@ import {
   LogOut,
   Newspaper,
   UsersRound,
+  Wrench,
 } from "lucide-react";
 
-import { sair } from "@/app/actions";
+import { pulso, sair } from "@/app/actions";
 import { Avatar } from "@/components/Avatar";
 import { ChatMesa } from "@/components/ChatMesa";
 import { Logo } from "@/components/Logo";
@@ -30,6 +31,7 @@ const GRUPOS = [
     nome: "Dia",
     itens: [
       ["Hoje", "/hoje", CalendarDays],
+      ["Avisos", "/avisos", Bell],
       ["Tarefas", "/tarefas", ListChecks],
       ["Agenda", "/agenda", CalendarRange],
     ],
@@ -47,7 +49,7 @@ const GRUPOS = [
     itens: [
       ["News", "/news", Newspaper],
       ["Equipe", "/equipe", UsersRound],
-      ["Ponte", "/ponte", Cable],
+      ["Manutenção", "/manutencao", Wrench],
       ["Números", "/relatorio", BarChart3],
     ],
   },
@@ -66,8 +68,13 @@ function ativo(path: string, href: string) {
   if (href === "/clientes") {
     return path.startsWith("/clientes");
   }
+  if (href === "/manutencao") {
+    return path.startsWith("/manutencao") || path.startsWith("/ponte");
+  }
   return path === href || path.startsWith(`${href}/`);
 }
+
+type Pessoa = { id: string; nome: string; funcao: string; tipo: string; vistoAt?: string | null };
 
 function ShellInner({
   nome,
@@ -78,21 +85,31 @@ function ShellInner({
   rotina,
   emCampo,
   newsNovas,
+  avisosNovos,
   children,
 }: {
   nome: string;
   funcao: string;
   euId: string;
-  pessoas: { id: string; nome: string; funcao: string; tipo: string }[];
+  pessoas: Pessoa[];
   projetos: { id: string; nome: string }[];
   rotina: boolean;
-  emCampo: { id: string; titulo: string; nome: string }[];
+  emCampo: { id: string; titulo: string; nome: string; assigneeId?: string }[];
   newsNovas: number;
+  avisosNovos: number;
   children: React.ReactNode;
 }) {
   const path = usePathname();
   const router = useRouter();
   const full = path.includes("/quadro");
+  const [visto, setVisto] = useState<Record<string, string | null>>(() => {
+    const m: Record<string, string | null> = {};
+    for (const p of pessoas) {
+      m[p.id] = p.vistoAt ?? null;
+    }
+    return m;
+  });
+  const campoIds = emCampo.map((e) => e.assigneeId).filter((id): id is string => Boolean(id));
   const onNovo = useCallback(
     (tipo: "cliente" | "tarefa" | "evento" | "projeto") => {
       if (tipo === "cliente") {
@@ -111,6 +128,23 @@ function ShellInner({
     [router],
   );
 
+  useEffect(() => {
+    let viva = true;
+    async function tick() {
+      const r = await pulso();
+      if (!viva || !r.ok) {
+        return;
+      }
+      setVisto(r.visto);
+    }
+    void tick();
+    const t = setInterval(() => void tick(), 25000);
+    return () => {
+      viva = false;
+      clearInterval(t);
+    };
+  }, []);
+
   return (
     <div className="relative z-10 flex min-h-full">
       <aside className="rail sticky top-0 flex h-screen w-[4.9rem] shrink-0 flex-col justify-between overflow-hidden px-2 py-5 lg:w-[16.75rem] lg:px-4">
@@ -128,11 +162,14 @@ function ShellInner({
                 <div className="grid gap-0.5">
                   {g.itens.map(([label, href, Icon]) => {
                     const on = ativo(path, href);
+                    const ping =
+                      (href === "/news" && newsNovas > 0 && path !== "/news") ||
+                      (href === "/avisos" && avisosNovos > 0 && path !== "/avisos");
                     return (
                       <Link key={href} href={href} className={`rail-link justify-center lg:justify-start ${on ? "on" : ""}`} title={label}>
                         <span className="relative">
                           <Icon size={18} />
-                          {href === "/news" && newsNovas > 0 && path !== "/news" ? <span className="rail-dot" /> : null}
+                          {ping ? <span className="rail-dot" /> : null}
                         </span>
                         <span className="hidden lg:inline">{label}</span>
                       </Link>
@@ -158,9 +195,9 @@ function ShellInner({
           ) : null}
         </div>
         <div className="grid gap-3">
-          <Link href="/ponte" className="hidden items-center gap-2 px-1 text-xs text-[var(--rail-mute)] lg:flex">
+          <Link href="/manutencao" className="hidden items-center gap-2 px-1 text-xs text-[var(--rail-mute)] lg:flex">
             <span className={`live ${rotina ? "" : "off"}`} />
-            {rotina ? (emCampo.length ? `${emCampo.length} Grok em campo` : "Rotina ligada") : "Grok dormindo"}
+            {rotina ? (emCampo.length ? `${emCampo.length} Grok em campo` : "Carlos ligado") : "Carlos sem ligação"}
           </Link>
           <div className="flex items-center gap-3 px-1">
             <Avatar nome={nome} size={36} />
@@ -171,7 +208,7 @@ function ShellInner({
           </div>
           <div className="flex flex-col items-center gap-2 px-1 lg:flex-row">
             <TemaToggle />
-            <ChatMesa euId={euId} pessoas={pessoas} />
+            <ChatMesa euId={euId} pessoas={pessoas} visto={visto} campoIds={campoIds} rotina={rotina} />
             <form action={sair}>
               <button type="submit" className="icon-btn" title="Sair da conta">
                 <LogOut size={16} />
@@ -193,11 +230,12 @@ export function Shell(props: {
   nome: string;
   funcao: string;
   euId: string;
-  pessoas: { id: string; nome: string; funcao: string; tipo: string }[];
+  pessoas: Pessoa[];
   projetos: { id: string; nome: string }[];
   rotina: boolean;
-  emCampo: { id: string; titulo: string; nome: string }[];
+  emCampo: { id: string; titulo: string; nome: string; assigneeId?: string }[];
   newsNovas: number;
+  avisosNovos: number;
   children: React.ReactNode;
 }) {
   return (

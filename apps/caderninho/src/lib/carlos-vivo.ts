@@ -40,7 +40,9 @@ ${casa}/hoje        → mesa do dia
 ${casa}/news        → Nosso Git e Mundo
 ${casa}/projetos    → mesa comercial
 ${casa}/tarefas/ID  → UMA tarefa: notas, diário, anexo
-${casa}/equipe      → sócios e você. Ponte da rotina MAI LAB
+${casa}/avisos      → tarefas no teu nome, atraso, news
+${casa}/equipe      → sócios e você
+${casa}/manutencao  → ligação da rotina MAI LAB, backup, lixeira
 ${casa}/api/mesa/entrega → diário + arquivo (POST)
 ${casa}/api/mesa/news    → POST prateleira git|mundo, titulo, corpo, link?
 ${casa}/api/mesa/cursor  → pede código ao Cursor desta casa

@@ -32,16 +32,17 @@ ou telefone que a casa não usa.
 
 ## MVP (vender primeiro — já na tela)
 
-- **Hoje** — dashboard: mesa, atraso, Grok em campo, movimento.
+- **Hoje** — dashboard: mesa, atraso, Grok em campo, movimento com data e hora.
+- **Avisos** — tarefas no seu nome, atraso, risco de prazo, news, Carlos sem ligação.
 - **Tarefas** — quadro de status. Pedido novo numa página só.
-- **Ponte** — POST to e key da rotina MAI LAB. Distinta da Equipe.
-- **Clientes** — lista honesta + ficha + timeline da pessoa.
-- **Conversas** — chat no projeto e com o Grok. Canal interno, não WhatsApp.
+- **Manutenção** — ligação do Carlos, backup deste PC, lixeira. `/ponte` redireciona pra cá.
+- **Clientes** — lista honesta + ficha completa (prospecção, empresa, contato) + timeline da pessoa.
+- **Conversas** — chat no canto. Ponto verde = online. Canal interno, não WhatsApp.
 - **Pipeline** — interno / conversa / proposta / fechado.
 - **Tarefas** — pedido, diário, quadro, entrega do Grok.
 - **Agenda** — calendário mês; evento, prazo de tarefa e projeto.
-- **News** — Nosso Git e Mundo. Carlos posta. Sem X.
-- **Equipe** — Maicon, Ian e o Carlos. Rotina cola no PC.
+- **News** — Nosso Git (commits desta pasta) e Mundo. Carlos também posta. Sem X.
+- **Equipe** — Maicon, Ian e o Carlos. Quem está na mesa agora.
 - **Números** — contagem do que existe. Sem métrica inventada.
 
 Tags manuais na ficha. Cada ação relevante vira atividade. Auditoria

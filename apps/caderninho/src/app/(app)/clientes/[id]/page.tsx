@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 
 import { Relato } from "@/components/Relato";
 import { Vazio } from "@/components/Vazio";
-import { haQuanto } from "@/lib/datas";
+import { lerExtra, resumoFicha } from "@/lib/cliente-extra";
+import { formatarQuandoCheio } from "@/lib/datas";
 import { prisma } from "@/lib/prisma";
 
 export default async function ClientePessoaPage({
@@ -25,10 +26,20 @@ export default async function ClientePessoaPage({
   if (!cliente || cliente.deletedAt) {
     notFound();
   }
+  const extra = lerExtra(cliente.extra);
+  const resumo = resumoFicha(extra);
 
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
       <div className="grid gap-8">
+        {resumo ? <p className="text-[var(--mute)]">{resumo}</p> : null}
+        {(extra.email || extra.telefone || extra.whatsapp || extra.origem) ? (
+          <p className="text-sm text-[var(--mute)]">
+            {[extra.email, extra.telefone, extra.whatsapp ? `WhatsApp ${extra.whatsapp}` : "", extra.origem ? `veio de ${extra.origem}` : ""]
+              .filter(Boolean)
+              .join(" · ")}
+          </p>
+        ) : null}
         {cliente.proximo ? (
           <p className="text-lg">
             <span className="text-[var(--gold)]">Próximo. </span>
@@ -60,7 +71,7 @@ export default async function ClientePessoaPage({
             cliente.atividades.map((a) => (
               <article key={a.id} className="panel p-5">
                 <p className="text-xs text-[var(--mute)]">
-                  {a.user.nome} · {haQuanto(a.createdAt)}
+                  {a.user.nome} · {formatarQuandoCheio(a.createdAt)}
                 </p>
                 <p className="mt-1">{a.texto}</p>
               </article>

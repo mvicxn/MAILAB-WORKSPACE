@@ -101,7 +101,7 @@ Onde o trabalho vive. Interno ou ligado a um cliente. Quadro branco.
 
 ### Equipe
 
-Maicon, Ian, Carlos. Ponte: um POST to + key da rotina MAI LAB.
+Maicon, Ian, Carlos. Ligação do Carlos fica em Manutenção.
 
 ---
 

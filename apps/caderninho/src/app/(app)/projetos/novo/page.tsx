@@ -3,14 +3,22 @@ import Link from "next/link";
 import { criarProjeto } from "@/app/actions";
 import { formAction } from "@/lib/form-action";
 import { Pagina } from "@/components/Pagina";
+import { vivo } from "@/lib/casa";
 import { COMERCIAL } from "@/lib/datas";
+import { prisma } from "@/lib/prisma";
 
-export default function NovoProjetoPage() {
+export default async function NovoProjetoPage() {
+  const clientes = await prisma.cliente.findMany({
+    where: vivo,
+    orderBy: { nome: "asc" },
+    select: { id: true, nome: true, status: true },
+  });
+
   return (
     <Pagina
       kicker="Casa"
       titulo="Abrir projeto"
-      texto="Uma mesa. Um cliente, ou interno. Valor e prazo, se já combinou."
+      texto="Uma mesa. Escolha a pessoa já cadastrada, ou deixe interno. Valor e prazo, se já combinou."
       acao={
         <Link href="/projetos" className="btn-ghost">
           Voltar
@@ -25,7 +33,19 @@ export default function NovoProjetoPage() {
         <div className="grid gap-4 sm:grid-cols-3">
           <label className="campo">
             Cliente
-            <input name="cliente" placeholder="Vazio = interno" className="field" />
+            <select name="clienteId" className="field" defaultValue="">
+              <option value="">Interno — sem cliente</option>
+              {clientes.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.nome}
+                </option>
+              ))}
+            </select>
+            <span className="mt-1 text-xs text-[var(--mute)]">
+              {clientes.length
+                ? "Só entra quem já tem ficha. Falta alguém? Abra a pessoa primeiro."
+                : "Nenhuma ficha ainda. Abra o cliente antes, se não for interno."}
+            </span>
           </label>
           <label className="campo">
             Valor
@@ -60,9 +80,14 @@ export default function NovoProjetoPage() {
           Entrega
           <textarea name="descricao" rows={4} placeholder="O que vamos entregar" className="field" />
         </label>
-        <button type="submit" className="btn w-fit">
-          Abrir projeto
-        </button>
+        <div className="flex flex-wrap items-center gap-3">
+          <button type="submit" className="btn w-fit">
+            Abrir projeto
+          </button>
+          <Link href="/clientes/novo" className="text-sm text-[var(--gold)]">
+            Nova ficha de cliente
+          </Link>
+        </div>
       </form>
     </Pagina>
   );

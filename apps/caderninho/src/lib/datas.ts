@@ -78,6 +78,27 @@ export function haQuanto(date: Date) {
   return formatarPrazo(date);
 }
 
+export function formatarQuando(date: Date) {
+  const data = date.toLocaleDateString("pt-BR", {
+    timeZone: TZ,
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+  return `${data} · ${formatarHora(date)}`;
+}
+
+export function formatarQuandoCheio(date: Date) {
+  return `${formatarQuando(date)} · ${haQuanto(date)}`;
+}
+
+export function formatarQuandoCurto(date: Date) {
+  if (chaveDia(date) === chaveDia(new Date())) {
+    return formatarHora(date);
+  }
+  return formatarQuando(date);
+}
+
 export function hojeExtenso(date = new Date()) {
   return date.toLocaleDateString("pt-BR", {
     timeZone: TZ,
@@ -117,6 +138,14 @@ export function concluida(status: string) {
 
 export function atrasada(status: string, prazo: Date | null): boolean {
   return !concluida(status) && prazo !== null && prazo.getTime() < Date.now();
+}
+
+export function riscoAtraso(status: string, prazo: Date | null, horas = 48): boolean {
+  if (concluida(status) || !prazo || atrasada(status, prazo)) {
+    return false;
+  }
+  const falta = prazo.getTime() - Date.now();
+  return falta >= 0 && falta <= horas * 3600 * 1000;
 }
 
 export function formatarPrazo(prazo: Date | null): string {
@@ -166,11 +195,23 @@ export const LABEL_COMERCIAL: Record<string, string> = {
   fechado: "Fechado",
 };
 
+export const ORDEM_STATUS_CLIENTE = [
+  "prospeccao",
+  "conversando",
+  "proposta",
+  "fechou",
+  "ativo",
+  "pausado",
+  "morreu",
+] as const;
+
 export const STATUS_CLIENTE: Record<string, string> = {
+  prospeccao: "Prospecção",
   conversando: "Em conversa",
   proposta: "Proposta",
   fechou: "Fechado",
   ativo: "Ativo",
+  pausado: "Em pausa",
   morreu: "Encerrado",
 };
 

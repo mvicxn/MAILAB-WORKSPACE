@@ -19,6 +19,7 @@ model User {
   tipo      String   @default("humano")
   ativo     Boolean  @default(true)
   empresaId String   @default("mai")
+  vistoAt   DateTime?
   createdAt DateTime @default(now())
 
   tarefas        Tarefa[]      @relation("Assignee")

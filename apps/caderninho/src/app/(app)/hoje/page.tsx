@@ -5,7 +5,7 @@ import { Pagina } from "@/components/Pagina";
 import { Relato } from "@/components/Relato";
 import { Vazio } from "@/components/Vazio";
 import { usuarioAtual } from "@/lib/auth";
-import { atrasada, chaveDia, concluida, haQuanto, hojeExtenso, saudacao } from "@/lib/datas";
+import { atrasada, chaveDia, concluida, formatarQuandoCheio, hojeExtenso, saudacao } from "@/lib/datas";
 import { prisma } from "@/lib/prisma";
 
 export default async function HojePage() {
@@ -54,7 +54,7 @@ export default async function HojePage() {
           <p className="kicker">Agenda hoje</p>
           <p className="n-stat mt-3">{agendaHoje.length}</p>
         </Link>
-        <Link href="/tarefas" className="panel stat">
+        <Link href="/avisos" className="panel stat">
           <p className="kicker">Atraso</p>
           <p className="n-stat mt-3">{atrasos.length}</p>
         </Link>
@@ -126,7 +126,7 @@ export default async function HojePage() {
               atividades.map((a) => (
                 <article key={a.id} className="panel p-5">
                   <p className="text-xs text-[var(--mute)]">
-                    {a.user.nome} · {haQuanto(a.createdAt)}
+                    {a.user.nome} · {formatarQuandoCheio(a.createdAt)}
                     {a.cliente ? ` · ${a.cliente.nome}` : ""}
                     {a.projeto ? ` · ${a.projeto.nome}` : ""}
                   </p>
@@ -145,7 +145,7 @@ export default async function HojePage() {
                 <Link key={item.id} href={`/tarefas/${item.tarefaId}`} className="panel block p-5">
                   <p className="text-xs text-[var(--mute)]">
                     {item.autor.nome}
-                    {item.tarefa.projeto ? ` · ${item.tarefa.projeto.nome}` : ""} · {haQuanto(item.createdAt)}
+                    {item.tarefa.projeto ? ` · ${item.tarefa.projeto.nome}` : ""} · {formatarQuandoCheio(item.createdAt)}
                   </p>
                   <p className="mt-1 text-sm font-medium">{item.tarefa.titulo}</p>
                   <div className="mt-2 max-h-24 overflow-hidden text-sm text-[var(--mute)]">

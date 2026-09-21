@@ -6,7 +6,7 @@ responder no vazio.
 A MAI monta o escritório. Ainda não há o primeiro produto pago. Sócios:
 Maicon e Ian. GitHub é a pasta oficial do código. O sistema **MAI LAB**
 (`apps/caderninho/`) é a mesa: Hoje, Tarefas, Pipeline, Projetos, Clientes,
-Agenda (calendário mês), News, Equipe, Ponte, Números. Login, tarefa, diário,
+Agenda (calendário mês), News, Equipe, Avisos, Manutenção, Números. Login, tarefa, diário,
 quadro, timeline, evento. News: Git da casa e digesto do mundo (sem X).
 Excluir vai pra lixeira. Roda neste PC
 (Next + SQLite). Discord é papo. Grok Bot entra no site como **Carlos**

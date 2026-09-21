@@ -453,6 +453,36 @@ summary {
   color: var(--danger);
 }
 
+.chip.warn {
+  border-color: color-mix(in srgb, var(--gold) 55%, var(--line));
+  color: var(--gold);
+}
+
+.ponto {
+  display: inline-block;
+  border-radius: 999px;
+  background: var(--mute);
+  border: 2px solid var(--panel);
+  box-sizing: border-box;
+}
+
+.ponto.online,
+.ponto.mesa {
+  background: #3d9a6a;
+}
+
+.ponto.ausente {
+  background: #c9a227;
+}
+
+.ponto.campo {
+  background: var(--gold);
+}
+
+.ponto.off {
+  background: var(--mute);
+}
+
 .chat-bubble {
   max-width: 92%;
   border-radius: 16px;

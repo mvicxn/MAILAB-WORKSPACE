@@ -15,7 +15,7 @@ Segredos em `~/.config/mai/` e `apps/caderninho/.env`. Nunca no Git.
 
 ## MVP no ar
 
-Menu: Hoje, Tarefas, Agenda, Pipeline, Projetos, Clientes, News, Equipe, Ponte, Números.
+Menu: Hoje, Avisos, Tarefas, Agenda, Pipeline, Projetos, Clientes, News, Equipe, Manutenção, Números.
 Cada área complexa tem página própria (criar, ficha, diário, comercial).
 Tarefa: `a_fazer` | `pendente` | `concluida`.
 Projeto comercial: `interno` | `conversa` | `proposta` | `fechado`.
@@ -23,7 +23,7 @@ Agenda: calendário mês (evento próprio + prazo de tarefa/projeto).
 Excluir cliente/projeto/tarefa é lixeira (`deletedAt`), não apaga o banco.
 Grok entra pela tela (`carlos@mai.local`). Um webhook. Origem `mai-lab` / `mai-lab-chat`.
 Entrega: `POST /api/mesa/entrega`. Chat: `POST /api/mesa/chat`.
-News: `POST /api/mesa/news` (prateleira `git` | `mundo`).
+News: `POST /api/mesa/news` (prateleira `git` | `mundo`). A aba Git também lê o `git log` desta pasta.
 Dev pede código: `POST /api/mesa/cursor` → worker local :5859.
 Ctrl+K busca. Só humano escreve cliente e backup.
 

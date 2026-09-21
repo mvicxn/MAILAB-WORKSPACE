@@ -107,7 +107,8 @@ export function Paleta({
       ["Calendário", () => router.push("/agenda")],
       ["Pipeline", () => router.push("/pipeline")],
       ["Clientes", () => router.push("/clientes")],
-      ["Ponte", () => router.push("/ponte")],
+      ["Avisos", () => router.push("/avisos")],
+      ["Manutenção", () => router.push("/manutencao")],
     ],
     [onNovo, router],
   );

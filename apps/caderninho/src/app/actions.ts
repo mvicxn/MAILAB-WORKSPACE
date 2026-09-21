@@ -33,6 +33,7 @@ import { ipDoPedido, limparFalhasLogin, loginBloqueado, registrarFalhaLogin } fr
 import { prisma } from "@/lib/prisma";
 import { garantirSocios } from "@/lib/socios";
 import { trilha, gravarTags } from "@/lib/trilha";
+import { contatoDe, extraDeForm, gravarExtra } from "@/lib/cliente-extra";
 import { adicionarDias, chaveDia, concluida, instanteSp, prazoDe, statusCanon } from "@/lib/datas";
 
 function texto(formData: FormData, name: string) {
@@ -40,7 +41,7 @@ function texto(formData: FormData, name: string) {
 }
 
 function revalidateCasa(...extras: string[]) {
-  for (const p of ["/hoje", "/projetos", "/pipeline", "/agenda", "/clientes", "/relatorio", "/equipe", "/news", ...extras].filter(Boolean)) {
+  for (const p of ["/hoje", "/projetos", "/pipeline", "/agenda", "/clientes", "/relatorio", "/equipe", "/news", "/avisos", "/manutencao", ...extras].filter(Boolean)) {
     revalidatePath(p);
   }
 }
@@ -282,14 +283,24 @@ export async function criarCliente(formData: FormData) {
   if (!nome) {
     return falha("falta o nome");
   }
+  const extra = extraDeForm((name) => texto(formData, name));
+  const statusRaw = texto(formData, "status");
+  const status = statusRaw ? statusClienteCanon(statusRaw) : "prospeccao";
+  const tipoRaw = texto(formData, "tipo");
+  const tipo = tipoRaw
+    ? tipoClienteCanon(tipoRaw)
+    : status === "ativo" || status === "fechou"
+      ? "cliente"
+      : "lead";
   const criado = await prisma.cliente.create({
     data: {
       nome,
-      tipo: tipoClienteCanon(texto(formData, "tipo")),
-      status: statusClienteCanon(texto(formData, "status")),
-      contato: texto(formData, "contato"),
+      tipo,
+      status,
+      contato: contatoDe(extra, texto(formData, "contato")),
       notas: texto(formData, "notas"),
       proximo: texto(formData, "proximo"),
+      extra: gravarExtra(extra),
       empresaId: EMPRESA,
     },
   });
@@ -307,20 +318,13 @@ export async function criarCliente(formData: FormData) {
   redirect(`/clientes/${criado.id}`);
 }
 
-async function clientePorNome(nome: string, podeCriar: boolean) {
-  const n = nome.trim();
+async function clienteEscolhido(id: string) {
+  const n = id.trim();
   if (!n) {
     return null;
   }
-  const existente = await prisma.cliente.findFirst({ where: { nome: n, ...vivo } });
-  if (existente) {
-    return existente.id;
-  }
-  if (!podeCriar) {
-    return null;
-  }
-  const criado = await prisma.cliente.create({ data: { nome: n, empresaId: EMPRESA } });
-  return criado.id;
+  const existente = await prisma.cliente.findFirst({ where: { id: n, ...vivo } });
+  return existente?.id ?? null;
 }
 
 export async function criarProjeto(formData: FormData) {
@@ -338,7 +342,7 @@ export async function criarProjeto(formData: FormData) {
     data: {
       nome,
       descricao: texto(formData, "descricao"),
-      clienteId: await clientePorNome(texto(formData, "cliente"), ehHumano(user.papel, user.tipo)),
+      clienteId: await clienteEscolhido(texto(formData, "clienteId") || texto(formData, "cliente")),
       valor: texto(formData, "valor"),
       proximo: texto(formData, "proximo"),
       comercial: comercialCanon(texto(formData, "comercial")),
@@ -524,9 +528,10 @@ export async function atualizarCliente(formData: FormData) {
       nome,
       tipo: tipoClienteCanon(texto(formData, "tipo")),
       status: statusClienteCanon(texto(formData, "status")),
-      contato: texto(formData, "contato"),
+      contato: contatoDe(extraDeForm((name) => texto(formData, name)), texto(formData, "contato")),
       notas: texto(formData, "notas"),
       proximo: texto(formData, "proximo"),
+      extra: gravarExtra(extraDeForm((name) => texto(formData, name))),
     },
   });
   await gravarTags(texto(formData, "tags"), { clienteId: id });
@@ -559,7 +564,7 @@ export async function atualizarProjeto(formData: FormData) {
     data: {
       nome,
       descricao: texto(formData, "descricao"),
-      clienteId: await clientePorNome(texto(formData, "cliente"), ehHumano(user.papel, user.tipo)),
+      clienteId: await clienteEscolhido(texto(formData, "clienteId") || texto(formData, "cliente")),
       status: statusProjetoCanon(texto(formData, "status")),
       valor: texto(formData, "valor"),
       proximo: texto(formData, "proximo"),
@@ -655,7 +660,31 @@ export async function fazerBackup() {
     return bloqueio;
   }
   await fazerBackupLocal();
-  revalidateCasa();
+  revalidateCasa("/manutencao");
+}
+
+export async function pulso() {
+  const user = await eu();
+  await prisma.user.update({ where: { id: user.id }, data: { vistoAt: new Date() } });
+  const [gente, campo] = await Promise.all([
+    prisma.user.findMany({
+      where: { ativo: true },
+      select: { id: true, vistoAt: true },
+    }),
+    prisma.tarefa.findMany({
+      where: { acionadoAt: { not: null }, deletedAt: null, NOT: { status: "concluida" } },
+      select: { assigneeId: true },
+    }),
+  ]);
+  const visto: Record<string, string | null> = {};
+  for (const g of gente) {
+    visto[g.id] = g.vistoAt?.toISOString() ?? null;
+  }
+  return {
+    ok: true as const,
+    visto,
+    campo: [...new Set(campo.map((t) => t.assigneeId))],
+  };
 }
 
 export async function carregarDiario(tarefaId: string) {
@@ -830,6 +859,52 @@ export async function restaurarCliente(id: string) {
     entidadeId: id,
   });
   revalidateCasa(`/clientes/${id}`);
+}
+
+export async function restaurarDaLixeira(formData: FormData) {
+  const user = await eu();
+  const bloqueio = assertHumano(user);
+  if (bloqueio) {
+    return bloqueio;
+  }
+  const tipo = texto(formData, "tipo");
+  const id = texto(formData, "id");
+  if (!idSeguro(id)) {
+    return falha("item inválido");
+  }
+  if (tipo === "cliente") {
+    const extra = assertCliente(user);
+    if (extra) {
+      return extra;
+    }
+    await prisma.cliente.update({ where: { id }, data: { deletedAt: null } });
+  } else if (tipo === "projeto") {
+    const extra = assertProjeto(user);
+    if (extra) {
+      return extra;
+    }
+    await prisma.projeto.update({ where: { id }, data: { deletedAt: null } });
+  } else if (tipo === "tarefa") {
+    const extra = assertTarefa(user);
+    if (extra) {
+      return extra;
+    }
+    await prisma.tarefa.update({ where: { id }, data: { deletedAt: null } });
+  } else {
+    return falha("tipo inválido");
+  }
+  await trilha({
+    userId: user.id,
+    tipo,
+    texto: `Restaurou ${tipo}`,
+    clienteId: tipo === "cliente" ? id : undefined,
+    projetoId: tipo === "projeto" ? id : undefined,
+    tarefaId: tipo === "tarefa" ? id : undefined,
+    acao: "restaurar",
+    entidade: tipo,
+    entidadeId: id,
+  });
+  revalidateCasa("/manutencao");
 }
 
 export async function impactoProjeto(id: string) {

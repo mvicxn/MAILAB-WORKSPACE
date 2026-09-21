@@ -5,8 +5,9 @@ import { Pagina } from "@/components/Pagina";
 import { Relato } from "@/components/Relato";
 import { Vazio } from "@/components/Vazio";
 import { usuarioAtual } from "@/lib/auth";
-import { haQuanto } from "@/lib/datas";
+import { formatarQuandoCheio } from "@/lib/datas";
 import { ehHumano } from "@/lib/equipe";
+import { sincronizarGitNews } from "@/lib/git-news";
 import { jsonNews, listarNews, marcarNewsDaMesa, prateleiraCanon, rotuloPrateleira } from "@/lib/news";
 import { prisma } from "@/lib/prisma";
 
@@ -24,6 +25,7 @@ export default async function NewsPage({
   const user = await usuarioAtual(prisma);
   const { p } = await searchParams;
   const prateleira = prateleiraCanon(p ?? "");
+  const git = await sincronizarGitNews();
   const brutos = await listarNews(prateleira);
   const itens = brutos.map((n) => jsonNews(n, user?.id));
 
@@ -37,7 +39,7 @@ export default async function NewsPage({
     <Pagina
       kicker="Alinhamento"
       titulo="News"
-      texto="O que o Carlos viu no Git e no mundo. Sem X. Lista vazia é honesta."
+      texto="Commits desta casa e o que o Carlos viu no mundo. Sem X. Lista vazia é honesta."
     >
       <nav className="tabs">
         {FILTROS.map(([id, label]) => {
@@ -50,8 +52,17 @@ export default async function NewsPage({
         })}
       </nav>
 
+      {git.erro ? <p className="text-sm text-[var(--mute)]">{git.erro}</p> : null}
+
       {itens.length === 0 ? (
-        <Vazio titulo="Ainda sem news." texto="Quando o Carlos postar, cai nesta prateleira." />
+        <Vazio
+          titulo="Ainda sem news."
+          texto={
+            prateleira === "git"
+              ? "Quando houver commit nesta pasta, cai aqui. Se a pasta não for Git, avisa em cima."
+              : "Quando o Carlos postar o mundo, cai nesta prateleira."
+          }
+        />
       ) : (
         <div className="grid gap-4">
           {itens.map((n) => {
@@ -60,7 +71,7 @@ export default async function NewsPage({
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="chip gold">{rotuloPrateleira(n.prateleira)}</span>
                   {n.novo ? <span className="chip">Novo</span> : null}
-                  <span className="text-xs text-[var(--mute)]">{haQuanto(new Date(n.createdAt))}</span>
+                  <span className="text-xs text-[var(--mute)]">{formatarQuandoCheio(new Date(n.createdAt))}</span>
                   {n.fonte ? <span className="text-xs text-[var(--mute)]">{n.fonte}</span> : null}
                 </div>
                 <h2 className="display mt-3 text-2xl">{n.titulo}</h2>

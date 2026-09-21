@@ -6,6 +6,7 @@ import { Excluir } from "@/components/Excluir";
 import { Relato } from "@/components/Relato";
 import { COMERCIAL, paraInputData } from "@/lib/datas";
 import { prisma } from "@/lib/prisma";
+import { vivo } from "@/lib/casa";
 
 export default async function ProjetoComercialPage({
   params,
@@ -13,10 +14,17 @@ export default async function ProjetoComercialPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const projeto = await prisma.projeto.findUnique({
-    where: { id },
-    include: { cliente: true },
-  });
+  const [projeto, clientes] = await Promise.all([
+    prisma.projeto.findUnique({
+      where: { id },
+      include: { cliente: true },
+    }),
+    prisma.cliente.findMany({
+      where: vivo,
+      orderBy: { nome: "asc" },
+      select: { id: true, nome: true },
+    }),
+  ]);
   if (!projeto || projeto.deletedAt) {
     notFound();
   }
@@ -48,7 +56,14 @@ export default async function ProjetoComercialPage({
         </label>
         <label className="campo">
           Cliente
-          <input name="cliente" defaultValue={projeto.cliente?.nome ?? ""} className="field" />
+          <select name="clienteId" className="field" defaultValue={projeto.clienteId ?? ""}>
+            <option value="">Interno — sem cliente</option>
+            {clientes.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.nome}
+              </option>
+            ))}
+          </select>
         </label>
         <label className="campo">
           Valor
