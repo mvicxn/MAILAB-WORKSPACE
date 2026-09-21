@@ -134,7 +134,7 @@ export function ChatMesa({
               <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-4">
                 {!quem ? (
                   <p className="text-sm text-[var(--mute)]">
-                    Ian, Maicon e o time Grok. Conversa não cria tarefa. Trabalho entra no pedido.
+                    Ian, Maicon e o Carlos. Conversa não cria tarefa. Trabalho entra no pedido.
                   </p>
                 ) : msgs.length === 0 ? (
                   <p className="text-sm text-[var(--mute)]">Primeira mensagem desta conversa.</p>

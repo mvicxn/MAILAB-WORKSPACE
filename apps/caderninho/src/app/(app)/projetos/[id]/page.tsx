@@ -10,6 +10,7 @@ import { QuadroVivo } from "@/components/QuadroVivo";
 import { Relato } from "@/components/Relato";
 import { usuarioAtual } from "@/lib/auth";
 import { COLUNAS, COMERCIAL, formatarPrazo, LABEL_COMERCIAL, paraInputData, statusCanon } from "@/lib/datas";
+import { whereMesa } from "@/lib/equipe";
 import { prisma } from "@/lib/prisma";
 
 const ABAS = [
@@ -46,7 +47,7 @@ export default async function ProjetoPage({
         },
       },
     }),
-    prisma.user.findMany({ where: { ativo: true }, orderBy: [{ tipo: "asc" }, { nome: "asc" }] }),
+    prisma.user.findMany({ where: whereMesa, orderBy: [{ tipo: "asc" }, { nome: "asc" }] }),
   ]);
   if (!projeto || projeto.deletedAt) {
     notFound();

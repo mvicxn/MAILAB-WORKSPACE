@@ -1,24 +1,22 @@
-import { desativarPessoa } from "@/app/actions";
-import { formAction } from "@/lib/form-action";
 import { Acionar } from "@/components/Acionar";
 import { Avatar } from "@/components/Avatar";
 import { Contratar } from "@/app/(app)/equipe/Contratar";
 import { Reveal } from "@/components/Reveal";
 import { usuarioAtual } from "@/lib/auth";
-import { CARGOS, ehHumano } from "@/lib/equipe";
+import { CARLOS, ehHumano, whereMesa } from "@/lib/equipe";
 import { rotinaMailabLigada } from "@/lib/grok-ponte";
 import { prisma } from "@/lib/prisma";
 
 export default async function EquipePage() {
   const user = await usuarioAtual(prisma);
   const gente = await prisma.user.findMany({
-    where: { ativo: true },
+    where: whereMesa,
     orderBy: [{ tipo: "asc" }, { nome: "asc" }],
   });
   const socio = user ? ehHumano(user.papel, user.tipo) : false;
   const mailabLigada = socio ? await rotinaMailabLigada() : false;
   const socios = gente.filter((p) => p.tipo === "humano");
-  const time = gente.filter((p) => p.tipo !== "humano");
+  const carlos = gente.find((p) => p.ficha === CARLOS.ficha);
 
   return (
     <main className="mx-auto grid max-w-4xl gap-10">
@@ -26,7 +24,7 @@ export default async function EquipePage() {
         <p className="kicker">Estúdio</p>
         <h1 className="display mt-3 text-5xl sm:text-6xl">Equipe</h1>
         <p className="mt-4 max-w-xl text-[var(--mute)]">
-          Dois sócios. Um Grok por função. Chat no canto. Trabalho na ficha.
+          Dois sócios. Um Grok: Carlos. Chat no canto. Trabalho na ficha.
         </p>
         <p className="mt-4 flex items-center gap-2 text-sm">
           <span className={`live ${mailabLigada ? "" : "off"}`} />
@@ -51,32 +49,21 @@ export default async function EquipePage() {
 
       <section className="grid gap-3">
         <h2 className="display text-3xl">Grok</h2>
-        <div className="grid gap-3 sm:grid-cols-2">
-          {time.map((p) => {
-            const cargo = CARGOS.find((c) => c.ficha === p.ficha);
-            return (
-              <div key={p.id} className="panel grid gap-4 p-5">
-                <div className="flex items-start gap-4">
-                  <Avatar nome={p.nome} tipo="ia" size={48} />
-                  <div>
-                    <p className="font-medium">{p.nome}</p>
-                    <p className="mt-1 text-sm text-[var(--mute)]">{p.funcao}</p>
-                  </div>
-                </div>
-                {cargo ? <p className="text-sm leading-relaxed text-[var(--mute)]">{cargo.mesa}</p> : null}
-                {socio ? <Acionar userId={p.id} nome={p.nome} /> : null}
-                {socio ? (
-                  <form action={formAction(desativarPessoa)}>
-                    <input type="hidden" name="id" value={p.id} />
-                    <button type="submit" className="btn-ghost text-sm text-[var(--danger)]">
-                      Desativar
-                    </button>
-                  </form>
-                ) : null}
+        {carlos ? (
+          <div className="panel grid max-w-xl gap-4 p-5">
+            <div className="flex items-start gap-4">
+              <Avatar nome={carlos.nome} tipo="ia" size={48} />
+              <div>
+                <p className="font-medium">{carlos.nome}</p>
+                <p className="mt-1 text-sm text-[var(--mute)]">{CARLOS.email}</p>
               </div>
-            );
-          })}
-        </div>
+            </div>
+            <p className="text-sm leading-relaxed text-[var(--mute)]">{CARLOS.mesa}</p>
+            {socio ? <Acionar userId={carlos.id} nome={carlos.nome} /> : null}
+          </div>
+        ) : (
+          <p className="text-sm text-[var(--mute)]">Carlos ainda não está no banco. Abra Entrar de novo.</p>
+        )}
       </section>
 
       {socio ? (

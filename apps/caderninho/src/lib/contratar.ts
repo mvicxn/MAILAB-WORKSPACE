@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 
 import { hashSenha } from "@/lib/auth";
-import { CARGOS } from "@/lib/equipe";
+import { CARLOS, FICHA_CARLOS } from "@/lib/equipe";
 import { prisma } from "@/lib/prisma";
 
 export type ChaveFuncionario = {
@@ -29,8 +29,8 @@ export async function gravarFuncionariosEnv(pessoas: ChaveFuncionario[]) {
   await fs.mkdir(dir, { recursive: true, mode: 0o700 });
   const dest = path.join(dir, "funcionarios.env");
   const linhas = [
-    "# MAI LAB — senhas dos funcionários. Fora do Git. Permissão 600.",
-    "# Cada Grok Bot entra no site com e-mail + senha, como gente.",
+    "# MAI LAB — senha do Carlos. Fora do Git. Permissão 600.",
+    "# Um bot. Entra no site com e-mail + senha, como gente.",
     `# gerado ${new Date().toISOString()}`,
     "MAI_ESCRITORIO_URL=http://127.0.0.1:3000",
     "",
@@ -38,6 +38,8 @@ export async function gravarFuncionariosEnv(pessoas: ChaveFuncionario[]) {
   for (const p of pessoas) {
     const ficha = p.ficha.toUpperCase();
     linhas.push(`# ${p.nome} · ${p.funcao}`);
+    linhas.push(`MAI_EMAIL_CARLOS=${p.email}`);
+    linhas.push(`MAI_SENHA_CARLOS=${p.senha}`);
     linhas.push(`MAI_EMAIL_${ficha}=${p.email}`);
     linhas.push(`MAI_SENHA_${ficha}=${p.senha}`);
     linhas.push("");
@@ -46,59 +48,69 @@ export async function gravarFuncionariosEnv(pessoas: ChaveFuncionario[]) {
   return dest;
 }
 
-export async function contratarTimeNoBanco() {
-  const pessoas: ChaveFuncionario[] = [];
+export async function garantirCarlosNoBanco() {
+  const senha = senhaCurta();
+  const existente = await prisma.user.findFirst({
+    where: {
+      OR: [{ email: CARLOS.email }, { ficha: FICHA_CARLOS }, { login: "carlos" }, { login: FICHA_CARLOS }],
+    },
+  });
 
-  for (const cargo of CARGOS) {
-    const senha = senhaCurta();
-    const existente = await prisma.user.findUnique({
-      where: { email: cargo.email },
-    });
-    if (existente) {
-      await prisma.user.update({
-        where: { id: existente.id },
-        data: {
-          nome: cargo.nome,
-          login: cargo.ficha,
-          papel: cargo.papel,
-          funcao: cargo.funcao,
-          ficha: cargo.ficha,
-          tipo: "ia",
-          ativo: true,
-        },
-      });
-      pessoas.push({
-        ficha: cargo.ficha,
-        nome: cargo.nome,
-        email: cargo.email,
-        funcao: cargo.funcao,
-        senha: "",
-        novo: false,
-      });
-      continue;
-    }
-    await prisma.user.create({
+  let pessoa: ChaveFuncionario;
+  if (existente) {
+    await prisma.user.update({
+      where: { id: existente.id },
       data: {
-        nome: cargo.nome,
-        login: cargo.ficha,
-        email: cargo.email,
-        senhaHash: await hashSenha(senha),
-        papel: cargo.papel,
-        funcao: cargo.funcao,
-        ficha: cargo.ficha,
+        nome: CARLOS.nome,
+        login: "carlos",
+        email: CARLOS.email,
+        papel: CARLOS.papel,
+        funcao: CARLOS.funcao,
+        ficha: FICHA_CARLOS,
         tipo: "ia",
         ativo: true,
       },
     });
-    pessoas.push({
-      ficha: cargo.ficha,
-      nome: cargo.nome,
-      email: cargo.email,
-      funcao: cargo.funcao,
+    pessoa = {
+      ficha: FICHA_CARLOS,
+      nome: CARLOS.nome,
+      email: CARLOS.email,
+      funcao: CARLOS.funcao,
+      senha: "",
+      novo: false,
+    };
+  } else {
+    await prisma.user.create({
+      data: {
+        nome: CARLOS.nome,
+        login: "carlos",
+        email: CARLOS.email,
+        senhaHash: await hashSenha(senha),
+        papel: CARLOS.papel,
+        funcao: CARLOS.funcao,
+        ficha: FICHA_CARLOS,
+        tipo: "ia",
+        ativo: true,
+      },
+    });
+    pessoa = {
+      ficha: FICHA_CARLOS,
+      nome: CARLOS.nome,
+      email: CARLOS.email,
+      funcao: CARLOS.funcao,
       senha,
       novo: true,
-    });
+    };
   }
+
+  await prisma.user.updateMany({
+    where: {
+      tipo: "ia",
+      NOT: { ficha: FICHA_CARLOS },
+      ativo: true,
+    },
+    data: { ativo: false },
+  });
 
   const interno = await prisma.projeto.findFirst({
     where: { nome: "MAI interno" },
@@ -113,7 +125,10 @@ export async function contratarTimeNoBanco() {
     });
   }
 
-  const arquivo =
-    pessoas.some((p) => p.novo) ? await gravarFuncionariosEnv(pessoas.filter((p) => p.novo)) : "";
-  return { pessoas, arquivo };
+  const arquivo = pessoa.novo ? await gravarFuncionariosEnv([pessoa]) : "";
+  return { pessoas: [pessoa], arquivo };
+}
+
+export async function contratarTimeNoBanco() {
+  return garantirCarlosNoBanco();
 }

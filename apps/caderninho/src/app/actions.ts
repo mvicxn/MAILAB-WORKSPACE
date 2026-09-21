@@ -24,11 +24,11 @@ import { guardarAnexo } from "@/lib/anexo";
 import { fazerBackupLocal } from "@/lib/backup";
 import { recortarPedido } from "@/lib/carlos";
 import { EMPRESA, vivo } from "@/lib/casa";
-import { contratarTimeNoBanco } from "@/lib/contratar";
+import { garantirCarlosNoBanco } from "@/lib/contratar";
 import { montarBriefing } from "@/lib/despacho";
-import { ehHumano } from "@/lib/equipe";
+import { ehCarlos, ehHumano, FICHA_CARLOS } from "@/lib/equipe";
 import { corDoTipo, expandirSerie, parseRecorrencia, type Recorrencia } from "@/lib/evento";
-import { acordarGrok, cargoDaFicha, gravarRotinaMailab, hookDoCargo, urlDoEscritorio } from "@/lib/grok-ponte";
+import { acordarGrok, gravarRotinaMailab, hookDoCarlos, urlDoEscritorio } from "@/lib/grok-ponte";
 import { ipDoPedido, limparFalhasLogin, loginBloqueado, registrarFalhaLogin } from "@/lib/login-lock";
 import { prisma } from "@/lib/prisma";
 import { garantirSocios } from "@/lib/socios";
@@ -109,14 +109,13 @@ export async function sair() {
 
 async function acordarFuncionarioId(userId: string, tarefaId?: string, recado?: string) {
   const pessoa = await prisma.user.findUnique({ where: { id: userId } });
-  if (!pessoa || pessoa.tipo !== "ia" || !pessoa.ficha) {
-    return { ok: false as const, erro: "isso não é um Grok da mesa" };
+  if (!pessoa || pessoa.tipo !== "ia" || !ehCarlos(pessoa.papel, pessoa.ficha)) {
+    return { ok: false as const, erro: "só o Carlos entra em campo" };
   }
-  const cargo = cargoDaFicha(pessoa.ficha);
-  const hook = await hookDoCargo(pessoa.ficha);
+  const hook = await hookDoCarlos();
   let tarefa_url: string | undefined;
   let tarefa_titulo: string | undefined;
-  let briefing = recado || cargo?.entrega || `Trabalhe no MAI LAB como ${pessoa.nome}. Abra Hoje.`;
+  let briefing = recado || `Trabalhe no MAI LAB. Abra Hoje.`;
   if (tarefaId) {
     const t = await prisma.tarefa.findUnique({ where: { id: tarefaId } });
     tarefa_titulo = t?.titulo;
@@ -130,12 +129,8 @@ async function acordarFuncionarioId(userId: string, tarefaId?: string, recado?: 
     }
   }
   return acordarGrok({
-    ficha: pessoa.ficha,
     email: pessoa.email,
     senha: hook.senha,
-    nome: pessoa.nome,
-    funcao: pessoa.funcao,
-    mesa: cargo?.mesa ?? pessoa.funcao,
     escritorio_url: hook.escritorio,
     tarefa_id: tarefaId,
     tarefa_url,
@@ -148,7 +143,7 @@ async function acordarFuncionarioId(userId: string, tarefaId?: string, recado?: 
 export async function acordarNaTarefa(formData: FormData) {
   const user = await eu();
   if (!ehHumano(user.papel, user.tipo)) {
-    return { ok: false as const, erro: "só sócio acorda o time" };
+    return { ok: false as const, erro: "só sócio acorda o Carlos" };
   }
   const tarefaId = texto(formData, "tarefaId");
   if (!tarefaId) {
@@ -168,7 +163,7 @@ export async function acordarNaTarefa(formData: FormData) {
 export async function acordarFuncionario(formData: FormData) {
   const user = await eu();
   if (!ehHumano(user.papel, user.tipo)) {
-    return { ok: false as const, erro: "só sócio acorda o time" };
+    return { ok: false as const, erro: "só sócio acorda o Carlos" };
   }
   const userId = texto(formData, "userId");
   if (!userId) {
@@ -177,28 +172,27 @@ export async function acordarFuncionario(formData: FormData) {
   return acordarFuncionarioId(
     userId,
     undefined,
-        "Plantão. Abra Hoje, assuma as tarefas da sua mesa e registre o que fez no diário.",
+    "Plantão. Abra Hoje, assume as tarefas da mesa e registra o que fez no diário.",
   );
 }
 
 export async function acordarPlantao() {
   const user = await eu();
   if (!ehHumano(user.papel, user.tipo)) {
-    return { ok: false as const, erro: "só sócio acorda o time" };
+    return { ok: false as const, erro: "só sócio acorda o Carlos" };
   }
-  const time = await prisma.user.findMany({ where: { tipo: "ia", ativo: true } });
-  const resultados = [];
-  for (const pessoa of time) {
-    resultados.push({
-      nome: pessoa.nome,
-      ...(await acordarFuncionarioId(
-        pessoa.id,
-        undefined,
-        "Plantão. Abra Hoje, assuma a mesa e registre no diário de cada tarefa.",
-      )),
-    });
+  const carlos = await prisma.user.findFirst({
+    where: { ficha: FICHA_CARLOS, tipo: "ia", ativo: true },
+  });
+  if (!carlos) {
+    return { ok: false as const, erro: "Carlos ainda não está no banco" };
   }
-  return { ok: true as const, resultados };
+  const r = await acordarFuncionarioId(
+    carlos.id,
+    undefined,
+    "Plantão. Abra Hoje, assume a mesa e registra no diário de cada tarefa.",
+  );
+  return { ok: true as const, resultados: [{ nome: carlos.nome, ...r }] };
 }
 
 export async function solicitarAoCarlos(formData: FormData) {
@@ -210,51 +204,36 @@ export async function solicitarAoCarlos(formData: FormData) {
   if (!pedidoTexto) {
     return;
   }
-  const todoMundo = texto(formData, "todoMundo") === "sim";
-  const recortes = recortarPedido(pedidoTexto, "", todoMundo);
-  const carlos = await prisma.user.findFirst({ where: { ficha: "ceo" } });
-  const time = await prisma.user.findMany({ where: { tipo: "ia", ativo: true } });
+  const recortes = recortarPedido(pedidoTexto);
+  const carlos = await prisma.user.findFirst({ where: { ficha: FICHA_CARLOS, tipo: "ia", ativo: true } });
+  if (!carlos) {
+    return;
+  }
   const pedido = await prisma.pedido.create({
     data: {
       texto: pedidoTexto,
-      todoMundo,
+      todoMundo: false,
       criadorId: user.id,
     },
   });
   const prazo = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
-  const criadas: { assigneeId: string; tarefaId: string; recado: string }[] = [];
-  for (const recorte of recortes) {
-    const dono = time.find((p) => p.ficha === recorte.cargo.ficha);
-    if (!dono) {
-      continue;
-    }
-    const tarefa = await prisma.tarefa.create({
-      data: {
-        titulo: recorte.titulo,
-        descricao: recorte.descricao,
-        assigneeId: dono.id,
-        criadorId: carlos?.id ?? user.id,
-        pedidoId: pedido.id,
-        prazo,
-        estimativaMin: 60,
-      },
-    });
-    criadas.push({
-      assigneeId: dono.id,
-      tarefaId: tarefa.id,
-      recado: recorte.descricao,
-    });
-  }
-  revalidatePath("/solicitar");
-  revalidatePath("/tarefas");
-  revalidatePath("/hoje");
-  revalidatePath("/painel");
-  after(() => {
-    for (const item of criadas) {
-      void acordarFuncionarioId(item.assigneeId, item.tarefaId, item.recado);
-    }
+  const recorte = recortes[0];
+  const tarefa = await prisma.tarefa.create({
+    data: {
+      titulo: recorte.titulo,
+      descricao: recorte.descricao,
+      assigneeId: carlos.id,
+      criadorId: user.id,
+      pedidoId: pedido.id,
+      prazo,
+      estimativaMin: 60,
+    },
   });
-  redirect(`/solicitar/${pedido.id}`);
+  revalidatePath("/hoje");
+  after(() => {
+    void acordarFuncionarioId(carlos.id, tarefa.id, recorte.descricao);
+  });
+  redirect(`/tarefas/${tarefa.id}`);
 }
 
 export async function salvarRotinaMailab(formData: FormData) {
@@ -284,14 +263,12 @@ export async function salvarRotinaMailab(formData: FormData) {
 export async function contratarTime() {
   const user = await eu();
   if (!ehHumano(user.papel, user.tipo)) {
-    return { erro: "só sócio contrata o time" as const };
+    return { erro: "só sócio liga o Carlos" as const };
   }
-  const resultado = await contratarTimeNoBanco();
+  const resultado = await garantirCarlosNoBanco();
   revalidatePath("/equipe");
   revalidatePath("/entrar");
-  revalidatePath("/tarefas");
   revalidatePath("/hoje");
-  revalidatePath("/painel");
   return resultado;
 }
 
@@ -413,6 +390,9 @@ export async function criarTarefa(formData: FormData) {
   const dono = await prisma.user.findUnique({ where: { id: assigneeId } });
   if (!dono || !dono.ativo) {
     return falha("responsável inválido");
+  }
+  if (dono.tipo === "ia" && !ehCarlos(dono.papel, dono.ficha)) {
+    return falha("o Grok da mesa é o Carlos");
   }
   const grok = dono.tipo === "ia";
   const tarefa = await prisma.tarefa.create({
@@ -632,6 +612,13 @@ export async function atualizarTarefa(formData: FormData) {
     return falha("tarefa incompleta");
   }
   const prazoRaw = texto(formData, "prazo");
+  const dono = await prisma.user.findUnique({ where: { id: assigneeId } });
+  if (!dono || !dono.ativo) {
+    return falha("responsável inválido");
+  }
+  if (dono.tipo === "ia" && !ehCarlos(dono.papel, dono.ficha)) {
+    return falha("o Grok da mesa é o Carlos");
+  }
   await prisma.tarefa.update({
     where: { id },
     data: {
@@ -651,7 +638,7 @@ export async function salvarQuadro(sala: string, snapshot: string) {
   if (!sala || sala.length > 80) {
     return falha("sala inválida");
   }
-  if (user.tipo !== "humano" && user.ficha !== "design" && user.ficha !== "ceo") {
+  if (user.tipo !== "humano" && user.ficha !== FICHA_CARLOS) {
     return falha("sem permissão no quadro");
   }
   await prisma.quadro.upsert({
@@ -740,16 +727,14 @@ export async function enviarChat(outroId: string, textoLivre: string) {
       orderBy: { createdAt: "desc" },
       take: 16,
     });
+    if (!ehCarlos(outro.papel, outro.ficha)) {
+      return { ok: false as const, erro: "o chat do Grok é só com o Carlos" };
+    }
     const casa = await urlDoEscritorio();
-    const hook = await hookDoCargo(outro.ficha);
-    const cargo = cargoDaFicha(outro.ficha);
+    const hook = await hookDoCarlos();
     const r = await acordarGrok({
-      ficha: outro.ficha,
       email: outro.email,
       senha: hook.senha,
-      nome: outro.nome,
-      funcao: outro.funcao,
-      mesa: cargo?.mesa ?? outro.funcao,
       escritorio_url: hook.escritorio || casa,
       recado: msg,
       conversa_id: conversa.id,
@@ -921,8 +906,8 @@ export async function desativarPessoa(formData: FormData) {
   }
   const id = texto(formData, "id");
   const pessoa = await prisma.user.findUnique({ where: { id } });
-  if (!pessoa || pessoa.tipo === "humano") {
-    return falha("não dá para desligar sócio por aqui");
+  if (!pessoa || pessoa.tipo === "humano" || ehCarlos(pessoa.papel, pessoa.ficha)) {
+    return falha("não dá para desligar sócio nem o Carlos por aqui");
   }
   await prisma.user.update({ where: { id }, data: { ativo: false } });
   await trilha({

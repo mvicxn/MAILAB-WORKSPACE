@@ -54,7 +54,7 @@ export function assertBackup(user: SessaoMini): Falha | null {
 }
 
 export function assertProjeto(user: SessaoMini): Falha | null {
-  if (!ehHumano(user.papel, user.tipo) && user.ficha !== "ceo" && user.papel !== "IA_OPS") {
+  if (!ehHumano(user.papel, user.tipo) && user.ficha !== "ceo") {
     return falha("sem permissão para projeto");
   }
   return null;

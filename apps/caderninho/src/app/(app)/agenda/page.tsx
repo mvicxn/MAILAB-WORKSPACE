@@ -3,6 +3,7 @@ import { eventosDoPeriodo } from "@/app/actions";
 import { usuarioAtual } from "@/lib/auth";
 import { vivo } from "@/lib/casa";
 import { chaveDia, diasDoMes } from "@/lib/datas";
+import { whereMesa } from "@/lib/equipe";
 import { prisma } from "@/lib/prisma";
 
 export default async function AgendaPage() {
@@ -14,7 +15,7 @@ export default async function AgendaPage() {
   const ate = grade[grade.length - 1];
   const [itens, pessoas, clientes, projetos] = await Promise.all([
     eventosDoPeriodo(de, ate),
-    prisma.user.findMany({ where: { ativo: true, empresaId: "mai" }, orderBy: [{ tipo: "asc" }, { nome: "asc" }], select: { id: true, nome: true } }),
+    prisma.user.findMany({ where: { ...whereMesa, empresaId: "mai" }, orderBy: [{ tipo: "asc" }, { nome: "asc" }], select: { id: true, nome: true } }),
     prisma.cliente.findMany({ where: vivo, orderBy: { nome: "asc" }, select: { id: true, nome: true } }),
     prisma.projeto.findMany({ where: vivo, orderBy: { nome: "asc" }, select: { id: true, nome: true } }),
   ]);

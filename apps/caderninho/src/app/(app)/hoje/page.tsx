@@ -6,6 +6,7 @@ import { Relato } from "@/components/Relato";
 import { Reveal } from "@/components/Reveal";
 import { usuarioAtual } from "@/lib/auth";
 import { atrasada, chaveDia, concluida, haQuanto, hojeExtenso, saudacao } from "@/lib/datas";
+import { whereMesa } from "@/lib/equipe";
 import { prisma } from "@/lib/prisma";
 
 export default async function HojePage() {
@@ -16,7 +17,7 @@ export default async function HojePage() {
       include: { assignee: true, projeto: true },
       orderBy: [{ prazo: "asc" }, { updatedAt: "desc" }],
     }),
-    prisma.user.findMany({ where: { ativo: true }, orderBy: [{ tipo: "asc" }, { nome: "asc" }] }),
+    prisma.user.findMany({ where: whereMesa, orderBy: [{ tipo: "asc" }, { nome: "asc" }] }),
     prisma.projeto.findMany({ where: { deletedAt: null }, orderBy: { nome: "asc" } }),
     prisma.atualizacao.findMany({
       include: { autor: true, tarefa: { include: { projeto: true } } },
@@ -162,7 +163,7 @@ export default async function HojePage() {
           <section className="grid gap-3">
             <h2 className="display text-2xl">Entregas</h2>
             {entregas.length === 0 ? (
-              <p className="text-sm text-[var(--mute)]">Quando o time registrar, aparece aqui.</p>
+              <p className="text-sm text-[var(--mute)]">Quando o Carlos registrar, aparece aqui.</p>
             ) : (
               entregas.map((item) => (
                 <Link key={item.id} href={`/tarefas/${item.tarefaId}`} className="panel block p-5">

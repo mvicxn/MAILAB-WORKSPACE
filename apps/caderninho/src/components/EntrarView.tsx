@@ -25,7 +25,7 @@ export function EntrarView() {
             Trabalho que cobra.
           </h1>
           <p className="mt-7 max-w-md text-lg leading-relaxed text-[var(--mute)]">
-            Projetos, prazo, valor e o time Grok na mesma mesa. Ian e Maicon decidem.
+            Projetos, prazo, valor e o Carlos na mesma mesa. Ian e Maicon decidem.
             A casa executa.
           </p>
         </div>
@@ -44,7 +44,7 @@ export function EntrarView() {
           <p className="kicker">Acesso</p>
           <h2 className="display mt-2 text-4xl">Entrar</h2>
           <p className="mt-3 text-sm leading-relaxed text-[var(--mute)]">
-            Conta da casa. Sócio ou Grok. Sem lista de nomes nesta tela.
+            Conta da casa. Sócio ou Carlos. Sem lista de nomes nesta tela.
           </p>
 
           <form action={action} className="mt-8 grid gap-4">
