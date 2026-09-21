@@ -10,7 +10,7 @@ import { DiarioVivo } from "@/components/DiarioVivo";
 import { Relato } from "@/components/Relato";
 import { usuarioAtual } from "@/lib/auth";
 import { atrasada, COLUNAS, formatarPrazo, paraInputData, statusCanon } from "@/lib/datas";
-import { ehHumano } from "@/lib/equipe";
+import { ehHumano, whereMesa } from "@/lib/equipe";
 import { prisma } from "@/lib/prisma";
 
 export default async function TarefaPage({
@@ -31,7 +31,7 @@ export default async function TarefaPage({
         atualizacoes: { include: { autor: true }, orderBy: { createdAt: "desc" } },
       },
     }),
-    prisma.user.findMany({ where: { ativo: true }, orderBy: [{ tipo: "asc" }, { nome: "asc" }] }),
+    prisma.user.findMany({ where: whereMesa, orderBy: [{ tipo: "asc" }, { nome: "asc" }] }),
     prisma.projeto.findMany({ orderBy: { nome: "asc" } }),
   ]);
   if (!tarefa || tarefa.deletedAt) {

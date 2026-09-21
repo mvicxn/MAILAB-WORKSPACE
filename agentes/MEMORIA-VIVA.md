@@ -8,21 +8,20 @@ Maicon e Ian. GitHub é a pasta oficial do código. O sistema **MAI LAB**
 (`apps/caderninho/`) é a mesa: Hoje, Pipeline, Projetos, Clientes,
 Agenda (calendário mês), Equipe, Números. Login, tarefa, diário,
 quadro, timeline, evento. Excluir vai pra lixeira. Roda neste PC
-(Next + SQLite). Discord é papo. Grok Bot entra no site como
-funcionário (cargo + senha), pela tela, como gente. Sem API de
+(Next + SQLite). Discord é papo. Grok Bot entra no site como **Carlos**
+(`carlos@mai.local`). Um bot. Sem time de cargos. Sem API de
 escritório. Sem API xAI. Sem Spring, n8n ou WhatsApp fingido.
 Cursor escreve código. Humanos decidem merge, dinheiro e publicação.
 
-Cérebro no Discord: Carlos escolhe um especialista; só esse fala, como
-gente. No PR: André (QA), no máximo +1 Dev. Nível 0 no Git: analisar e
+Cérebro no Discord: Carlos fala. Uma voz. Nível 0 no Git: analisar e
 avisar. Diário no site é trabalho. Sem commit, deploy ou .env.
 
 Já existe no disco: fichas em `agentes/`, skill e rotina em
 `grok-bridge/GROK-BOT-FUNCIONARIOS.md`. Mapa curto: `CLAUDE.md`.
 Não há Oracle, Redis, Jarvis nem cliente validado. Não invente isso.
 
-Falta: sócio clicar Equipe → Contratar o time, colar senha em cada
-Bot, ligar plantão. Validar o primeiro produto com gente de verdade.
+Falta: sócio colar POST to e key da rotina MAI LAB em Equipe. Validar
+o primeiro produto com gente de verdade.
 
 Curto não é raso. Raso é stack ou cliente que não existem. MAI Central
 vence se este recorte divergir.

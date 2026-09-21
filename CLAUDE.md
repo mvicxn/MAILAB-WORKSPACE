@@ -20,7 +20,7 @@ Tarefa: `a_fazer` | `pendente` | `concluida`.
 Projeto comercial: `interno` | `conversa` | `proposta` | `fechado`.
 Agenda: calendário mês (evento próprio + prazo de tarefa/projeto).
 Excluir cliente/projeto/tarefa é lixeira (`deletedAt`), não apaga o banco.
-Grok entra pela tela (cargo + senha). Webhook origem `mai-lab` / `mai-lab-chat`.
+Grok entra pela tela (`carlos@mai.local`). Um webhook. Origem `mai-lab` / `mai-lab-chat`.
 Entrega: `POST /api/mesa/entrega`. Chat: `POST /api/mesa/chat`.
 Dev pede código: `POST /api/mesa/cursor` → worker local :5859.
 Ctrl+K busca. Só humano escreve cliente e backup.
@@ -29,7 +29,7 @@ Ctrl+K busca. Só humano escreve cliente e backup.
 
 Git é o código. Site é o trabalho. Discord é o papo.
 Nível 0 no Git: lê, sugere, não mergeia. No site: diário da tarefa.
-Um especialista por pergunta. Não inventa cliente. Sem senha no chat.
+Um bot só: Carlos. Não inventa cliente. Sem senha no chat.
 
 ## Como acrescentar função
 
@@ -41,5 +41,5 @@ Um especialista por pergunta. Não inventa cliente. Sem senha no chat.
 6. Sem commit de `.env`, senha, banco SQLite.
 
 Humanos: Maicon `adminmm`, Ian `adminian` (senha só no PC).
-IA: login = ficha em `src/lib/equipe.ts`. Só humano escreve cliente e backup.
+IA: só Carlos (`carlos` / `carlos@mai.local`). Só humano escreve cliente e backup.
 Sócio decide merge, dinheiro, contrato. Cursor/Claude escreve código.

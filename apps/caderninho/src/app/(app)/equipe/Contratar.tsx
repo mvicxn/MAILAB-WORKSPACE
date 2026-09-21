@@ -15,7 +15,7 @@ export function Contratar({ mailabLigada }: { mailabLigada: boolean }) {
         <h2 className="display text-2xl">Rotina MAI LAB</h2>
         <p className="text-sm leading-relaxed text-[var(--mute)]">
           Esta é a ponte do escritório. Distinta da rotina Discord. Cole o POST to e a key que o
-          Carlos devolveu da rotina MAI LAB. Sem ela, o time não acorda.
+          Carlos devolveu da rotina MAI LAB. Sem ela, o Carlos não acorda.
         </p>
         <p className="flex items-center gap-2 text-sm">
           <span className={`live ${mailabLigada ? "" : "off"}`} />
@@ -47,20 +47,20 @@ export function Contratar({ mailabLigada }: { mailabLigada: boolean }) {
       <form
         className="panel grid gap-3 p-7"
         action={async () => {
-          setPlantao("Acionando o estúdio…");
+          setPlantao("Acionando o Carlos…");
           const r = await acordarPlantao();
           if (!r.ok) {
             setPlantao(r.erro);
             return;
           }
-          const ok = r.resultados.filter((x) => x.ok).length;
-          setPlantao(`Avisados: ${ok}/${r.resultados.length}. Cada um olha Hoje e a própria mesa.`);
+          const aviso = r.resultados[0];
+          setPlantao(aviso?.ok ? "Carlos avisado. Ele abre Hoje e trabalha o que está no nome dele." : aviso?.erro ?? "Não acordou.");
         }}
       >
         <h2 className="display text-2xl">Plantão</h2>
-        <p className="text-sm text-[var(--mute)]">Acorda todos os Grok. Eles abrem Hoje e trabalham o que está no nome deles.</p>
+        <p className="text-sm text-[var(--mute)]">Acorda o Carlos. Ele abre Hoje e trabalha o que está no nome dele.</p>
         <button type="submit" className="btn w-fit">
-          Acionar o estúdio
+          Acionar o Carlos
         </button>
         {plantao ? <p className="text-sm text-[var(--mute)]">{plantao}</p> : null}
       </form>

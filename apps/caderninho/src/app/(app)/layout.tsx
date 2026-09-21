@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Shell } from "@/components/Shell";
 import { usuarioAtual } from "@/lib/auth";
 import { concluida } from "@/lib/datas";
+import { whereMesa } from "@/lib/equipe";
 import { rotinaMailabLigada } from "@/lib/grok-ponte";
 import { prisma } from "@/lib/prisma";
 
@@ -17,7 +18,7 @@ export default async function AppLayout({
   }
   const [pessoas, projetos, campo, rotina] = await Promise.all([
     prisma.user.findMany({
-      where: { ativo: true, NOT: { id: user.id } },
+      where: { ...whereMesa, NOT: { id: user.id } },
       orderBy: [{ tipo: "asc" }, { nome: "asc" }],
       select: { id: true, nome: true, funcao: true, tipo: true },
     }),

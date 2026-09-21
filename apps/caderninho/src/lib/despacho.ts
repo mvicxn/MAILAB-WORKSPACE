@@ -1,4 +1,4 @@
-import { cargoDaFicha } from "@/lib/grok-ponte";
+import { CARLOS } from "@/lib/equipe";
 import { formatarPrazo } from "@/lib/datas";
 import { prisma } from "@/lib/prisma";
 
@@ -28,12 +28,11 @@ export async function montarBriefing(tarefaId: string, extra = "") {
   if (!t) {
     return extra;
   }
-  const cargo = cargoDaFicha(t.assignee.ficha);
   const p = t.projeto;
   const irmas = (p?.tarefas ?? []).filter((x) => x.id !== t.id).slice(0, 8);
   const blocos: string[] = [
     `Despacho interno de ${t.criador.nome}. Esta mensagem não entra na ficha pública.`,
-    `Você É ${t.assignee.nome} (${t.assignee.funcao}). Um dono. Uma entrega.`,
+    `Você É ${CARLOS.nome}. Um dono. Uma entrega.`,
     `Abrir a tarefa: ficha pública no escritório.`,
   ];
 
@@ -60,7 +59,7 @@ export async function montarBriefing(tarefaId: string, extra = "") {
     blocos.push(extra.trim());
   }
 
-  blocos.push(`## Sua função\n\n${cargo?.entrega ?? t.assignee.funcao}\n\n${cargo?.mesa ?? ""}`.trim());
+  blocos.push(`## Sua função\n\n${CARLOS.entrega}\n\n${CARLOS.mesa}`.trim());
 
   if (irmas.length) {
     blocos.push(
@@ -89,9 +88,7 @@ O diário desta ficha é a prova. Markdown completo:
 - \`## Evidência\` anexo, teste, o que não fez
 - \`## Próximo passo\` dono e prazo
 
-Se for Design: gere a arte e anexe.
-Se for Dev: POST cursor_url com o pedido. O Cursor deste PC escreve. Depois relate.
-Se for André: checklist. Sem “acho que vai”.
+Código: POST cursor_url com o pedido. O Cursor deste PC escreve. Depois relate.
 Não invente cliente, métrica, senha. Não mergeie. Não assine.`);
 
   return blocos.filter(Boolean).join("\n\n");
