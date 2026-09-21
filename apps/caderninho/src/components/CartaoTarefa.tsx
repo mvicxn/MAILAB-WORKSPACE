@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { mudarStatusTarefa } from "@/app/actions";
+import { formAction } from "@/lib/form-action";
 import { Avatar } from "@/components/Avatar";
 import { atrasada, COLUNAS, formatarPrazo, statusCanon } from "@/lib/datas";
 
@@ -32,7 +33,7 @@ export function CartaoTarefa({ t, mover = true }: { t: T; mover?: boolean }) {
         {t.acionadoAt ? <p className="mt-2"><span className="chip gold">Grok em campo</span></p> : null}
       </Link>
       {mover ? (
-        <form action={mudarStatusTarefa} className="mt-3 flex flex-wrap gap-1">
+        <form action={formAction(mudarStatusTarefa)} className="mt-3 flex flex-wrap gap-1">
           <input type="hidden" name="id" value={t.id} />
           {COLUNAS.filter((c) => c.id !== col).map((c) => (
             <button key={c.id} name="status" value={c.id} className="pill">

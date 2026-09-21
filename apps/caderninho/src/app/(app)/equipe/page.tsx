@@ -1,3 +1,5 @@
+import { desativarPessoa } from "@/app/actions";
+import { formAction } from "@/lib/form-action";
 import { Acionar } from "@/components/Acionar";
 import { Avatar } from "@/components/Avatar";
 import { Contratar } from "@/app/(app)/equipe/Contratar";
@@ -63,6 +65,14 @@ export default async function EquipePage() {
                 </div>
                 {cargo ? <p className="text-sm leading-relaxed text-[var(--mute)]">{cargo.mesa}</p> : null}
                 {socio ? <Acionar userId={p.id} nome={p.nome} /> : null}
+                {socio ? (
+                  <form action={formAction(desativarPessoa)}>
+                    <input type="hidden" name="id" value={p.id} />
+                    <button type="submit" className="btn-ghost text-sm text-[var(--danger)]">
+                      Desativar
+                    </button>
+                  </form>
+                ) : null}
               </div>
             );
           })}

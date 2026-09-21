@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { anexarArquivo, atualizarTarefa, mudarStatusTarefa, registrarTrabalho } from "@/app/actions";
+import { anexarArquivo, atualizarTarefa, excluirTarefa, mudarStatusTarefa, registrarTrabalho } from "@/app/actions";
+import { formAction } from "@/lib/form-action";
+import { Excluir } from "@/components/Excluir";
 import { Acionar } from "@/components/Acionar";
 import { Avatar } from "@/components/Avatar";
 import { DiarioVivo } from "@/components/DiarioVivo";
@@ -32,7 +34,7 @@ export default async function TarefaPage({
     prisma.user.findMany({ where: { ativo: true }, orderBy: [{ tipo: "asc" }, { nome: "asc" }] }),
     prisma.projeto.findMany({ orderBy: { nome: "asc" } }),
   ]);
-  if (!tarefa) {
+  if (!tarefa || tarefa.deletedAt) {
     notFound();
   }
   const late = atrasada(tarefa.status, tarefa.prazo);
@@ -68,7 +70,7 @@ export default async function TarefaPage({
 
         <section className="grid gap-3">
           <h2 className="display text-3xl">Diário</h2>
-          <form action={registrarTrabalho} className="panel grid gap-3 p-5">
+          <form action={formAction(registrarTrabalho)} className="panel grid gap-3 p-5">
             <input type="hidden" name="tarefaId" value={tarefa.id} />
             <textarea name="texto" required rows={4} placeholder="O que ficou pronto. Markdown vale." className="field" />
             <button type="submit" className="btn w-fit">
@@ -104,7 +106,7 @@ export default async function TarefaPage({
               <span className="live" /> Em campo
             </p>
           ) : null}
-          <form action={mudarStatusTarefa} className="flex flex-wrap gap-2">
+          <form action={formAction(mudarStatusTarefa)} className="flex flex-wrap gap-2">
             <input type="hidden" name="id" value={tarefa.id} />
             {COLUNAS.map((c) => (
               <button
@@ -125,7 +127,7 @@ export default async function TarefaPage({
 
         <section className="panel grid gap-3 p-5">
           <p className="kicker">Arquivos</p>
-          <form action={anexarArquivo} className="grid gap-3">
+          <form action={formAction(anexarArquivo)} className="grid gap-3">
             <input type="hidden" name="tarefaId" value={tarefa.id} />
             <input name="arquivo" type="file" required />
             <button type="submit" className="btn-ghost w-fit text-sm">
@@ -148,7 +150,7 @@ export default async function TarefaPage({
 
         <details>
           <summary className="cursor-pointer text-sm text-[var(--mute)]">Editar</summary>
-          <form action={atualizarTarefa} className="panel mt-3 grid gap-3 p-5">
+          <form action={formAction(atualizarTarefa)} className="panel mt-3 grid gap-3 p-5">
             <input type="hidden" name="id" value={tarefa.id} />
             <input name="titulo" required defaultValue={tarefa.titulo} className="field" />
             <textarea name="descricao" rows={3} defaultValue={tarefa.descricao} className="field" />
@@ -172,6 +174,9 @@ export default async function TarefaPage({
               Salvar
             </button>
           </form>
+          <div className="mt-3">
+            <Excluir id={tarefa.id} pergunta={`Excluir tarefa ${tarefa.titulo}?`} action={excluirTarefa} />
+          </div>
         </details>
       </aside>
     </main>

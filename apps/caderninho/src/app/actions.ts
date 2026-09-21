@@ -7,21 +7,42 @@ import { after } from "next/server";
 import { headers } from "next/headers";
 
 import { autenticarCredencial, criarSessao, sairSessao, usuarioAtual } from "@/lib/auth";
+import {
+  assertBackup,
+  assertCliente,
+  assertHumano,
+  assertProjeto,
+  assertTarefa,
+  comercialCanon,
+  falha,
+  idSeguro,
+  statusClienteCanon,
+  statusProjetoCanon,
+  tipoClienteCanon,
+} from "@/lib/autorizar";
 import { guardarAnexo } from "@/lib/anexo";
 import { fazerBackupLocal } from "@/lib/backup";
 import { recortarPedido } from "@/lib/carlos";
+import { EMPRESA, vivo } from "@/lib/casa";
 import { contratarTimeNoBanco } from "@/lib/contratar";
 import { montarBriefing } from "@/lib/despacho";
 import { ehHumano } from "@/lib/equipe";
+import { corDoTipo, expandirSerie, parseRecorrencia, type Recorrencia } from "@/lib/evento";
 import { acordarGrok, cargoDaFicha, gravarRotinaMailab, hookDoCargo, urlDoEscritorio } from "@/lib/grok-ponte";
 import { ipDoPedido, limparFalhasLogin, loginBloqueado, registrarFalhaLogin } from "@/lib/login-lock";
 import { prisma } from "@/lib/prisma";
 import { garantirSocios } from "@/lib/socios";
 import { trilha, gravarTags } from "@/lib/trilha";
-import { concluida, statusCanon } from "@/lib/datas";
+import { adicionarDias, chaveDia, concluida, instanteSp, prazoDe, statusCanon } from "@/lib/datas";
 
 function texto(formData: FormData, name: string) {
   return String(formData.get(name) ?? "").trim();
+}
+
+function revalidateCasa(...extras: string[]) {
+  for (const p of ["/hoje", "/projetos", "/pipeline", "/agenda", "/clientes", "/relatorio", "/equipe", ...extras].filter(Boolean)) {
+    revalidatePath(p);
+  }
 }
 
 async function eu() {
@@ -71,6 +92,17 @@ export async function entrar(_prev: EstadoLogin, formData: FormData): Promise<Es
 }
 
 export async function sair() {
+  const user = await usuarioAtual(prisma);
+  if (user) {
+    await trilha({
+      userId: user.id,
+      tipo: "logout",
+      texto: `${user.nome} saiu`,
+      acao: "logout",
+      entidade: "user",
+      entidadeId: user.id,
+    });
+  }
   await sairSessao();
   redirect("/entrar");
 }
@@ -265,21 +297,23 @@ export async function contratarTime() {
 
 export async function criarCliente(formData: FormData) {
   const user = await eu();
-  if (!ehHumano(user.papel, user.tipo)) {
-    return;
+  const bloqueio = assertCliente(user);
+  if (bloqueio) {
+    return bloqueio;
   }
   const nome = texto(formData, "nome");
   if (!nome) {
-    return;
+    return falha("falta o nome");
   }
   const criado = await prisma.cliente.create({
     data: {
       nome,
-      tipo: texto(formData, "tipo") || "lead",
-      status: texto(formData, "status") || "conversando",
+      tipo: tipoClienteCanon(texto(formData, "tipo")),
+      status: statusClienteCanon(texto(formData, "status")),
       contato: texto(formData, "contato"),
       notas: texto(formData, "notas"),
       proximo: texto(formData, "proximo"),
+      empresaId: EMPRESA,
     },
   });
   await gravarTags(texto(formData, "tags"), { clienteId: criado.id });
@@ -292,41 +326,47 @@ export async function criarCliente(formData: FormData) {
     entidade: "cliente",
     entidadeId: criado.id,
   });
-  revalidatePath("/clientes");
-  revalidatePath("/hoje");
-  revalidatePath("/pipeline");
+  revalidateCasa();
   redirect(`/clientes/${criado.id}`);
 }
 
-async function clientePorNome(nome: string) {
+async function clientePorNome(nome: string, podeCriar: boolean) {
   const n = nome.trim();
   if (!n) {
     return null;
   }
-  const existente = await prisma.cliente.findFirst({ where: { nome: n } });
+  const existente = await prisma.cliente.findFirst({ where: { nome: n, ...vivo } });
   if (existente) {
     return existente.id;
   }
-  const criado = await prisma.cliente.create({ data: { nome: n } });
+  if (!podeCriar) {
+    return null;
+  }
+  const criado = await prisma.cliente.create({ data: { nome: n, empresaId: EMPRESA } });
   return criado.id;
 }
 
 export async function criarProjeto(formData: FormData) {
   const user = await eu();
+  const bloqueio = assertProjeto(user);
+  if (bloqueio) {
+    return bloqueio;
+  }
   const nome = texto(formData, "nome");
   if (!nome) {
-    return;
+    return falha("falta o nome do projeto");
   }
   const prazoRaw = texto(formData, "prazo");
   const projeto = await prisma.projeto.create({
     data: {
       nome,
       descricao: texto(formData, "descricao"),
-      clienteId: await clientePorNome(texto(formData, "cliente")),
+      clienteId: await clientePorNome(texto(formData, "cliente"), ehHumano(user.papel, user.tipo)),
       valor: texto(formData, "valor"),
       proximo: texto(formData, "proximo"),
-      comercial: texto(formData, "comercial") || "interno",
+      comercial: comercialCanon(texto(formData, "comercial")),
       prazo: prazoRaw ? prazoDe(prazoRaw) : null,
+      empresaId: EMPRESA,
     },
   });
   await gravarTags(texto(formData, "tags"), { projetoId: projeto.id });
@@ -340,37 +380,29 @@ export async function criarProjeto(formData: FormData) {
     entidade: "projeto",
     entidadeId: projeto.id,
   });
-  revalidatePath("/projetos");
-  revalidatePath("/hoje");
-  revalidatePath("/pipeline");
-  revalidatePath("/agenda");
+  revalidateCasa(`/projetos/${projeto.id}`);
   redirect(`/projetos/${projeto.id}`);
-}
-
-function prazoDe(raw: string) {
-  if (!raw) {
-    return new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
-  }
-  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
-    return new Date(`${raw}T18:00:00`);
-  }
-  return new Date(raw);
 }
 
 async function projetoDaCasa(projetoId: string | null) {
   if (projetoId) {
-    return projetoId;
+    const p = await prisma.projeto.findFirst({ where: { id: projetoId, ...vivo } });
+    return p?.id ?? null;
   }
-  const interno = await prisma.projeto.findFirst({ where: { nome: "MAI interno" } });
+  const interno = await prisma.projeto.findFirst({ where: { nome: "MAI interno", ...vivo } });
   return interno?.id ?? null;
 }
 
 export async function criarTarefa(formData: FormData) {
   const user = await eu();
+  const bloqueio = assertTarefa(user);
+  if (bloqueio) {
+    return bloqueio;
+  }
   const titulo = texto(formData, "titulo");
   const assigneeId = texto(formData, "assigneeId");
   if (!titulo || !assigneeId) {
-    return;
+    return falha("falta título ou responsável");
   }
   const descricao = texto(formData, "descricao");
   const clienteId = texto(formData, "clienteId") || null;
@@ -379,7 +411,10 @@ export async function criarTarefa(formData: FormData) {
   const voltar = texto(formData, "voltar");
 
   const dono = await prisma.user.findUnique({ where: { id: assigneeId } });
-  const grok = dono?.tipo === "ia";
+  if (!dono || !dono.ativo) {
+    return falha("responsável inválido");
+  }
+  const grok = dono.tipo === "ia";
   const tarefa = await prisma.tarefa.create({
     data: {
       titulo,
@@ -392,6 +427,7 @@ export async function criarTarefa(formData: FormData) {
       projetoId,
       status: grok ? "pendente" : "a_fazer",
       acionadoAt: grok ? new Date() : null,
+      empresaId: EMPRESA,
     },
   });
 
@@ -411,53 +447,49 @@ export async function criarTarefa(formData: FormData) {
     entidade: "tarefa",
     entidadeId: tarefa.id,
   });
-  revalidatePath("/hoje");
-  revalidatePath("/projetos");
-  revalidatePath("/agenda");
-  revalidatePath("/pipeline");
-  if (projetoId) {
-    revalidatePath(`/projetos/${projetoId}`);
-  }
+  revalidateCasa(projetoId ? `/projetos/${projetoId}` : "");
   redirect(voltar || `/tarefas/${tarefa.id}`);
 }
 
 export async function mudarStatusTarefa(formData: FormData) {
   const user = await eu();
   const id = texto(formData, "id");
-  const status = texto(formData, "status");
-  if (!id) {
-    return;
+  const status = statusCanon(texto(formData, "status"));
+  if (!idSeguro(id)) {
+    return falha("tarefa inválida");
+  }
+  const atual = await prisma.tarefa.findFirst({ where: { id, ...vivo } });
+  if (!atual) {
+    return falha("tarefa sumiu");
   }
   const tarefa = await prisma.tarefa.update({
     where: { id },
-    data: { status: statusCanon(status) },
+    data: { status },
   });
   await trilha({
     userId: user.id,
     tipo: "status",
-    texto: `${tarefa.titulo} → ${statusCanon(status)}`,
+    texto: `${tarefa.titulo} → ${status}`,
     tarefaId: id,
     projetoId: tarefa.projetoId,
     acao: "editar",
     entidade: "tarefa",
     entidadeId: id,
-    detalhe: statusCanon(status),
+    detalhe: status,
   });
-  revalidatePath(`/tarefas/${id}`);
-  revalidatePath("/hoje");
-  revalidatePath("/projetos");
-  revalidatePath("/agenda");
-  if (tarefa.projetoId) {
-    revalidatePath(`/projetos/${tarefa.projetoId}`);
-  }
+  revalidateCasa(`/tarefas/${id}`, tarefa.projetoId ? `/projetos/${tarefa.projetoId}` : "");
 }
 
 export async function registrarTrabalho(formData: FormData) {
   const user = await eu();
   const tarefaId = texto(formData, "tarefaId");
   const textoLivre = texto(formData, "texto");
-  if (!tarefaId || !textoLivre) {
-    return;
+  if (!idSeguro(tarefaId) || !textoLivre) {
+    return falha("falta o texto da entrega");
+  }
+  const t0 = await prisma.tarefa.findFirst({ where: { id: tarefaId, ...vivo } });
+  if (!t0) {
+    return falha("tarefa sumiu");
   }
   await prisma.atualizacao.create({
     data: { tarefaId, autorId: user.id, texto: textoLivre },
@@ -466,51 +498,52 @@ export async function registrarTrabalho(formData: FormData) {
     where: { id: tarefaId },
     data: { status: "pendente" },
   });
-  const t = await prisma.tarefa.findUnique({ where: { id: tarefaId } });
   await trilha({
     userId: user.id,
     tipo: "entrega",
-    texto: `Entrega em ${t?.titulo ?? "tarefa"}`,
+    texto: `Entrega em ${t0.titulo}`,
     tarefaId,
-    projetoId: t?.projetoId,
-    clienteId: t?.clienteId,
+    projetoId: t0.projetoId,
+    clienteId: t0.clienteId,
     acao: "editar",
     entidade: "tarefa",
     entidadeId: tarefaId,
   });
-  revalidatePath(`/tarefas/${tarefaId}`);
-  revalidatePath("/hoje");
-  revalidatePath("/projetos");
-  revalidatePath("/relatorio");
+  revalidateCasa(`/tarefas/${tarefaId}`);
 }
 
 export async function anexarArquivo(formData: FormData) {
   await eu();
   const tarefaId = texto(formData, "tarefaId");
   const file = formData.get("arquivo");
-  if (!tarefaId || !(file instanceof File) || file.size === 0) {
-    return;
+  if (!idSeguro(tarefaId) || !(file instanceof File) || file.size === 0) {
+    return falha("anexo inválido");
   }
-  await guardarAnexo(tarefaId, file.name, Buffer.from(await file.arrayBuffer()));
-  revalidatePath(`/tarefas/${tarefaId}`);
+  try {
+    await guardarAnexo(tarefaId, file.name, Buffer.from(await file.arrayBuffer()));
+  } catch (e) {
+    return falha(e instanceof Error ? e.message : "anexo recusado");
+  }
+  revalidateCasa(`/tarefas/${tarefaId}`);
 }
 
 export async function atualizarCliente(formData: FormData) {
   const user = await eu();
-  if (!ehHumano(user.papel, user.tipo)) {
-    return;
+  const bloqueio = assertCliente(user);
+  if (bloqueio) {
+    return bloqueio;
   }
   const id = texto(formData, "id");
   const nome = texto(formData, "nome");
-  if (!id || !nome) {
-    return;
+  if (!idSeguro(id) || !nome) {
+    return falha("ficha incompleta");
   }
   await prisma.cliente.update({
     where: { id },
     data: {
       nome,
-      tipo: texto(formData, "tipo") || "lead",
-      status: texto(formData, "status") || "conversando",
+      tipo: tipoClienteCanon(texto(formData, "tipo")),
+      status: statusClienteCanon(texto(formData, "status")),
       contato: texto(formData, "contato"),
       notas: texto(formData, "notas"),
       proximo: texto(formData, "proximo"),
@@ -526,18 +559,19 @@ export async function atualizarCliente(formData: FormData) {
     entidade: "cliente",
     entidadeId: id,
   });
-  revalidatePath(`/clientes/${id}`);
-  revalidatePath("/clientes");
-  revalidatePath("/hoje");
-  revalidatePath("/pipeline");
+  revalidateCasa(`/clientes/${id}`);
 }
 
 export async function atualizarProjeto(formData: FormData) {
-  await eu();
+  const user = await eu();
+  const bloqueio = assertProjeto(user);
+  if (bloqueio) {
+    return bloqueio;
+  }
   const id = texto(formData, "id");
   const nome = texto(formData, "nome");
-  if (!id || !nome) {
-    return;
+  if (!idSeguro(id) || !nome) {
+    return falha("projeto incompleto");
   }
   const prazoRaw = texto(formData, "prazo");
   await prisma.projeto.update({
@@ -545,27 +579,27 @@ export async function atualizarProjeto(formData: FormData) {
     data: {
       nome,
       descricao: texto(formData, "descricao"),
-      clienteId: await clientePorNome(texto(formData, "cliente")),
-      status: texto(formData, "status") || "aberto",
+      clienteId: await clientePorNome(texto(formData, "cliente"), ehHumano(user.papel, user.tipo)),
+      status: statusProjetoCanon(texto(formData, "status")),
       valor: texto(formData, "valor"),
       proximo: texto(formData, "proximo"),
-      comercial: texto(formData, "comercial") || "interno",
+      comercial: comercialCanon(texto(formData, "comercial")),
       prazo: prazoRaw ? prazoDe(prazoRaw) : null,
     },
   });
-  revalidatePath(`/projetos/${id}`);
-  revalidatePath("/projetos");
-  revalidatePath("/hoje");
-  revalidatePath("/pipeline");
-  revalidatePath("/agenda");
+  revalidateCasa(`/projetos/${id}`);
 }
 
 export async function mudarComercial(formData: FormData) {
   const user = await eu();
+  const bloqueio = assertProjeto(user);
+  if (bloqueio) {
+    return bloqueio;
+  }
   const id = texto(formData, "id");
-  const comercial = texto(formData, "comercial") || "interno";
-  if (!id) {
-    return;
+  const comercial = comercialCanon(texto(formData, "comercial"));
+  if (!idSeguro(id)) {
+    return falha("projeto inválido");
   }
   const projeto = await prisma.projeto.update({
     where: { id },
@@ -582,19 +616,20 @@ export async function mudarComercial(formData: FormData) {
     entidadeId: id,
     detalhe: comercial,
   });
-  revalidatePath("/pipeline");
-  revalidatePath("/projetos");
-  revalidatePath(`/projetos/${id}`);
-  revalidatePath("/hoje");
+  revalidateCasa(`/projetos/${id}`);
 }
 
 export async function atualizarTarefa(formData: FormData) {
-  await eu();
+  const user = await eu();
+  const bloqueio = assertTarefa(user);
+  if (bloqueio) {
+    return bloqueio;
+  }
   const id = texto(formData, "id");
   const titulo = texto(formData, "titulo");
   const assigneeId = texto(formData, "assigneeId");
-  if (!id || !titulo || !assigneeId) {
-    return;
+  if (!idSeguro(id) || !titulo || !assigneeId) {
+    return falha("tarefa incompleta");
   }
   const prazoRaw = texto(formData, "prazo");
   await prisma.tarefa.update({
@@ -603,18 +638,22 @@ export async function atualizarTarefa(formData: FormData) {
       titulo,
       descricao: texto(formData, "descricao"),
       assigneeId,
-      prazo: prazoRaw ? new Date(prazoRaw.includes("T") ? prazoRaw : `${prazoRaw}T18:00:00`) : null,
+      prazo: prazoRaw ? prazoDe(prazoRaw) : null,
       projetoId: texto(formData, "projetoId") || null,
-      status: texto(formData, "status") || "a_fazer",
+      status: statusCanon(texto(formData, "status")),
     },
   });
-  revalidatePath(`/tarefas/${id}`);
-  revalidatePath("/hoje");
-  revalidatePath("/projetos");
+  revalidateCasa(`/tarefas/${id}`);
 }
 
 export async function salvarQuadro(sala: string, snapshot: string) {
-  await eu();
+  const user = await eu();
+  if (!sala || sala.length > 80) {
+    return falha("sala inválida");
+  }
+  if (user.tipo !== "humano" && user.ficha !== "design" && user.ficha !== "ceo") {
+    return falha("sem permissão no quadro");
+  }
   await prisma.quadro.upsert({
     where: { sala },
     create: { sala, snapshot },
@@ -624,12 +663,12 @@ export async function salvarQuadro(sala: string, snapshot: string) {
 
 export async function fazerBackup() {
   const user = await eu();
-  if (!ehHumano(user.papel, user.tipo)) {
-    return;
+  const bloqueio = assertBackup(user);
+  if (bloqueio) {
+    return bloqueio;
   }
   await fazerBackupLocal();
-  revalidatePath("/hoje");
-  revalidatePath("/painel");
+  revalidateCasa();
 }
 
 export async function carregarDiario(tarefaId: string) {
@@ -750,3 +789,697 @@ export async function enviarChat(outroId: string, textoLivre: string) {
   });
   return { ok: true as const, conversa: atual };
 }
+
+export async function impactoCliente(id: string) {
+  await eu();
+  const [tarefas, projetos, eventos] = await Promise.all([
+    prisma.tarefa.count({ where: { clienteId: id, ...vivo } }),
+    prisma.projeto.count({ where: { clienteId: id, ...vivo } }),
+    prisma.evento.count({ where: { clienteId: id, ...vivo } }),
+  ]);
+  return { tarefas, projetos, eventos };
+}
+
+export async function excluirCliente(formData: FormData) {
+  const user = await eu();
+  const bloqueio = assertCliente(user) || assertHumano(user);
+  if (bloqueio) {
+    return bloqueio;
+  }
+  const id = texto(formData, "id");
+  if (!idSeguro(id)) {
+    return falha("cliente inválido");
+  }
+  const c = await prisma.cliente.findFirst({ where: { id, ...vivo } });
+  if (!c) {
+    return falha("já estava fora");
+  }
+  await prisma.cliente.update({ where: { id }, data: { deletedAt: new Date() } });
+  await trilha({
+    userId: user.id,
+    tipo: "cliente",
+    texto: `Excluiu ${c.nome}`,
+    clienteId: id,
+    acao: "excluir",
+    entidade: "cliente",
+    entidadeId: id,
+  });
+  revalidateCasa();
+  redirect("/clientes");
+}
+
+export async function restaurarCliente(id: string) {
+  const user = await eu();
+  const bloqueio = assertCliente(user);
+  if (bloqueio) {
+    return bloqueio;
+  }
+  await prisma.cliente.update({ where: { id }, data: { deletedAt: null } });
+  await trilha({
+    userId: user.id,
+    tipo: "cliente",
+    texto: "Restaurou cliente",
+    clienteId: id,
+    acao: "restaurar",
+    entidade: "cliente",
+    entidadeId: id,
+  });
+  revalidateCasa(`/clientes/${id}`);
+}
+
+export async function impactoProjeto(id: string) {
+  await eu();
+  const [tarefas, eventos] = await Promise.all([
+    prisma.tarefa.count({ where: { projetoId: id, ...vivo } }),
+    prisma.evento.count({ where: { projetoId: id, ...vivo } }),
+  ]);
+  return { tarefas, eventos };
+}
+
+export async function excluirProjeto(formData: FormData) {
+  const user = await eu();
+  const bloqueio = assertProjeto(user) || assertHumano(user);
+  if (bloqueio) {
+    return bloqueio;
+  }
+  const id = texto(formData, "id");
+  if (!idSeguro(id)) {
+    return falha("projeto inválido");
+  }
+  const p = await prisma.projeto.findFirst({ where: { id, ...vivo } });
+  if (!p || p.nome === "MAI interno") {
+    return falha(p?.nome === "MAI interno" ? "o projeto interno da casa não sai" : "projeto sumiu");
+  }
+  await prisma.projeto.update({ where: { id }, data: { deletedAt: new Date() } });
+  await trilha({
+    userId: user.id,
+    tipo: "projeto",
+    texto: `Excluiu ${p.nome}`,
+    projetoId: id,
+    acao: "excluir",
+    entidade: "projeto",
+    entidadeId: id,
+  });
+  revalidateCasa();
+  redirect("/projetos");
+}
+
+export async function excluirTarefa(formData: FormData) {
+  const user = await eu();
+  const bloqueio = assertTarefa(user);
+  if (bloqueio) {
+    return bloqueio;
+  }
+  const id = texto(formData, "id");
+  if (!idSeguro(id)) {
+    return falha("tarefa inválida");
+  }
+  const t = await prisma.tarefa.findFirst({ where: { id, ...vivo } });
+  if (!t) {
+    return falha("tarefa sumiu");
+  }
+  await prisma.tarefa.update({ where: { id }, data: { deletedAt: new Date() } });
+  await trilha({
+    userId: user.id,
+    tipo: "tarefa",
+    texto: `Excluiu ${t.titulo}`,
+    tarefaId: id,
+    projetoId: t.projetoId,
+    acao: "excluir",
+    entidade: "tarefa",
+    entidadeId: id,
+  });
+  revalidateCasa();
+  redirect(t.projetoId ? `/projetos/${t.projetoId}` : "/hoje");
+}
+
+export async function desativarPessoa(formData: FormData) {
+  const user = await eu();
+  const bloqueio = assertHumano(user);
+  if (bloqueio) {
+    return bloqueio;
+  }
+  const id = texto(formData, "id");
+  const pessoa = await prisma.user.findUnique({ where: { id } });
+  if (!pessoa || pessoa.tipo === "humano") {
+    return falha("não dá para desligar sócio por aqui");
+  }
+  await prisma.user.update({ where: { id }, data: { ativo: false } });
+  await trilha({
+    userId: user.id,
+    tipo: "equipe",
+    texto: `Desativou ${pessoa.nome}`,
+    acao: "excluir",
+    entidade: "user",
+    entidadeId: id,
+  });
+  revalidateCasa();
+}
+
+export async function ativarPessoa(formData: FormData) {
+  const user = await eu();
+  const bloqueio = assertHumano(user);
+  if (bloqueio) {
+    return bloqueio;
+  }
+  const id = texto(formData, "id");
+  await prisma.user.update({ where: { id }, data: { ativo: true } });
+  revalidateCasa();
+}
+
+function recDoForm(formData: FormData): string {
+  const freq = texto(formData, "recorrencia");
+  if (!freq) {
+    return "";
+  }
+  const rec: Recorrencia = { freq: freq as Recorrencia["freq"] };
+  const until = texto(formData, "recUntil");
+  const count = Number(texto(formData, "recCount") || "0");
+  const days = texto(formData, "recDays");
+  if (until) {
+    rec.until = until;
+  }
+  if (count > 0) {
+    rec.count = count;
+  }
+  if (days) {
+    rec.weekdays = days.split(",").map(Number).filter((n) => n >= 0 && n <= 6);
+  }
+  return JSON.stringify(rec);
+}
+
+export async function criarEvento(formData: FormData) {
+  const user = await eu();
+  const titulo = texto(formData, "titulo") || "Compromisso";
+  const dia = texto(formData, "dia") || chaveDia(new Date());
+  const diaInteiro = texto(formData, "diaInteiro") === "sim";
+  const iniH = texto(formData, "inicio") || "09:00";
+  const fimH = texto(formData, "fim") || "10:00";
+  const inicio = diaInteiro ? instanteSp(dia, "00:00") : instanteSp(dia, iniH);
+  let fim = diaInteiro ? instanteSp(dia, "23:59") : instanteSp(dia, fimH);
+  if (fim.getTime() <= inicio.getTime()) {
+    fim = new Date(inicio.getTime() + 60 * 60 * 1000);
+  }
+  const tipo = texto(formData, "tipo") || "reuniao";
+  const dono = texto(formData, "userId") || user.id;
+  const criado = await prisma.evento.create({
+    data: {
+      titulo,
+      descricao: texto(formData, "descricao"),
+      inicio,
+      fim,
+      diaInteiro,
+      userId: dono,
+      clienteId: texto(formData, "clienteId") || null,
+      projetoId: texto(formData, "projetoId") || null,
+      tarefaId: texto(formData, "tarefaId") || null,
+      local: texto(formData, "local"),
+      link: texto(formData, "link"),
+      status: "aberto",
+      prioridade: texto(formData, "prioridade") || "normal",
+      cor: texto(formData, "cor") || corDoTipo(tipo),
+      tipo,
+      recorrencia: recDoForm(formData),
+      notas: texto(formData, "notas"),
+      empresaId: EMPRESA,
+    },
+  });
+  const parts = texto(formData, "participantes");
+  if (parts) {
+    for (const pid of parts.split(",").map((s) => s.trim()).filter(idSeguro)) {
+      await prisma.eventoParticipante.create({ data: { eventoId: criado.id, userId: pid } }).catch(() => null);
+    }
+  }
+  await trilha({
+    userId: user.id,
+    tipo: "evento",
+    texto: `Evento ${titulo}`,
+    clienteId: criado.clienteId,
+    projetoId: criado.projetoId,
+    tarefaId: criado.tarefaId,
+    acao: "criar",
+    entidade: "evento",
+    entidadeId: criado.id,
+  });
+  revalidateCasa();
+  return { ok: true as const, id: criado.id };
+}
+
+export async function atualizarEvento(formData: FormData) {
+  const user = await eu();
+  const id = texto(formData, "id");
+  const escopo = texto(formData, "escopo") || "serie";
+  if (!idSeguro(id)) {
+    return falha("evento inválido");
+  }
+  const atual = await prisma.evento.findFirst({ where: { id, ...vivo } });
+  if (!atual) {
+    return falha("evento sumiu");
+  }
+  const dia = texto(formData, "dia") || chaveDia(atual.inicio);
+  const diaOrigem = texto(formData, "diaOrigem") || dia;
+  const diaInteiro = texto(formData, "diaInteiro") === "sim";
+  const iniH = texto(formData, "inicio") || "09:00";
+  const fimH = texto(formData, "fim") || "10:00";
+  const inicio = diaInteiro ? instanteSp(dia, "00:00") : instanteSp(dia, iniH);
+  let fim = diaInteiro ? instanteSp(dia, "23:59") : instanteSp(dia, fimH);
+  if (fim.getTime() <= inicio.getTime()) {
+    fim = new Date(inicio.getTime() + 60 * 60 * 1000);
+  }
+  const tipo = texto(formData, "tipo") || atual.tipo;
+  const titulo = texto(formData, "titulo") || atual.titulo;
+  const rec = recDoForm(formData);
+  const serie = Boolean(parseRecorrencia(atual.recorrencia));
+
+  if (serie && escopo === "este") {
+    await prisma.eventoExcecao.create({ data: { eventoId: id, dia: diaOrigem } });
+    const copia = await prisma.evento.create({
+      data: {
+        titulo,
+        descricao: texto(formData, "descricao"),
+        inicio,
+        fim,
+        diaInteiro,
+        userId: texto(formData, "userId") || atual.userId,
+        clienteId: texto(formData, "clienteId") || null,
+        projetoId: texto(formData, "projetoId") || null,
+        tarefaId: texto(formData, "tarefaId") || null,
+        local: texto(formData, "local"),
+        link: texto(formData, "link"),
+        status: texto(formData, "status") || atual.status,
+        prioridade: texto(formData, "prioridade") || atual.prioridade,
+        cor: texto(formData, "cor") || atual.cor,
+        tipo,
+        notas: texto(formData, "notas"),
+        empresaId: EMPRESA,
+        serieId: id,
+      },
+    });
+    await trilha({
+      userId: user.id,
+      tipo: "evento",
+      texto: `Editou ocorrência ${titulo}`,
+      acao: "editar",
+      entidade: "evento",
+      entidadeId: copia.id,
+    });
+    revalidateCasa();
+    return { ok: true as const, id: copia.id };
+  }
+
+  if (serie && escopo === "futuro") {
+    const recOld = parseRecorrencia(atual.recorrencia) || { freq: "semanal" as const };
+    recOld.until = adicionarDias(diaOrigem, -1);
+    await prisma.evento.update({
+      where: { id },
+      data: { recorrencia: JSON.stringify(recOld) },
+    });
+    const novo = await prisma.evento.create({
+      data: {
+        titulo,
+        descricao: texto(formData, "descricao"),
+        inicio,
+        fim,
+        diaInteiro,
+        userId: texto(formData, "userId") || atual.userId,
+        clienteId: texto(formData, "clienteId") || null,
+        projetoId: texto(formData, "projetoId") || null,
+        tarefaId: texto(formData, "tarefaId") || null,
+        local: texto(formData, "local"),
+        link: texto(formData, "link"),
+        status: texto(formData, "status") || atual.status,
+        prioridade: texto(formData, "prioridade") || atual.prioridade,
+        cor: texto(formData, "cor") || atual.cor,
+        tipo,
+        recorrencia: rec || atual.recorrencia,
+        notas: texto(formData, "notas"),
+        empresaId: EMPRESA,
+        serieId: id,
+      },
+    });
+    await trilha({
+      userId: user.id,
+      tipo: "evento",
+      texto: `Nova série ${titulo}`,
+      acao: "editar",
+      entidade: "evento",
+      entidadeId: novo.id,
+    });
+    revalidateCasa();
+    return { ok: true as const, id: novo.id };
+  }
+
+  await prisma.evento.update({
+    where: { id },
+    data: {
+      titulo,
+      descricao: texto(formData, "descricao"),
+      inicio,
+      fim,
+      diaInteiro,
+      userId: texto(formData, "userId") || atual.userId,
+      clienteId: texto(formData, "clienteId") || null,
+      projetoId: texto(formData, "projetoId") || null,
+      tarefaId: texto(formData, "tarefaId") || null,
+      local: texto(formData, "local"),
+      link: texto(formData, "link"),
+      status: texto(formData, "status") || atual.status,
+      prioridade: texto(formData, "prioridade") || atual.prioridade,
+      cor: texto(formData, "cor") || atual.cor,
+      tipo,
+      recorrencia: rec || atual.recorrencia,
+      notas: texto(formData, "notas"),
+    },
+  });
+  await trilha({
+    userId: user.id,
+    tipo: "evento",
+    texto: `Editou ${titulo}`,
+    acao: "editar",
+    entidade: "evento",
+    entidadeId: id,
+  });
+  revalidateCasa();
+  return { ok: true as const, id };
+}
+
+export async function moverEvento(opts: {
+  id: string;
+  dia: string;
+  inicio?: string;
+  fim?: string;
+  diaOrigem?: string;
+}) {
+  const user = await eu();
+  if (!idSeguro(opts.id) || !/^\d{4}-\d{2}-\d{2}$/.test(opts.dia)) {
+    return falha("movimento inválido");
+  }
+  const atual = await prisma.evento.findFirst({ where: { id: opts.id, ...vivo } });
+  if (!atual) {
+    return falha("evento sumiu");
+  }
+  const dur = atual.fim.getTime() - atual.inicio.getTime();
+  const hora = opts.inicio || new Intl.DateTimeFormat("en-GB", {
+    timeZone: "America/Sao_Paulo",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(atual.inicio);
+  const inicio = atual.diaInteiro ? instanteSp(opts.dia, "00:00") : instanteSp(opts.dia, hora);
+  const fim = opts.fim
+    ? instanteSp(opts.dia, opts.fim)
+    : new Date(inicio.getTime() + Math.max(dur, 15 * 60 * 1000));
+  const serie = Boolean(parseRecorrencia(atual.recorrencia));
+  if (serie) {
+    const origem = opts.diaOrigem || chaveDia(atual.inicio);
+    await prisma.eventoExcecao.create({ data: { eventoId: opts.id, dia: origem } });
+    const copia = await prisma.evento.create({
+      data: {
+        titulo: atual.titulo,
+        descricao: atual.descricao,
+        inicio,
+        fim,
+        diaInteiro: atual.diaInteiro,
+        userId: atual.userId,
+        clienteId: atual.clienteId,
+        projetoId: atual.projetoId,
+        tarefaId: atual.tarefaId,
+        local: atual.local,
+        link: atual.link,
+        status: atual.status,
+        prioridade: atual.prioridade,
+        cor: atual.cor,
+        tipo: atual.tipo,
+        empresaId: EMPRESA,
+        serieId: atual.id,
+      },
+    });
+    await trilha({
+      userId: user.id,
+      tipo: "evento",
+      texto: `Moveu ocorrência ${atual.titulo}`,
+      acao: "mover",
+      entidade: "evento",
+      entidadeId: copia.id,
+    });
+    revalidateCasa();
+    return { ok: true as const, id: copia.id };
+  }
+  await prisma.evento.update({ where: { id: opts.id }, data: { inicio, fim } });
+  await trilha({
+    userId: user.id,
+    tipo: "evento",
+    texto: `Moveu ${atual.titulo}`,
+    acao: "mover",
+    entidade: "evento",
+    entidadeId: opts.id,
+  });
+  revalidateCasa();
+  return { ok: true as const, id: opts.id };
+}
+
+export async function duplicarEvento(id: string) {
+  const user = await eu();
+  const atual = await prisma.evento.findFirst({ where: { id, ...vivo } });
+  if (!atual) {
+    return falha("evento sumiu");
+  }
+  const copia = await prisma.evento.create({
+    data: {
+      titulo: `${atual.titulo} (cópia)`,
+      descricao: atual.descricao,
+      inicio: new Date(atual.inicio.getTime() + 86400000),
+      fim: new Date(atual.fim.getTime() + 86400000),
+      diaInteiro: atual.diaInteiro,
+      userId: atual.userId,
+      clienteId: atual.clienteId,
+      projetoId: atual.projetoId,
+      tarefaId: atual.tarefaId,
+      local: atual.local,
+      link: atual.link,
+      cor: atual.cor,
+      tipo: atual.tipo,
+      empresaId: EMPRESA,
+    },
+  });
+  await trilha({
+    userId: user.id,
+    tipo: "evento",
+    texto: `Duplicou ${atual.titulo}`,
+    acao: "criar",
+    entidade: "evento",
+    entidadeId: copia.id,
+  });
+  revalidateCasa();
+  return { ok: true as const, id: copia.id };
+}
+
+export async function concluirEvento(id: string) {
+  const user = await eu();
+  const atual = await prisma.evento.findFirst({ where: { id, ...vivo } });
+  if (!atual) {
+    return falha("evento sumiu");
+  }
+  const status = atual.status === "feito" ? "aberto" : "feito";
+  await prisma.evento.update({ where: { id }, data: { status } });
+  if (atual.tarefaId && status === "feito") {
+    await prisma.tarefa.update({ where: { id: atual.tarefaId }, data: { status: "concluida" } });
+  }
+  await trilha({
+    userId: user.id,
+    tipo: "evento",
+    texto: status === "feito" ? `Concluiu ${atual.titulo}` : `Reabriu ${atual.titulo}`,
+    tarefaId: atual.tarefaId,
+    acao: "editar",
+    entidade: "evento",
+    entidadeId: id,
+  });
+  revalidateCasa();
+  return { ok: true as const };
+}
+
+export async function excluirEvento(opts: { id: string; escopo?: string; dia?: string }) {
+  const user = await eu();
+  const atual = await prisma.evento.findFirst({ where: { id: opts.id, ...vivo } });
+  if (!atual) {
+    return falha("evento sumiu");
+  }
+  const serie = Boolean(parseRecorrencia(atual.recorrencia));
+  if (serie && opts.escopo === "este" && opts.dia) {
+    await prisma.eventoExcecao.create({ data: { eventoId: opts.id, dia: opts.dia } });
+  } else {
+    await prisma.evento.update({ where: { id: opts.id }, data: { deletedAt: new Date() } });
+  }
+  await trilha({
+    userId: user.id,
+    tipo: "evento",
+    texto: `Excluiu ${atual.titulo}`,
+    acao: "excluir",
+    entidade: "evento",
+    entidadeId: opts.id,
+  });
+  revalidateCasa();
+  return { ok: true as const };
+}
+
+export async function eventosDoPeriodo(de: string, ate: string, filtro?: { userId?: string; clienteId?: string; q?: string }) {
+  await eu();
+  const ini = instanteSp(de, "00:00");
+  const fim = instanteSp(ate, "23:59");
+  const where = {
+    ...vivo,
+    ...(filtro?.userId ? { userId: filtro.userId } : {}),
+    ...(filtro?.clienteId ? { clienteId: filtro.clienteId } : {}),
+    ...(filtro?.q
+      ? { OR: [{ titulo: { contains: filtro.q } }, { descricao: { contains: filtro.q } }] }
+      : {}),
+  };
+  const [eventos, tarefas, projetos] = await Promise.all([
+    prisma.evento.findMany({
+      where,
+      include: { user: true, cliente: true, projeto: true, tarefa: true, excecoes: true },
+    }),
+    prisma.tarefa.findMany({
+      where: { ...vivo, prazo: { gte: ini, lte: fim }, ...(filtro?.userId ? { assigneeId: filtro.userId } : {}) },
+      include: { assignee: true, projeto: true, cliente: true },
+    }),
+    prisma.projeto.findMany({
+      where: { ...vivo, prazo: { gte: ini, lte: fim } },
+      include: { cliente: true },
+    }),
+  ]);
+  const itens = eventos.flatMap((e) =>
+    expandirSerie({
+      id: e.id,
+      titulo: e.titulo,
+      descricao: e.descricao,
+      inicio: e.inicio,
+      fim: e.fim,
+      diaInteiro: e.diaInteiro,
+      userId: e.userId,
+      clienteId: e.clienteId,
+      projetoId: e.projetoId,
+      tarefaId: e.tarefaId,
+      local: e.local,
+      link: e.link,
+      status: e.status,
+      prioridade: e.prioridade,
+      cor: e.cor,
+      tipo: e.tipo,
+      recorrencia: e.recorrencia,
+      excecoes: e.excecoes.map((x) => x.dia),
+      de,
+      ate,
+    }).map((o) => ({
+      ...o,
+      dono: e.user.nome,
+      cliente: e.cliente?.nome ?? null,
+      contato: e.cliente?.contato ?? "",
+      projeto: e.projeto?.nome ?? null,
+      tarefa: e.tarefa?.titulo ?? null,
+    })),
+  );
+  const blocosTarefa = tarefas.map((t) => {
+    const dia = t.prazo ? chaveDia(t.prazo) : de;
+    return {
+      id: `t:${t.id}`,
+      eventoId: t.id,
+      titulo: t.titulo,
+      descricao: t.descricao,
+      inicio: (t.prazo ?? ini).toISOString(),
+      fim: (t.prazo ?? ini).toISOString(),
+      dia,
+      diaInteiro: true,
+      userId: t.assigneeId,
+      clienteId: t.clienteId,
+      projetoId: t.projetoId,
+      tarefaId: t.id,
+      local: "",
+      link: `/tarefas/${t.id}`,
+      status: t.status,
+      prioridade: "normal",
+      cor: "#2f6d5c",
+      tipo: "tarefa",
+      serie: false,
+      origem: "tarefa" as const,
+      dono: t.assignee.nome,
+      cliente: t.cliente?.nome ?? null,
+      contato: "",
+      projeto: t.projeto?.nome ?? null,
+      tarefa: t.titulo,
+    };
+  });
+  const blocosProjeto = projetos.map((p) => {
+    const dia = p.prazo ? chaveDia(p.prazo) : de;
+    return {
+      id: `p:${p.id}`,
+      eventoId: p.id,
+      titulo: p.nome,
+      descricao: p.descricao,
+      inicio: (p.prazo ?? ini).toISOString(),
+      fim: (p.prazo ?? ini).toISOString(),
+      dia,
+      diaInteiro: true,
+      userId: "",
+      clienteId: p.clienteId,
+      projetoId: p.id,
+      tarefaId: null as string | null,
+      local: "",
+      link: `/projetos/${p.id}`,
+      status: p.status,
+      prioridade: "normal",
+      cor: "#9a7840",
+      tipo: "entrega",
+      serie: false,
+      origem: "projeto" as const,
+      dono: "",
+      cliente: p.cliente?.nome ?? null,
+      contato: "",
+      projeto: p.nome,
+      tarefa: null as string | null,
+    };
+  });
+  return [...itens, ...blocosTarefa, ...blocosProjeto];
+}
+
+export async function buscarGlobal(q: string) {
+  await eu();
+  const s = q.trim();
+  if (s.length < 1) {
+    return { clientes: [], tarefas: [], eventos: [], projetos: [] };
+  }
+  const [clientes, tarefas, eventos, projetos] = await Promise.all([
+    prisma.cliente.findMany({ where: { ...vivo, nome: { contains: s } }, take: 8 }),
+    prisma.tarefa.findMany({ where: { ...vivo, titulo: { contains: s } }, take: 8 }),
+    prisma.evento.findMany({ where: { ...vivo, titulo: { contains: s } }, take: 8 }),
+    prisma.projeto.findMany({ where: { ...vivo, nome: { contains: s } }, take: 8 }),
+  ]);
+  return { clientes, tarefas, eventos, projetos };
+}
+
+export async function tarefaDeEvento(eventoId: string) {
+  const user = await eu();
+  const ev = await prisma.evento.findFirst({ where: { id: eventoId, ...vivo } });
+  if (!ev) {
+    return falha("evento sumiu");
+  }
+  if (ev.tarefaId) {
+    return { ok: true as const, id: ev.tarefaId };
+  }
+  const t = await prisma.tarefa.create({
+    data: {
+      titulo: ev.titulo,
+      descricao: ev.descricao,
+      assigneeId: ev.userId || user.id,
+      criadorId: user.id,
+      prazo: ev.inicio,
+      clienteId: ev.clienteId,
+      projetoId: ev.projetoId || (await projetoDaCasa(null)),
+      empresaId: EMPRESA,
+    },
+  });
+  await prisma.evento.update({ where: { id: ev.id }, data: { tarefaId: t.id } });
+  revalidateCasa(`/tarefas/${t.id}`);
+  return { ok: true as const, id: t.id };
+}
+

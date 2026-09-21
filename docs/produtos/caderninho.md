@@ -37,7 +37,7 @@ ou telefone que a casa não usa.
 - **Conversas** — chat no projeto e com o Grok. Canal interno, não WhatsApp.
 - **Pipeline** — interno / conversa / proposta / fechado.
 - **Tarefas** — pedido, diário, quadro, entrega do Grok.
-- **Agenda** — sete dias, prazo de tarefa e projeto.
+- **Agenda** — calendário mês; evento, prazo de tarefa e projeto.
 - **Equipe** — sócios + Grok por função. Rotina cola no PC.
 - **Números** — contagem do que existe. Sem métrica inventada.
 

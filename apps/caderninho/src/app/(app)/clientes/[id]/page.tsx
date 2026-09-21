@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { atualizarCliente } from "@/app/actions";
+import { atualizarCliente, excluirCliente, impactoCliente } from "@/app/actions";
+import { formAction } from "@/lib/form-action";
+import { Excluir } from "@/components/Excluir";
 import { Relato } from "@/components/Relato";
 import { haQuanto, STATUS_CLIENTE } from "@/lib/datas";
 import { prisma } from "@/lib/prisma";
@@ -15,15 +17,17 @@ export default async function ClientePage({
   const cliente = await prisma.cliente.findUnique({
     where: { id },
     include: {
-      projetos: { orderBy: { updatedAt: "desc" } },
-      tarefas: { include: { assignee: true }, orderBy: { updatedAt: "desc" }, take: 8 },
+      projetos: { where: { deletedAt: null }, orderBy: { updatedAt: "desc" } },
+      tarefas: { where: { deletedAt: null }, include: { assignee: true }, orderBy: { updatedAt: "desc" }, take: 8 },
       tags: { include: { tag: true } },
       atividades: { include: { user: true }, orderBy: { createdAt: "desc" }, take: 20 },
+      eventos: { where: { deletedAt: null }, orderBy: { inicio: "desc" }, take: 8 },
     },
   });
-  if (!cliente) {
+  if (!cliente || cliente.deletedAt) {
     notFound();
   }
+  const impacto = await impactoCliente(cliente.id);
 
   return (
     <main className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
@@ -74,7 +78,7 @@ export default async function ClientePage({
       </div>
 
       <aside className="grid gap-4 lg:sticky lg:top-8 lg:self-start">
-        <form action={atualizarCliente} className="panel grid gap-3 p-5">
+        <form action={formAction(atualizarCliente)} className="panel grid gap-3 p-5">
           <p className="kicker">Ficha</p>
           <input type="hidden" name="id" value={cliente.id} />
           <input name="nome" required defaultValue={cliente.nome} className="field" />
@@ -102,7 +106,37 @@ export default async function ClientePage({
             Salvar
           </button>
         </form>
+        <Excluir
+          id={cliente.id}
+          pergunta={`Excluir cliente ${cliente.nome}?`}
+          impacto={`Tem ${impacto.tarefas} tarefas, ${impacto.eventos} eventos e ${impacto.projetos} projetos ligados.`}
+          action={excluirCliente}
+        />
 
+        <section className="grid gap-2">
+          <h2 className="display text-2xl">Tarefas</h2>
+          {cliente.tarefas.length === 0 ? (
+            <p className="text-sm text-[var(--mute)]">Nenhuma tarefa ligada.</p>
+          ) : (
+            cliente.tarefas.map((t) => (
+              <Link key={t.id} href={`/tarefas/${t.id}`} className="link-card">
+                {t.titulo} · {t.assignee.nome}
+              </Link>
+            ))
+          )}
+        </section>
+        <section className="grid gap-2">
+          <h2 className="display text-2xl">Agenda</h2>
+          {cliente.eventos.length === 0 ? (
+            <p className="text-sm text-[var(--mute)]">Nenhum evento ligado.</p>
+          ) : (
+            cliente.eventos.map((e) => (
+              <Link key={e.id} href="/agenda" className="link-card">
+                {e.titulo}
+              </Link>
+            ))
+          )}
+        </section>
         <section className="grid gap-2">
           <h2 className="display text-2xl">Projetos</h2>
           {cliente.projetos.length === 0 ? (

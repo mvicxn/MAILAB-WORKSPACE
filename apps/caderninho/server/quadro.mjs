@@ -1,7 +1,7 @@
 import { WebSocketServer } from "ws";
 
 const port = Number(process.env.QUADRO_WS_PORT || 5858);
-const wss = new WebSocketServer({ port, host: "0.0.0.0" });
+const wss = new WebSocketServer({ port, host: "127.0.0.1" });
 const rooms = new Map();
 
 wss.on("connection", (socket, req) => {

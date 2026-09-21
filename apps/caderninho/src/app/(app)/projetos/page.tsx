@@ -1,13 +1,15 @@
 import Link from "next/link";
 
 import { criarProjeto } from "@/app/actions";
+import { formAction } from "@/lib/form-action";
 import { Reveal } from "@/components/Reveal";
 import { prisma } from "@/lib/prisma";
 import { COMERCIAL, LABEL_COMERCIAL, concluida, formatarPrazo } from "@/lib/datas";
 
 export default async function ProjetosPage() {
   const projetos = await prisma.projeto.findMany({
-    include: { cliente: true, tarefas: true },
+    where: { deletedAt: null },
+    include: { cliente: true, tarefas: { where: { deletedAt: null } } },
     orderBy: { updatedAt: "desc" },
   });
 
@@ -21,7 +23,7 @@ export default async function ProjetosPage() {
         </p>
       </Reveal>
 
-      <form action={criarProjeto} className="panel grid gap-4 p-6">
+      <form action={formAction(criarProjeto)} className="panel grid gap-4 p-6">
         <p className="kicker">Abrir</p>
         <input name="nome" required placeholder="Nome do projeto" className="field" />
         <div className="grid gap-3 sm:grid-cols-3">

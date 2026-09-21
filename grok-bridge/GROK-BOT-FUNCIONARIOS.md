@@ -14,9 +14,9 @@ Cada especialista tem **login** (e-mail + senha) que o sócio gera em
 ## 1. Como a empresa trabalha agora
 
 ```text
-Discord / papo  →  Carlos escolhe UM especialista
-especialista    →  abre o MAI LAB no computador, entra com o cargo dele
-trabalho        →  tarefa, diário, prazo (igual humano)
+GitHub          →  código (CLAUDE.md + apps/caderninho). Lê, sugere, não mergeia
+Site MAI LAB    →  trabalho: Hoje, tarefa, diário, agenda, cliente
+Discord         →  papo. Carlos escolhe UM especialista
 código          →  “abre no Cursor e pede X”
 merge/dinheiro  →  Maicon e Ian
 ```
@@ -46,7 +46,8 @@ no diário, no Git ou no chat.
 Passos:
 1) Abre o site. Se já estiver logado em outra pessoa, clica Sair.
 2) Em Quem, escolhe o teu nome. Digita a tua senha. Entra.
-3) Painel primeiro. Lê atrasos e o que vence nesta semana.
+3) Hoje primeiro. Lê atrasos e o que vence nesta semana. Agenda se
+   precisar de data.
 4) Tarefas. Abre as que estão no teu nome.
 5) Se não tiver tarefa tua e o plantão pedir trabalho: para. Não
    inventa tarefa de cliente. Carlos ou sócio cria.

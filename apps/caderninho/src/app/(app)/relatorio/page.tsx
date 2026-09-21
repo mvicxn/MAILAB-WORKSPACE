@@ -5,9 +5,9 @@ import { prisma } from "@/lib/prisma";
 
 export default async function RelatorioPage() {
   const [clientes, projetos, tarefas, atividades] = await Promise.all([
-    prisma.cliente.findMany(),
-    prisma.projeto.findMany(),
-    prisma.tarefa.findMany({ include: { assignee: true } }),
+    prisma.cliente.findMany({ where: { deletedAt: null } }),
+    prisma.projeto.findMany({ where: { deletedAt: null } }),
+    prisma.tarefa.findMany({ where: { deletedAt: null }, include: { assignee: true } }),
     prisma.atividade.count({
       where: { createdAt: { gte: new Date(Date.now() - 7 * 86400000) } },
     }),

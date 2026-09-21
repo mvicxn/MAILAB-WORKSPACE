@@ -520,3 +520,242 @@ summary {
   background: var(--panel);
 }
 
+.btn-ghost {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  border-radius: 12px;
+  padding: 0.55rem 0.9rem;
+  cursor: pointer;
+  font: inherit;
+}
+
+.btn-ghost:hover {
+  border-color: var(--gold);
+}
+
+.pill.on {
+  border-color: var(--gold);
+  color: var(--ink);
+  background: color-mix(in srgb, var(--gold) 14%, transparent);
+}
+
+.toasts {
+  position: fixed;
+  right: 1.2rem;
+  bottom: 1.2rem;
+  z-index: 80;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.toast {
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 0.7rem 1rem;
+  box-shadow: var(--shadow);
+}
+
+.toast.erro {
+  border-color: color-mix(in srgb, var(--danger) 50%, var(--line));
+  color: var(--danger);
+}
+
+.drawer-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: color-mix(in srgb, var(--ink) 35%, transparent);
+  display: flex;
+  justify-content: flex-end;
+  align-items: stretch;
+}
+
+.drawer {
+  width: min(28rem, 100%);
+  max-height: 100%;
+  overflow: auto;
+  margin: 0;
+  border-radius: 0;
+}
+
+@media (max-width: 720px) {
+  .drawer-bg {
+    align-items: flex-end;
+  }
+  .drawer {
+    width: 100%;
+    max-height: 88vh;
+    border-radius: 18px 18px 0 0;
+  }
+}
+
+.paleta {
+  width: min(36rem, 94vw);
+  margin: 12vh auto auto;
+  border-radius: 18px !important;
+}
+
+.paleta-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.55rem 0.7rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.paleta-item:hover {
+  background: color-mix(in srgb, var(--gold) 12%, transparent);
+}
+
+.cal-body {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 14rem minmax(0, 1fr);
+}
+
+@media (max-width: 1024px) {
+  .cal-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mes {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.mes-h {
+  padding: 0.45rem;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--mute);
+  background: var(--bg-2);
+  text-align: center;
+}
+
+.mes-cell {
+  min-height: 6.2rem;
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+  padding: 0.35rem;
+  cursor: pointer;
+}
+
+.mes-cell.fora {
+  opacity: 0.45;
+}
+
+.mes-cell.hoje {
+  background: color-mix(in srgb, var(--gold) 10%, transparent);
+}
+
+.mes-n {
+  font-size: 0.78rem;
+  color: var(--mute);
+}
+
+.mes-ev {
+  display: block;
+  width: 100%;
+  margin-top: 0.2rem;
+  text-align: left;
+  font-size: 0.72rem;
+  padding: 0.15rem 0.35rem;
+  border: 0;
+  border-left: 3px solid var(--gold);
+  background: var(--panel);
+  color: inherit;
+  border-radius: 6px;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mes-more {
+  font-size: 0.68rem;
+  color: var(--gold);
+}
+
+.mini-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.15rem;
+  text-align: center;
+}
+
+.mini-h,
+.mini-d {
+  font-size: 0.68rem;
+  padding: 0.25rem 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.mini-d {
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.mini-d.hoje {
+  outline: 1px solid var(--gold);
+}
+
+.mini-d.sel {
+  background: color-mix(in srgb, var(--gold) 18%, transparent);
+}
+
+.mini-d.mute {
+  opacity: 0.4;
+}
+
+.sem-linha {
+  display: contents;
+}
+
+.sem-h,
+.sem-cell,
+.sem-hora {
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+  padding: 0.25rem;
+  min-height: 2.4rem;
+  font-size: 0.75rem;
+}
+
+.sem-h.hoje {
+  background: color-mix(in srgb, var(--gold) 12%, transparent);
+}
+
+.dia-row {
+  display: grid;
+  grid-template-columns: 3.4rem minmax(0, 1fr);
+  min-height: 3.2rem;
+  border-top: 1px solid var(--line);
+}
+
+.dia-ev {
+  border-left: 3px solid var(--gold);
+  background: var(--panel);
+  padding: 0.3rem 0.5rem;
+  border-radius: 8px;
+  margin: 0.15rem 0;
+}
+
+.resize-h {
+  margin-left: 0.4rem;
+  font-size: 0.7rem;
+}
+
+

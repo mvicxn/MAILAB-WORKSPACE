@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { criarCliente } from "@/app/actions";
+import { formAction } from "@/lib/form-action";
 import { Reveal } from "@/components/Reveal";
 import { ehHumano } from "@/lib/equipe";
 import { usuarioAtual } from "@/lib/auth";
@@ -11,6 +12,7 @@ export default async function ClientesPage() {
   const user = await usuarioAtual(prisma);
   const socio = user ? ehHumano(user.papel, user.tipo) : false;
   const clientes = await prisma.cliente.findMany({
+    where: { deletedAt: null },
     include: { projetos: true, tags: { include: { tag: true } } },
     orderBy: { updatedAt: "desc" },
   });
@@ -26,7 +28,7 @@ export default async function ClientesPage() {
       </Reveal>
 
       {socio ? (
-        <form action={criarCliente} className="panel grid gap-3 p-6">
+        <form action={formAction(criarCliente)} className="panel grid gap-3 p-6">
           <p className="kicker">Abrir ficha</p>
           <input name="nome" required placeholder="Nome" className="field" />
           <div className="grid gap-3 sm:grid-cols-2">

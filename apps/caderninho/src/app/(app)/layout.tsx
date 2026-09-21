@@ -22,12 +22,13 @@ export default async function AppLayout({
       select: { id: true, nome: true, funcao: true, tipo: true },
     }),
     prisma.projeto.findMany({
+      where: { deletedAt: null, empresaId: "mai" },
       orderBy: { updatedAt: "desc" },
       take: 8,
       select: { id: true, nome: true },
     }),
     prisma.tarefa.findMany({
-      where: { acionadoAt: { not: null }, NOT: { status: "concluida" } },
+      where: { acionadoAt: { not: null }, NOT: { status: "concluida" }, deletedAt: null },
       include: { assignee: true },
       orderBy: { acionadoAt: "desc" },
       take: 6,

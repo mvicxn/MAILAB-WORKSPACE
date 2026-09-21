@@ -1,11 +1,13 @@
 import Link from "next/link";
 
 import { mudarComercial } from "@/app/actions";
+import { formAction } from "@/lib/form-action";
 import { COMERCIAL, LABEL_COMERCIAL, formatarPrazo } from "@/lib/datas";
 import { prisma } from "@/lib/prisma";
 
 export default async function PipelinePage() {
   const projetos = await prisma.projeto.findMany({
+    where: { deletedAt: null },
     include: { cliente: true, tags: { include: { tag: true } } },
     orderBy: { updatedAt: "desc" },
   });
@@ -43,7 +45,7 @@ export default async function PipelinePage() {
                         {p.prazo ? ` · ${formatarPrazo(p.prazo)}` : ""}
                       </p>
                     </Link>
-                    <form action={mudarComercial} className="mt-3 flex flex-wrap gap-1">
+                    <form action={formAction(mudarComercial)} className="mt-3 flex flex-wrap gap-1">
                       <input type="hidden" name="id" value={p.id} />
                       {COMERCIAL.filter((x) => x.id !== p.comercial).map((x) => (
                         <button key={x.id} name="comercial" value={x.id} className="pill">

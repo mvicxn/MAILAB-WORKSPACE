@@ -54,3 +54,18 @@ export function limparFalhasLogin(ip: string, login: string) {
   porIp.delete(ip);
   porLogin.delete(login.trim().toLowerCase());
 }
+
+const mesa = new Map<string, Balde>();
+const MAX_MESA = 40;
+
+export function mesaBloqueada(ip: string) {
+  const agora = Date.now();
+  const a = mesa.get(ip);
+  return Boolean(a && a.ate > agora && a.n >= MAX_MESA);
+}
+
+export function registrarMesa(ip: string) {
+  const agora = Date.now();
+  const a = tocar(mesa, ip, agora);
+  a.n += 1;
+}

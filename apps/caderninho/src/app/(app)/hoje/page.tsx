@@ -12,11 +12,12 @@ export default async function HojePage() {
   const user = await usuarioAtual(prisma);
   const [tarefas, gente, projetos, entregas, atividades] = await Promise.all([
     prisma.tarefa.findMany({
+      where: { deletedAt: null },
       include: { assignee: true, projeto: true },
       orderBy: [{ prazo: "asc" }, { updatedAt: "desc" }],
     }),
     prisma.user.findMany({ where: { ativo: true }, orderBy: [{ tipo: "asc" }, { nome: "asc" }] }),
-    prisma.projeto.findMany({ orderBy: { nome: "asc" } }),
+    prisma.projeto.findMany({ where: { deletedAt: null }, orderBy: { nome: "asc" } }),
     prisma.atualizacao.findMany({
       include: { autor: true, tarefa: { include: { projeto: true } } },
       orderBy: { createdAt: "desc" },

@@ -9,7 +9,12 @@ export function Relato({ texto }: { texto: string }) {
   }
   return (
     <div className="relato">
-      <Markdown remarkPlugins={[remarkGfm]}>{texto}</Markdown>
+      <Markdown
+        remarkPlugins={[remarkGfm]}
+        urlTransform={(url) => (/^(https?:|mailto:|\/|#)/i.test(url) ? url : "")}
+      >
+        {texto}
+      </Markdown>
     </div>
   );
 }

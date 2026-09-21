@@ -18,9 +18,18 @@ Segredos em `~/.config/mai/` e `apps/caderninho/.env`. Nunca no Git.
 Menu: Hoje, Pipeline, Projetos, Clientes, Agenda, Equipe, Números.
 Tarefa: `a_fazer` | `pendente` | `concluida`.
 Projeto comercial: `interno` | `conversa` | `proposta` | `fechado`.
+Agenda: calendário mês (evento próprio + prazo de tarefa/projeto).
+Excluir cliente/projeto/tarefa é lixeira (`deletedAt`), não apaga o banco.
 Grok entra pela tela (cargo + senha). Webhook origem `mai-lab` / `mai-lab-chat`.
 Entrega: `POST /api/mesa/entrega`. Chat: `POST /api/mesa/chat`.
 Dev pede código: `POST /api/mesa/cursor` → worker local :5859.
+Ctrl+K busca. Só humano escreve cliente e backup.
+
+## Grok (Discord + tela)
+
+Git é o código. Site é o trabalho. Discord é o papo.
+Nível 0 no Git: lê, sugere, não mergeia. No site: diário da tarefa.
+Um especialista por pergunta. Não inventa cliente. Sem senha no chat.
 
 ## Como acrescentar função
 

@@ -1,14 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
+import { Suspense, useCallback } from "react";
 import { BarChart3, CalendarDays, CalendarRange, Contact, FolderKanban, Kanban, LogOut, UsersRound } from "lucide-react";
 
 import { sair } from "@/app/actions";
 import { Avatar } from "@/components/Avatar";
 import { ChatMesa } from "@/components/ChatMesa";
 import { Logo } from "@/components/Logo";
+import { Paleta } from "@/components/Paleta";
+import { Toaster } from "@/components/Toast";
 import { TemaToggle } from "@/components/TemaToggle";
 
 const NAV = [
@@ -42,7 +44,22 @@ function ShellInner({
 }) {
   const path = usePathname();
   const busca = useSearchParams();
+  const router = useRouter();
   const full = path.startsWith("/quadro") || busca.get("aba") === "quadro";
+  const onNovo = useCallback(
+    (tipo: "cliente" | "tarefa" | "evento") => {
+      if (tipo === "cliente") {
+        router.push("/clientes");
+      }
+      if (tipo === "tarefa") {
+        router.push("/hoje");
+      }
+      if (tipo === "evento") {
+        router.push("/agenda");
+      }
+    },
+    [router],
+  );
 
   return (
     <div className="relative z-10 flex min-h-full">
@@ -112,6 +129,8 @@ function ShellInner({
       <div className="flex min-w-0 flex-1 flex-col">
         <div className={full ? "min-w-0 flex-1 p-3" : "min-w-0 flex-1 px-5 py-6 lg:px-10 lg:py-9"}>{children}</div>
       </div>
+      <Toaster />
+      <Paleta euId={euId} onNovo={onNovo} />
     </div>
   );
 }

@@ -18,6 +18,7 @@ model User {
   ficha     String   @default("")
   tipo      String   @default("humano")
   ativo     Boolean  @default(true)
+  empresaId String   @default("mai")
   createdAt DateTime @default(now())
 
   tarefas        Tarefa[]      @relation("Assignee")
@@ -29,23 +30,28 @@ model User {
   mensagens      Mensagem[]
   atividades     Atividade[]
   auditorias     Auditoria[]
+  eventos        Evento[]      @relation("EventoDono")
+  participacoes  EventoParticipante[]
 }
 
 model Cliente {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   nome      String
-  tipo      String   @default("lead")
-  status    String   @default("conversando")
-  contato   String   @default("")
-  notas     String   @default("")
-  proximo   String   @default("")
-  extra     String   @default("{}")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  tipo      String    @default("lead")
+  status    String    @default("conversando")
+  contato   String    @default("")
+  notas     String    @default("")
+  proximo   String    @default("")
+  extra     String    @default("{}")
+  empresaId String    @default("mai")
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   projetos  Projeto[]
   tarefas   Tarefa[]
   tags      ClienteTag[]
   atividades Atividade[]
+  eventos   Evento[]
 }
 
 model Projeto {
@@ -58,6 +64,8 @@ model Projeto {
   prazo     DateTime?
   proximo   String    @default("")
   extra     String    @default("{}")
+  empresaId String    @default("mai")
+  deletedAt DateTime?
   clienteId String?
   cliente   Cliente?  @relation(fields: [clienteId], references: [id])
   quadroId  String    @unique @default(cuid())
@@ -66,6 +74,7 @@ model Projeto {
   tarefas     Tarefa[]
   tags        ProjetoTag[]
   atividades  Atividade[]
+  eventos     Evento[]
 }
 
 model Tarefa {
@@ -88,9 +97,12 @@ model Tarefa {
   pedidoId      String?
   pedido        Pedido?   @relation(fields: [pedidoId], references: [id])
   acionadoAt    DateTime?
+  empresaId     String    @default("mai")
+  deletedAt     DateTime?
   arquivos      Arquivo[]
   atualizacoes  Atualizacao[]
   atividades    Atividade[]
+  eventos       Evento[]
 }
 
 model Arquivo {
@@ -189,11 +201,61 @@ model Auditoria {
 }
 
 model Tag {
-  id       String       @id @default(cuid())
-  nome     String       @unique
-  cor      String       @default("#9a7840")
-  clientes ClienteTag[]
-  projetos ProjetoTag[]
+  id        String       @id @default(cuid())
+  nome      String       @unique
+  cor       String       @default("#9a7840")
+  empresaId String       @default("mai")
+  clientes  ClienteTag[]
+  projetos  ProjetoTag[]
+}
+
+model Evento {
+  id            String   @id @default(cuid())
+  titulo        String
+  descricao     String   @default("")
+  inicio        DateTime
+  fim           DateTime
+  diaInteiro    Boolean  @default(false)
+  userId        String
+  user          User     @relation("EventoDono", fields: [userId], references: [id])
+  clienteId     String?
+  cliente       Cliente? @relation(fields: [clienteId], references: [id])
+  projetoId     String?
+  projeto       Projeto? @relation(fields: [projetoId], references: [id])
+  tarefaId      String?
+  tarefa        Tarefa?  @relation(fields: [tarefaId], references: [id])
+  local         String   @default("")
+  link          String   @default("")
+  status        String   @default("aberto")
+  prioridade    String   @default("normal")
+  cor           String   @default("#9a7840")
+  tipo          String   @default("reuniao")
+  serieId       String?
+  recorrencia   String   @default("")
+  lembretes     String   @default("")
+  notas         String   @default("")
+  empresaId     String   @default("mai")
+  deletedAt     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  participantes EventoParticipante[]
+  excecoes      EventoExcecao[]
+}
+
+model EventoParticipante {
+  eventoId String
+  userId   String
+  evento   Evento @relation(fields: [eventoId], references: [id], onDelete: Cascade)
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([eventoId, userId])
+}
+
+model EventoExcecao {
+  id       String @id @default(cuid())
+  eventoId String
+  evento   Evento @relation(fields: [eventoId], references: [id], onDelete: Cascade)
+  dia      String
 }
 
 model ClienteTag {

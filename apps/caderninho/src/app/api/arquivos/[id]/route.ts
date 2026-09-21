@@ -1,8 +1,8 @@
 import fs from "node:fs/promises";
-import path from "node:path";
 
 import { NextResponse } from "next/server";
 
+import { caminhoArquivoSeguro, nomeSeguro } from "@/lib/anexo";
 import { userIdDaSessao } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -14,17 +14,36 @@ export async function GET(
   if (!userId) {
     return NextResponse.json({ erro: "nao" }, { status: 401 });
   }
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user || !user.ativo) {
+    return NextResponse.json({ erro: "nao" }, { status: 401 });
+  }
   const { id } = await params;
-  const arquivo = await prisma.arquivo.findUnique({ where: { id } });
-  if (!arquivo) {
+  const arquivo = await prisma.arquivo.findUnique({
+    where: { id },
+    include: { tarefa: true },
+  });
+  if (!arquivo || arquivo.tarefa.deletedAt) {
     return NextResponse.json({ erro: "sumiu" }, { status: 404 });
   }
-  const full = path.join(process.cwd(), arquivo.caminho);
+  if (
+    arquivo.tarefa.assigneeId !== userId &&
+    arquivo.tarefa.criadorId !== userId &&
+    user.tipo !== "humano" &&
+    user.ficha !== "ceo"
+  ) {
+    return NextResponse.json({ erro: "nao" }, { status: 403 });
+  }
+  const full = caminhoArquivoSeguro(arquivo.caminho);
+  if (!full) {
+    return NextResponse.json({ erro: "caminho recusado" }, { status: 400 });
+  }
   const data = await fs.readFile(full);
+  const nome = nomeSeguro(arquivo.nome);
   return new NextResponse(data, {
     headers: {
       "Content-Type": "application/octet-stream",
-      "Content-Disposition": `attachment; filename="${arquivo.nome}"`,
+      "Content-Disposition": `attachment; filename="${nome}"`,
     },
   });
 }

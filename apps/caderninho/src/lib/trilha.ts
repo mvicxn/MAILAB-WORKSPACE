@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 
 import { ipDoPedido } from "@/lib/login-lock";
+import { EMPRESA } from "@/lib/casa";
 import { prisma } from "@/lib/prisma";
 
 export async function trilha(opts: {
@@ -55,7 +56,7 @@ export async function gravarTags(nomes: string, alvo: { clienteId?: string; proj
   for (const nome of lista) {
     const tag = await prisma.tag.upsert({
       where: { nome },
-      create: { nome },
+      create: { nome, empresaId: EMPRESA },
       update: {},
     });
     tags.push(tag);

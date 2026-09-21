@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { atualizarProjeto } from "@/app/actions";
+import { atualizarProjeto, excluirProjeto, impactoProjeto } from "@/app/actions";
+import { formAction } from "@/lib/form-action";
+import { Excluir } from "@/components/Excluir";
 import { CartaoTarefa } from "@/components/CartaoTarefa";
 import { FormTarefa } from "@/components/FormTarefa";
 import { QuadroVivo } from "@/components/QuadroVivo";
@@ -34,6 +36,7 @@ export default async function ProjetoPage({
       include: {
         cliente: true,
         tarefas: {
+          where: { deletedAt: null },
           include: {
             assignee: true,
             projeto: true,
@@ -45,9 +48,10 @@ export default async function ProjetoPage({
     }),
     prisma.user.findMany({ where: { ativo: true }, orderBy: [{ tipo: "asc" }, { nome: "asc" }] }),
   ]);
-  if (!projeto) {
+  if (!projeto || projeto.deletedAt) {
     notFound();
   }
+  const impacto = await impactoProjeto(projeto.id);
   const porColuna = Object.fromEntries(
     COLUNAS.map((c) => [c.id, projeto.tarefas.filter((t) => statusCanon(t.status) === c.id)]),
   ) as Record<string, typeof projeto.tarefas>;
@@ -151,7 +155,7 @@ export default async function ProjetoPage({
               <p className="mt-3 text-sm text-[var(--mute)]">Ainda sem nota do que se cobra neste projeto.</p>
             </section>
           )}
-          <form action={atualizarProjeto} className="panel grid gap-3 p-6">
+          <form action={formAction(atualizarProjeto)} className="panel grid gap-3 p-6">
             <p className="kicker">Números</p>
             <input type="hidden" name="id" value={projeto.id} />
             <input name="nome" required defaultValue={projeto.nome} className="field" />
@@ -176,6 +180,12 @@ export default async function ProjetoPage({
               Guardar
             </button>
           </form>
+          <Excluir
+            id={projeto.id}
+            pergunta={`Excluir projeto ${projeto.nome}?`}
+            impacto={`Tem ${impacto.tarefas} tarefas e ${impacto.eventos} eventos ligados. Eles ficam, sem este projeto.`}
+            action={excluirProjeto}
+          />
         </div>
       ) : null}
     </main>

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 
 import { criarTarefa } from "@/app/actions";
+import { formAction } from "@/lib/form-action";
 import { Avatar } from "@/components/Avatar";
 
 type Pessoa = { id: string; nome: string; funcao: string; tipo: string };
@@ -39,7 +40,7 @@ export function PedidoBar({
   const dono = gente.find((u) => u.id === quem);
 
   return (
-    <form action={criarTarefa} className="panel overflow-hidden">
+    <form action={formAction(criarTarefa)} className="panel overflow-hidden">
       {projetoId ? <input type="hidden" name="projetoId" value={projetoId} /> : null}
       {clienteId ? <input type="hidden" name="clienteId" value={clienteId} /> : null}
       <input type="hidden" name="voltar" value={voltar} />

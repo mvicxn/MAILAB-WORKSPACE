@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { guardarAnexo } from "@/lib/anexo";
 import { autenticarCredencial } from "@/lib/auth";
 import { concluida } from "@/lib/datas";
+import { ipDoPedido, mesaBloqueada, registrarMesa } from "@/lib/login-lock";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -41,13 +42,16 @@ export async function POST(req: Request) {
     const b64 = typeof body.arquivo_base64 === "string" ? body.arquivo_base64 : "";
     if (b64) {
       bytes = Buffer.from(b64.replace(/^data:[^;]+;base64,/, ""), "base64");
-    } else if (typeof body.arquivo_url === "string" && /^https?:\/\//.test(body.arquivo_url)) {
-      const got = await fetch(body.arquivo_url);
-      if (got.ok) {
-        bytes = Buffer.from(await got.arrayBuffer());
-      }
+    } else if (typeof body.arquivo_url === "string" && body.arquivo_url) {
+      return NextResponse.json({ erro: "mande o arquivo, não uma URL" }, { status: 400 });
     }
   }
+
+  const ip = ipDoPedido(req.headers);
+  if (mesaBloqueada(ip)) {
+    return NextResponse.json({ erro: "muitas tentativas" }, { status: 429 });
+  }
+  registrarMesa(ip);
 
   const user = await autenticar(email, senha);
   if (!user) {

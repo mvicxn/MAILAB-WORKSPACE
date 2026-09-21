@@ -1,11 +1,17 @@
 import { NextResponse } from "next/server";
 
 import { autenticarCredencial } from "@/lib/auth";
+import { ipDoPedido, mesaBloqueada, registrarMesa } from "@/lib/login-lock";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
+  const ip = ipDoPedido(req.headers);
+  if (mesaBloqueada(ip)) {
+    return NextResponse.json({ erro: "muitas tentativas" }, { status: 429 });
+  }
+  registrarMesa(ip);
   const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
   const email = String(body.email ?? "").trim();
   const senha = String(body.senha ?? "");

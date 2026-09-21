@@ -7,7 +7,49 @@ export function semanaIso(date = new Date()): string {
   return `${tmp.getUTCFullYear()}-W${String(week).padStart(2, "0")}`;
 }
 
-const TZ = "America/Sao_Paulo";
+export const TZ = "America/Sao_Paulo";
+const OFFSET_SP = "-03:00";
+
+export function instanteSp(dia: string, hora = "00:00") {
+  const h = hora.length === 5 ? `${hora}:00` : hora;
+  return new Date(`${dia}T${h}${OFFSET_SP}`);
+}
+
+export function adicionarDias(dia: string, n: number) {
+  const [y, m, d] = dia.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d + n));
+  return dt.toISOString().slice(0, 10);
+}
+
+export function tipoUteis(dia: string) {
+  const w = instanteSp(dia, "12:00").getUTCDay();
+  return w !== 0 && w !== 6;
+}
+
+export function inicioMes(dia: string) {
+  return `${dia.slice(0, 7)}-01`;
+}
+
+export function diasDoMes(ano: number, mes: number) {
+  const primeiro = `${ano}-${String(mes).padStart(2, "0")}-01`;
+  const w = instanteSp(primeiro, "12:00").getUTCDay();
+  const startShift = (w + 6) % 7;
+  const grade: string[] = [];
+  let cursor = adicionarDias(primeiro, -startShift);
+  for (let i = 0; i < 42; i += 1) {
+    grade.push(cursor);
+    cursor = adicionarDias(cursor, 1);
+  }
+  return grade;
+}
+
+export function nomeMes(dia: string) {
+  return instanteSp(dia, "12:00").toLocaleDateString("pt-BR", {
+    timeZone: TZ,
+    month: "long",
+    year: "numeric",
+  });
+}
 
 export function saudacao(date = new Date()) {
   const h = Number(
@@ -148,6 +190,36 @@ export function iniciais(nome: string) {
   return (p[0][0] + p[p.length - 1][0]).toUpperCase();
 }
 
+export function paraInputHora(date: Date | null) {
+  if (!date) {
+    return "09:00";
+  }
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone: TZ,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(date);
+}
+
+export function formatarHora(date: Date) {
+  return paraInputHora(date);
+}
+
+export function prazoDe(raw: string) {
+  if (!raw) {
+    return instanteSp(chaveDia(new Date()), "18:00");
+  }
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+    return instanteSp(raw, "18:00");
+  }
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(raw)) {
+    const [dia, resto] = raw.split("T");
+    return instanteSp(dia, resto.slice(0, 5));
+  }
+  return new Date(raw);
+}
+
 export function chaveDia(date: Date) {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: TZ,
@@ -159,10 +231,7 @@ export function chaveDia(date: Date) {
 
 export function diasDaAgenda(n = 7) {
   const hoje = chaveDia(new Date());
-  const base = new Date(`${hoje}T12:00:00`);
   return Array.from({ length: n }, (_, i) => {
-    const d = new Date(base);
-    d.setDate(base.getDate() + i);
-    return d;
+    return instanteSp(adicionarDias(hoje, i), "12:00");
   });
 }
