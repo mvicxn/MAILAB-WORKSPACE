@@ -19,7 +19,7 @@ Cliente de fora: ninguém validado. Não inventar.
 - Next.js + TypeScript + Prisma + SQLite neste PC.
 - Login JWT no cookie `mai`. Humanos: `adminmm` e `adminian`.
 - Túnel Cloudflare quando precisar abrir de fora. Não é Vercel.
-- Grok Bot entra pela tela, como funcionário. Sem API xAI.
+- Grok Bot entra pela tela, como o Carlos. Sem API xAI.
 - ChatGPT sugeriu Spring Boot + PostgreSQL + n8n. Não entra nesta casa.
 
 ## O que o ChatGPT acertou (e entra)
@@ -38,7 +38,7 @@ ou telefone que a casa não usa.
 - **Pipeline** — interno / conversa / proposta / fechado.
 - **Tarefas** — pedido, diário, quadro, entrega do Grok.
 - **Agenda** — calendário mês; evento, prazo de tarefa e projeto.
-- **Equipe** — sócios + Grok por função. Rotina cola no PC.
+- **Equipe** — Maicon, Ian e o Carlos. Rotina cola no PC.
 - **Números** — contagem do que existe. Sem métrica inventada.
 
 Tags manuais na ficha. Cada ação relevante vira atividade. Auditoria
