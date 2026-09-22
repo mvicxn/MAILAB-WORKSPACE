@@ -28,44 +28,50 @@ export function Paleta({
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (digitando(e.target) && !(e.metaKey || e.ctrlKey)) {
-        return;
-      }
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        setAberto((v) => !v);
-        return;
-      }
       if (e.key === "Escape") {
         setAberto(false);
         return;
       }
-      if (digitando(e.target)) {
+      if (e.metaKey || e.ctrlKey) {
+        if (e.key.toLowerCase() === "k") {
+          e.preventDefault();
+          setAberto((v) => !v);
+        }
+        return;
+      }
+      if (e.altKey || digitando(e.target)) {
         return;
       }
       if (e.key === "c" || e.key === "C") {
         e.preventDefault();
         onNovo("cliente");
+        return;
       }
       if (e.key === "t" || e.key === "T") {
         e.preventDefault();
         onNovo("tarefa");
+        return;
       }
       if (e.key === "e" || e.key === "E") {
         e.preventDefault();
         onNovo("evento");
+        return;
       }
       if (e.key === "m" || e.key === "M") {
         router.push("/agenda?vista=mes");
+        return;
       }
       if (e.key === "w" || e.key === "W") {
         router.push("/agenda?vista=semana");
+        return;
       }
       if (e.key === "d" || e.key === "D") {
         router.push("/agenda?vista=dia");
+        return;
       }
       if (e.key === "a" || e.key === "A") {
         router.push("/agenda?vista=agenda");
+        return;
       }
       if (e.key === "/") {
         e.preventDefault();
