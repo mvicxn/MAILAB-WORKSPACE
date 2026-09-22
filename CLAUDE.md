@@ -1,5 +1,8 @@
 # MAI LAB — leia isto antes de mudar código
 
+**Linha completa da casa (Cursor, Copilot, qualquer IA):** [`AGENTS.md`](./AGENTS.md).
+Este arquivo é o mapa curto. Se divergir, `AGENTS.md` vence.
+
 Escritório da MAI LAB CORP (Maicon + Ian). Não é SaaS. Não inventar
 cliente, métrica, Oracle, Redis, Jarvis, API xAI, Spring, n8n, Postgres.
 
@@ -15,13 +18,15 @@ Segredos em `~/.config/mai/` e `apps/caderninho/.env`. Nunca no Git.
 
 ## MVP no ar
 
-Menu: Hoje, Pipeline, Projetos, Clientes, Agenda, Equipe, Números.
+Menu: Hoje, Avisos, Tarefas, Agenda, Pipeline, Projetos, Clientes, News, Equipe, Manutenção, Números.
+Cada área complexa tem página própria (criar, ficha, diário, comercial).
 Tarefa: `a_fazer` | `pendente` | `concluida`.
 Projeto comercial: `interno` | `conversa` | `proposta` | `fechado`.
 Agenda: calendário mês (evento próprio + prazo de tarefa/projeto).
 Excluir cliente/projeto/tarefa é lixeira (`deletedAt`), não apaga o banco.
-Grok entra pela tela (cargo + senha). Webhook origem `mai-lab` / `mai-lab-chat`.
+Grok entra pela tela (`carlos@mai.local`). Um webhook. Origem `mai-lab` / `mai-lab-chat`.
 Entrega: `POST /api/mesa/entrega`. Chat: `POST /api/mesa/chat`.
+News: `POST /api/mesa/news` (prateleira `git` | `mundo`). A aba Git também lê o `git log` desta pasta.
 Dev pede código: `POST /api/mesa/cursor` → worker local :5859.
 Ctrl+K busca. Só humano escreve cliente e backup.
 
@@ -29,7 +34,7 @@ Ctrl+K busca. Só humano escreve cliente e backup.
 
 Git é o código. Site é o trabalho. Discord é o papo.
 Nível 0 no Git: lê, sugere, não mergeia. No site: diário da tarefa.
-Um especialista por pergunta. Não inventa cliente. Sem senha no chat.
+Um bot só: Carlos. Não inventa cliente. Sem senha no chat.
 
 ## Como acrescentar função
 
@@ -41,5 +46,6 @@ Um especialista por pergunta. Não inventa cliente. Sem senha no chat.
 6. Sem commit de `.env`, senha, banco SQLite.
 
 Humanos: Maicon `adminmm`, Ian `adminian` (senha só no PC).
-IA: login = ficha em `src/lib/equipe.ts`. Só humano escreve cliente e backup.
-Sócio decide merge, dinheiro, contrato. Cursor/Claude escreve código.
+IA: só Carlos (`carlos` / `carlos@mai.local`). Só humano escreve cliente e backup.
+Cursor/Claude/Copilot escreve código. Humanos decidem merge, dinheiro e contrato.
+Mesma linha nas duas ferramentas: `AGENTS.md`.

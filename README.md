@@ -5,17 +5,18 @@ rentáveis, criados com apoio de humanos e IAs especializadas.
 
 ## Comece por aqui
 
-1. IA (Claude/Cursor): leia [CLAUDE.md](./CLAUDE.md) e o [caderninho](./docs/produtos/caderninho.md).
-2. Escritório neste PC: [`apps/caderninho/`](./apps/caderninho/).
-3. Leia a [MAI Central](./MAPA-WIREFRAME-MVP-MAI.md).
-4. Confira o [organizador do Discord](./discord-organizer/README.md).
-5. Leia o [norte da integração Grok + GitHub + Discord](./docs/INTEGRACAO-GROK-DISCORD-GITHUB.md).
-6. Veja como [chamar o Grok no Discord](./grok-bridge/README.md).
-7. Veja as [fichas dos especialistas](./agentes/README.md).
-8. Veja o [transcritor local de vídeo](./video-transcriber/README.md).
-9. Veja o [próximo passo](./docs/PROXIMO-PASSO.md).
-10. Veja as [Issues](https://github.com/mvicxn/mailab-workspace/issues).
-11. Para qualquer alteração, crie uma branch e um Pull Request.
+1. **Qualquer IA (Cursor, Copilot, Claude):** leia [AGENTS.md](./AGENTS.md). É a linha da casa.
+2. Mapa curto: [CLAUDE.md](./CLAUDE.md). Produto: [caderninho](./docs/produtos/caderninho.md).
+3. Escritório neste PC: [`apps/caderninho/`](./apps/caderninho/).
+4. Leia a [MAI Central](./MAPA-WIREFRAME-MVP-MAI.md).
+5. Confira o [organizador do Discord](./discord-organizer/README.md).
+6. Leia o [norte da integração Grok + GitHub + Discord](./docs/INTEGRACAO-GROK-DISCORD-GITHUB.md).
+7. Veja como [chamar o Grok no Discord](./grok-bridge/README.md).
+8. Veja as [fichas dos especialistas](./agentes/README.md).
+9. Veja o [transcritor local de vídeo](./video-transcriber/README.md).
+10. Veja o [próximo passo](./docs/PROXIMO-PASSO.md).
+11. Veja as [Issues](https://github.com/mvicxn/MAILAB-WORKSPACE/issues).
+12. Para qualquer alteração, crie uma branch e um Pull Request.
 
 ## Fonte oficial
 

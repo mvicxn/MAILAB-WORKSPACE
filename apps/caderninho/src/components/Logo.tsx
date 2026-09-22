@@ -1,5 +1,5 @@
-export function Logo({ size = 44 }: { size?: number }) {
-  return (
+export function Logo({ size = 44, marca = false }: { size?: number; marca?: boolean }) {
+  const img = (
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src="/mai-logo.png"
@@ -9,4 +9,8 @@ export function Logo({ size = 44 }: { size?: number }) {
       style={{ height: size, width: "auto" }}
     />
   );
+  if (!marca) {
+    return img;
+  }
+  return <span className="logo-marca w-fit">{img}</span>;
 }

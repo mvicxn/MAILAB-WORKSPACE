@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { Avatar } from "@/components/Avatar";
-import { atrasada, formatarPrazo, STATUS_TAREFA, statusCanon } from "@/lib/datas";
+import { atrasada, formatarPrazo, riscoAtraso, STATUS_TAREFA, statusCanon } from "@/lib/datas";
 
 type T = {
   id: string;
@@ -15,6 +15,7 @@ type T = {
 
 export function LinhaTarefa({ t, latePulse = false }: { t: T; latePulse?: boolean }) {
   const late = atrasada(t.status, t.prazo);
+  const risco = riscoAtraso(t.status, t.prazo);
   return (
     <Link href={`/tarefas/${t.id}`} className={`link-card ${late && latePulse ? "pulse-late" : ""}`}>
       <div className="flex items-start justify-between gap-3">
@@ -28,7 +29,9 @@ export function LinhaTarefa({ t, latePulse = false }: { t: T; latePulse?: boolea
           </p>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1">
-          <span className={`chip ${late ? "late" : ""}`}>{late ? "Atraso" : STATUS_TAREFA[statusCanon(t.status)]}</span>
+          <span className={`chip ${late ? "late" : risco ? "warn" : ""}`}>
+            {late ? "Atraso" : risco ? "Risco" : STATUS_TAREFA[statusCanon(t.status)]}
+          </span>
           {t.acionadoAt ? <span className="chip gold">Grok em campo</span> : null}
         </div>
       </div>

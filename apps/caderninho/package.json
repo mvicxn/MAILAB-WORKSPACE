@@ -7,7 +7,7 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --experimental-strip-types --test src/lib/casa.test.ts",
+    "test": "node --experimental-strip-types --test src/lib/casa.test.ts src/lib/carlos.test.ts src/lib/news.test.ts",
     "db": "prisma migrate dev",
     "postinstall": "prisma generate"
   },

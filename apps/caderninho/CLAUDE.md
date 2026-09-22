@@ -1,6 +1,7 @@
 # Caderninho / escritório MAI LAB
 
-Siga o `CLAUDE.md` da raiz do repo. Este app é a mesa.
+Siga o `AGENTS.md` da raiz (Cursor, Copilot, qualquer IA) e o `CLAUDE.md` curto.
+Este app é a mesa.
 
 - Schema: `prisma/schema.prisma`
 - Ações: `src/app/actions.ts`
@@ -9,4 +10,4 @@ Siga o `CLAUDE.md` da raiz do repo. Este app é a mesa.
 - Grok: `src/lib/grok-ponte.ts`
 - Cargos: `src/lib/equipe.ts`
 
-`AGENTS.md` é lixo do Next 16 (recria sozinho). Não use como mapa do produto.
+`AGENTS.md` **desta pasta** é lixo do Next 16 (recria sozinho). Não use como mapa do produto.

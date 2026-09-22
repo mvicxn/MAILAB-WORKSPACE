@@ -1,57 +1,37 @@
-import { CARGOS, type Cargo } from "@/lib/equipe";
+import { CARLOS } from "@/lib/equipe";
 
 export type Recorte = {
-  cargo: Cargo;
   titulo: string;
   descricao: string;
 };
-
-const MAX_CARGOS = 3;
-const SQUAD_MINIMO = ["produto", "design", "dev"];
 
 function corta(texto: string, n = 72) {
   const t = texto.replace(/#+\s*/g, "").replace(/\s+/g, " ").trim();
   return t.length <= n ? t : `${t.slice(0, n)}…`;
 }
 
-function escapar(p: string) {
-  return p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function temPalavra(texto: string, palavra: string) {
-  return new RegExp(`(?<![\\p{L}\\p{N}])${escapar(palavra)}(?![\\p{L}\\p{N}])`, "iu").test(texto);
-}
-
-export function recortarPedido(titulo: string, corpo = "", todoMundo = false): Recorte[] {
+export function recortarPedido(titulo: string, corpo = ""): Recorte[] {
   const tituloLimpo = corta(titulo, 160);
-  const baixo = `${tituloLimpo}\n${corpo}`.toLowerCase();
-  const time = CARGOS.filter((c) => c.ficha !== "ceo");
-  let escolhidos = todoMundo
-    ? time
-    : time.filter((c) => c.palavras.some((p) => temPalavra(baixo, p)));
-  if (escolhidos.length === 0) {
-    escolhidos = time.filter((c) => SQUAD_MINIMO.includes(c.ficha));
-  }
-  escolhidos = escolhidos.slice(0, MAX_CARGOS);
   const pedido = [tituloLimpo, corpo.trim()].filter(Boolean).join("\n\n");
-  return escolhidos.map((cargo) => ({
-    cargo,
-    titulo: `${cargo.nome}: ${corta(tituloLimpo, 56)}`,
-    descricao: briefingDoCargo(pedido, cargo),
-  }));
+  return [
+    {
+      titulo: tituloLimpo,
+      descricao: briefingDoCarlos(pedido),
+    },
+  ];
 }
 
-export function briefingDoCargo(pedido: string, cargo: Cargo) {
+export function briefingDoCarlos(pedido: string) {
   return `
 ## Pedido
 
 ${pedido}
 
-## Função nesta tarefa
+## Função
 
-**${cargo.nome}** · ${cargo.funcao}
+**${CARLOS.nome}** · ${CARLOS.funcao}
 
-${cargo.entrega}
+${CARLOS.entrega}
 
 ## Relatório
 
@@ -67,8 +47,8 @@ Se o trabalho gera imagem, tela ou arquivo, anexe. Sem relatório formatado, a t
 ## Fora do escopo
 
 - Não invente cliente, métrica ou evidência
-- Não faça o trabalho de outro cargo
 - Não cole senha, token ou .env
+- Não mergeie, não gaste, não assine
 `.trim();
 }
 

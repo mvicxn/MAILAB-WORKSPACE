@@ -19,7 +19,7 @@ Cliente de fora: ninguém validado. Não inventar.
 - Next.js + TypeScript + Prisma + SQLite neste PC.
 - Login JWT no cookie `mai`. Humanos: `adminmm` e `adminian`.
 - Túnel Cloudflare quando precisar abrir de fora. Não é Vercel.
-- Grok Bot entra pela tela, como funcionário. Sem API xAI.
+- Grok Bot entra pela tela, como o Carlos. Sem API xAI.
 - ChatGPT sugeriu Spring Boot + PostgreSQL + n8n. Não entra nesta casa.
 
 ## O que o ChatGPT acertou (e entra)
@@ -32,13 +32,17 @@ ou telefone que a casa não usa.
 
 ## MVP (vender primeiro — já na tela)
 
-- **Hoje** — dashboard: atalhos, mesa, movimento, agenda do dia.
-- **Clientes** — lista honesta + ficha + timeline da pessoa.
-- **Conversas** — chat no projeto e com o Grok. Canal interno, não WhatsApp.
+- **Hoje** — dashboard: mesa, atraso, Grok em campo, movimento com data e hora.
+- **Avisos** — tarefas no seu nome, atraso, risco de prazo, news, Carlos sem ligação.
+- **Tarefas** — quadro de status. Pedido novo numa página só.
+- **Manutenção** — ligação do Carlos, backup deste PC, lixeira. `/ponte` redireciona pra cá.
+- **Clientes** — lista honesta + ficha completa (prospecção, empresa, contato) + timeline da pessoa.
+- **Conversas** — chat no canto. Ponto verde = online. Canal interno, não WhatsApp.
 - **Pipeline** — interno / conversa / proposta / fechado.
 - **Tarefas** — pedido, diário, quadro, entrega do Grok.
 - **Agenda** — calendário mês; evento, prazo de tarefa e projeto.
-- **Equipe** — sócios + Grok por função. Rotina cola no PC.
+- **News** — Nosso Git (commits desta pasta) e Mundo. Carlos também posta. Sem X.
+- **Equipe** — Maicon, Ian e o Carlos. Quem está na mesa agora.
 - **Números** — contagem do que existe. Sem métrica inventada.
 
 Tags manuais na ficha. Cada ação relevante vira atividade. Auditoria
@@ -83,4 +87,4 @@ gente na lista.
 
 ## Responsável
 
-Maicon e Ian. Cursor escreve. Humanos decidem merge, dinheiro e contrato.
+Maicon e Ian. Cursor e Copilot (VS Code) escrevem na **mesma linha**: `AGENTS.md`. Humanos decidem merge, dinheiro e contrato.

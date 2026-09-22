@@ -13,8 +13,8 @@ export function EntrarView() {
 
   return (
     <main className="relative z-10 grid min-h-full lg:grid-cols-[1.15fr_0.85fr]">
-      <section className="relative hidden flex-col justify-between overflow-hidden px-16 py-14 lg:flex">
-        <Logo size={52} />
+      <section className="relative hidden flex-col justify-between overflow-hidden bg-[var(--rail)] px-16 py-14 text-[var(--rail-ink)] lg:flex">
+        <Logo size={52} marca />
         <div className="max-w-xl">
           <p className="kicker">MAI LAB CORP</p>
           <h1 className="display mt-5 text-7xl leading-[0.95]">
@@ -24,12 +24,12 @@ export function EntrarView() {
             <br />
             Trabalho que cobra.
           </h1>
-          <p className="mt-7 max-w-md text-lg leading-relaxed text-[var(--mute)]">
-            Projetos, prazo, valor e o time Grok na mesma mesa. Ian e Maicon decidem.
+          <p className="mt-7 max-w-md text-lg leading-relaxed text-[var(--rail-mute)]">
+            Projetos, prazo, valor e o Carlos na mesma mesa. Ian e Maicon decidem.
             A casa executa.
           </p>
         </div>
-        <p className="text-xs tracking-[0.22em] text-[var(--mute)] uppercase">Escritório interno · São Paulo</p>
+        <p className="text-xs tracking-[0.22em] text-[var(--rail-mute)] uppercase">Escritório interno · São Paulo</p>
       </section>
 
       <section className="flex items-center justify-center px-6 py-16">
@@ -44,7 +44,7 @@ export function EntrarView() {
           <p className="kicker">Acesso</p>
           <h2 className="display mt-2 text-4xl">Entrar</h2>
           <p className="mt-3 text-sm leading-relaxed text-[var(--mute)]">
-            Conta da casa. Sócio ou Grok. Sem lista de nomes nesta tela.
+            Conta da casa. Sócio ou Carlos. Sem lista de nomes nesta tela.
           </p>
 
           <form action={action} className="mt-8 grid gap-4">

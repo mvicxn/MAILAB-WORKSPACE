@@ -1,0 +1,16 @@
+{
+  "github.copilot.chat.codeGeneration.instructions": [
+    { "file": "AGENTS.md" }
+  ],
+  "github.copilot.chat.commitMessageGeneration.instructions": [
+    {
+      "text": "Mensagem em português simples. Prefixo feat/fix/docs. Foque o porquê. Nunca mencionar senha, .env ou banco. Não listar arquivos."
+    }
+  ],
+  "github.copilot.chat.reviewSelection.instructions": [
+    { "file": "AGENTS.md" }
+  ],
+  "github.copilot.chat.testGeneration.instructions": [
+    { "file": "AGENTS.md" }
+  ]
+}

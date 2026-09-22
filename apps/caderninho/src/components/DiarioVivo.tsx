@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { carregarDiario } from "@/app/actions";
 import { Avatar } from "@/components/Avatar";
 import { Relato } from "@/components/Relato";
+import { formatarQuandoCheio } from "@/lib/datas";
 
 type Item = {
   id: string;
@@ -48,7 +49,7 @@ export function DiarioVivo({
         <article key={item.id} className="panel p-6">
           <p className="flex items-center gap-2 text-sm text-[var(--mute)]">
             <Avatar nome={item.autor.nome} tipo={item.autor.tipo} size={22} />
-            {item.autor.nome} · {new Date(item.createdAt).toLocaleString("pt-BR")}
+            {item.autor.nome} · {formatarQuandoCheio(new Date(item.createdAt))}
           </p>
           <div className="mt-4">
             <Relato texto={item.texto} />

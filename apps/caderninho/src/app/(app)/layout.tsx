@@ -2,7 +2,10 @@ import { redirect } from "next/navigation";
 
 import { Shell } from "@/components/Shell";
 import { usuarioAtual } from "@/lib/auth";
+import { contarAvisos } from "@/lib/avisos";
 import { concluida } from "@/lib/datas";
+import { whereMesa } from "@/lib/equipe";
+import { contarNewsNovas } from "@/lib/news";
 import { rotinaMailabLigada } from "@/lib/grok-ponte";
 import { prisma } from "@/lib/prisma";
 
@@ -15,11 +18,11 @@ export default async function AppLayout({
   if (!user) {
     redirect("/entrar");
   }
-  const [pessoas, projetos, campo, rotina] = await Promise.all([
+  const [pessoas, projetos, campo, rotina, newsNovas, avisosNovos] = await Promise.all([
     prisma.user.findMany({
-      where: { ativo: true, NOT: { id: user.id } },
+      where: { ...whereMesa, NOT: { id: user.id } },
       orderBy: [{ tipo: "asc" }, { nome: "asc" }],
-      select: { id: true, nome: true, funcao: true, tipo: true },
+      select: { id: true, nome: true, funcao: true, tipo: true, vistoAt: true },
     }),
     prisma.projeto.findMany({
       where: { deletedAt: null, empresaId: "mai" },
@@ -34,20 +37,24 @@ export default async function AppLayout({
       take: 6,
     }),
     rotinaMailabLigada(),
+    contarNewsNovas(user.id),
+    contarAvisos(user),
   ]);
   const emCampo = campo
     .filter((t) => t.assignee.tipo === "ia" && !concluida(t.status))
-    .map((t) => ({ id: t.id, titulo: t.titulo, nome: t.assignee.nome }));
+    .map((t) => ({ id: t.id, titulo: t.titulo, nome: t.assignee.nome, assigneeId: t.assigneeId }));
 
   return (
     <Shell
       nome={user.nome}
       funcao={user.funcao}
       euId={user.id}
-      pessoas={pessoas}
+      pessoas={pessoas.map((p) => ({ ...p, vistoAt: p.vistoAt?.toISOString() ?? null }))}
       projetos={projetos}
       rotina={rotina}
       emCampo={emCampo}
+      newsNovas={newsNovas}
+      avisosNovos={avisosNovos}
     >
       {children}
     </Shell>

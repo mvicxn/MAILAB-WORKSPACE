@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { Pagina } from "@/components/Pagina";
 import { COMERCIAL, LABEL_COMERCIAL, STATUS_CLIENTE, atrasada, concluida } from "@/lib/datas";
 import { prisma } from "@/lib/prisma";
 
@@ -18,12 +19,7 @@ export default async function RelatorioPage() {
   const fechados = projetos.filter((p) => p.comercial === "fechado").length;
 
   return (
-    <main className="mx-auto grid max-w-4xl gap-8">
-      <div>
-        <p className="kicker">Números</p>
-        <h1 className="display mt-2 text-5xl">Relatório</h1>
-        <p className="mt-3 text-[var(--mute)]">O que a casa tem hoje. Sem métrica inventada.</p>
-      </div>
+    <Pagina kicker="Números" titulo="Relatório" texto="O que a casa tem hoje. Sem métrica inventada.">
       <section className="grid gap-3 sm:grid-cols-3">
         <Link href="/clientes" className="panel stat">
           <p className="kicker">Pessoas</p>
@@ -33,7 +29,7 @@ export default async function RelatorioPage() {
           <p className="kicker">Fechado</p>
           <p className="n-stat mt-3">{fechados}</p>
         </Link>
-        <Link href="/hoje" className="panel stat">
+        <Link href="/tarefas" className="panel stat">
           <p className="kicker">Tarefas abertas</p>
           <p className="n-stat mt-3">{abertas}</p>
         </Link>
@@ -51,9 +47,9 @@ export default async function RelatorioPage() {
         </div>
       </section>
       <section className="grid gap-6 sm:grid-cols-2">
-        <div className="panel p-6">
+        <div className="panel p-7">
           <h2 className="display text-2xl">Pipeline</h2>
-          <ul className="mt-4 grid gap-2 text-sm">
+          <ul className="mt-5 grid gap-3 text-sm">
             {COMERCIAL.map((c) => (
               <li key={c.id} className="flex justify-between">
                 <span>{LABEL_COMERCIAL[c.id]}</span>
@@ -62,9 +58,9 @@ export default async function RelatorioPage() {
             ))}
           </ul>
         </div>
-        <div className="panel p-6">
+        <div className="panel p-7">
           <h2 className="display text-2xl">Clientes</h2>
-          <ul className="mt-4 grid gap-2 text-sm">
+          <ul className="mt-5 grid gap-3 text-sm">
             {Object.entries(STATUS_CLIENTE).map(([id, label]) => (
               <li key={id} className="flex justify-between">
                 <span>{label}</span>
@@ -74,6 +70,6 @@ export default async function RelatorioPage() {
           </ul>
         </div>
       </section>
-    </main>
+    </Pagina>
   );
 }
