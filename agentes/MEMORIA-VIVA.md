@@ -12,13 +12,12 @@ Excluir vai pra lixeira. Roda neste PC
 (Next + SQLite). Discord é papo. Grok Bot entra no site como **Carlos**
 (`carlos@mai.local`). Um bot. Sem time de cargos. Sem API de
 escritório. Sem API xAI. Sem Spring, n8n ou WhatsApp fingido.
-Cursor escreve código. Humanos decidem merge, dinheiro e publicação.
+Cursor e Copilot (VS Code) escrevem código na mesma linha (`AGENTS.md`). Humanos decidem merge, dinheiro e publicação.
 
 Cérebro no Discord: Carlos fala. Uma voz. Nível 0 no Git: analisar e
 avisar. Diário no site é trabalho. Sem commit, deploy ou .env.
 
-Já existe no disco: fichas em `agentes/`, skill e rotina em
-`grok-bridge/GROK-BOT-FUNCIONARIOS.md`. Mapa curto: `CLAUDE.md`.
+Mapa curto: `CLAUDE.md`. Linha completa para qualquer editor: `AGENTS.md`.
 Não há Oracle, Redis, Jarvis nem cliente validado. Não invente isso.
 
 Falta: validar o primeiro produto com gente de verdade.

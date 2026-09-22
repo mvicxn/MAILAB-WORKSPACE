@@ -29,3 +29,5 @@ Não é a rotina Discord. Equipe é só gente. Chat mostra quem está online.
 Os nomes das pessoas ficam no `prisma/dev.db` (não sobe pro Git).
 
 Rotina: `grok-bridge/GROK-BOT-FUNCIONARIOS.md`.
+
+IA (Cursor ou Copilot): leia `AGENTS.md` na raiz do repo.

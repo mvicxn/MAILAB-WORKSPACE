@@ -1,5 +1,8 @@
 # MAI LAB — leia isto antes de mudar código
 
+**Linha completa da casa (Cursor, Copilot, qualquer IA):** [`AGENTS.md`](./AGENTS.md).
+Este arquivo é o mapa curto. Se divergir, `AGENTS.md` vence.
+
 Escritório da MAI LAB CORP (Maicon + Ian). Não é SaaS. Não inventar
 cliente, métrica, Oracle, Redis, Jarvis, API xAI, Spring, n8n, Postgres.
 
@@ -44,4 +47,5 @@ Um bot só: Carlos. Não inventa cliente. Sem senha no chat.
 
 Humanos: Maicon `adminmm`, Ian `adminian` (senha só no PC).
 IA: só Carlos (`carlos` / `carlos@mai.local`). Só humano escreve cliente e backup.
-Sócio decide merge, dinheiro, contrato. Cursor/Claude escreve código.
+Cursor/Claude/Copilot escreve código. Humanos decidem merge, dinheiro e contrato.
+Mesma linha nas duas ferramentas: `AGENTS.md`.

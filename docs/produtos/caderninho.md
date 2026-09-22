@@ -87,4 +87,4 @@ gente na lista.
 
 ## Responsável
 
-Maicon e Ian. Cursor escreve. Humanos decidem merge, dinheiro e contrato.
+Maicon e Ian. Cursor e Copilot (VS Code) escrevem na **mesma linha**: `AGENTS.md`. Humanos decidem merge, dinheiro e contrato.

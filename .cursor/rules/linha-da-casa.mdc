@@ -1,0 +1,14 @@
+---
+description: Linha da casa MAI LAB — Cursor, Copilot e qualquer IA seguem a mesma regra
+alwaysApply: true
+---
+
+Leia `AGENTS.md` na raiz antes de mudar código. É a linha da MAI (Maicon + Ian).
+
+- Escritório: `apps/caderninho/` (Next 16 + Prisma + SQLite). Não trocar a pilha.
+- Não inventar cliente, métrica, Oracle, Redis, Jarvis, Spring, n8n, Postgres, Vercel.
+- Sem commit de `.env`, senha, `dev.db`. Sem merge na `main`. Nível 0: a IA não mergeia.
+- Cliente no projeto: select `clienteId`. Ficha com status `prospeccao`. Ponte = `/manutencao`.
+- Mutação em `actions.ts` + `trilha()`. UI em português (`panel`/`field`/`chip`).
+- `apps/caderninho/AGENTS.md` é lixo do Next 16. Ignore.
+- Se o humano pedir para subir no git: commit na branch + push. Sem force na main.
